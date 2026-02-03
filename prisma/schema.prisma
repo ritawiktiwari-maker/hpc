@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums based on user requirements
+
+model Employee {
+  id               String   @id @default(uuid())
+  employeeId       String   @unique // e.g., EMP001
+  name             String
+  fatherName       String?
+  aadhaarNumber    String?
+  dateOfBirth      DateTime?
+  mobileNumber     String
+  emergencyContact String?
+  address          String?
+  photo            String?
+  dateOfJoining    DateTime
+  password         String?  // Hashed
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  leads           Lead[]
+  visits          Visit[]
+  stockInHand     EmployeeStock[]
+  stockReturnRequests StockReturnRequest[]
+}
+
+model Lead {
+  id           String     @id @default(uuid())
+  name         String
+  mobile       String
+  address      String?
+  source       String?    // Where they heard about us
+  status       String     @default("NEW")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Employee who is following up
+  followedById String?
+  followedBy   Employee? @relation(fields: [followedById], references: [id])
+
+  // Conversion
+  convertedCustomerId String? @unique
+  convertedCustomer   Customer? @relation(fields: [convertedCustomerId], references: [id])
+}
+
+model Customer {
+  id            String   @id @default(uuid())
+  name          String
+  address       String
+  contactNumber String
+  email         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  lead      Lead?
+  contracts Contract[]
+}
+
+model Contract {
+  id             String           @id @default(uuid())
+  customerId     String
+  customer       Customer         @relation(fields: [customerId], references: [id])
+  
+  serviceType    String
+  terms          String?  // e.g. "5 Years", "AMC"
+  frequency      String
+  
+  startDate      DateTime
+  endDate        DateTime
+  
+  contractValue  Float
+  gst            Float            @default(0) // percentage or amount? Assuming amount for now based on excel
+  totalAmount    Float
+  
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  visits         Visit[]
+}
+
+model Visit {
+  id                 String   @id @default(uuid())
+  contractId         String
+  contract           Contract @relation(fields: [contractId], references: [id])
+  
+  scheduledDate      DateTime
+  completionDate     DateTime?
+  
+  assignedEmployeeId String?
+  assignedEmployee   Employee? @relation(fields: [assignedEmployeeId], references: [id])
+  
+  status             String   @default("PENDING") // PENDING, COMPLETED, MISSED
+  chkImg             String?  // Checkup Image/Proof
+  
+  productsUsed       VisitProductUsage[]
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Inventory Management
+
+model Product {
+  id                String   @id @default(uuid())
+  name              String
+  quantityAvailable Float
+  unit              String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  stockTransactions StockTransaction[]
+  employeeStock     EmployeeStock[]
+  visitUsage        VisitProductUsage[]
+  returnRequests    StockReturnItem[]
+}
+
+model EmployeeStock {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Float
+  
+  @@unique([employeeId, productId])
+}
+
+model VisitProductUsage {
+  id        String  @id @default(uuid())
+  visitId   String
+  visit     Visit   @relation(fields: [visitId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Float
+}
+
+model StockTransaction {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  
+  type        String   // PURCHASE, ASSIGN_TO_EMPLOYEE, RETURN_FROM_EMPLOYEE, USED_IN_VISIT
+  quantity    Float    // Positive for add, Negative for remove
+  referenceId String?  // ID of related entity (Job, Employee, etc.)
+  remarks     String?
+  
+  createdAt   DateTime @default(now())
+}
+
+model StockReturnRequest {
+  id           String            @id @default(uuid())
+  employeeId   String
+  employee     Employee          @relation(fields: [employeeId], references: [id])
+  status       String            @default("PENDING") // PENDING, APPROVED, REJECTED
+  requestedAt  DateTime          @default(now())
+  resolvedAt   DateTime?
+  
+  items        StockReturnItem[]
+}
+
+model StockReturnItem {
+  id        String             @id @default(uuid())
+  requestId String
+  request   StockReturnRequest @relation(fields: [requestId], references: [id])
+  productId String
+  product   Product            @relation(fields: [productId], references: [id])
+  quantity  Float
+}

@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CustomerTable } from "@/components/customers/customer-table"
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog"
 import { ServiceHistoryDialog } from "@/components/customers/service-history-dialog"
-import type { AppData, Customer } from "@/lib/types"
-import { getData, saveData, addCustomer, updateCustomer, deleteCustomer } from "@/lib/data-store"
+import type { Customer, Job } from "@/lib/types" // Using shared types for now?
+// import { getData, saveData, addCustomer, updateCustomer, deleteCustomer } from "@/lib/data-store" // DEPRECATED
 import { exportCustomersToExcel, importCustomersFromExcel } from "@/lib/excel-export"
 import { Plus, Search, Users, Download, Upload } from "lucide-react"
 import { toast } from "sonner"
@@ -28,7 +28,10 @@ import {
 
 export default function CustomersPage() {
     const { isLoggedIn } = useAuth()
-    const [data, setData] = useState<AppData | null>(null)
+    const [customers, setCustomers] = useState<Customer[]>([])
+    const [jobs, setJobs] = useState<Job[]>([]) // Need to fetch jobs too for history?
+
+    // Search & UI state
     const [search, setSearch] = useState("")
     const [formOpen, setFormOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
@@ -37,9 +40,24 @@ export default function CustomersPage() {
     const [selectedHistoryCustomer, setSelectedHistoryCustomer] = useState<Customer | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
+    // Fetch Data
+    const fetchData = async () => {
+        try {
+            const res = await fetch('/api/customers')
+            if (res.ok) {
+                const data = await res.json()
+                setCustomers(data)
+            }
+            // TODO: Fetch jobs if needed for history
+        } catch (error) {
+            console.error(error)
+            toast.error("Failed to load customers")
+        }
+    }
+
     useEffect(() => {
         if (isLoggedIn) {
-            setData(getData())
+            fetchData()
         }
     }, [isLoggedIn])
 
@@ -47,12 +65,11 @@ export default function CustomersPage() {
         return <LoginScreen />
     }
 
-    const filteredCustomers =
-        data?.customers.filter(
-            (cust) =>
-                cust.name.toLowerCase().includes(search.toLowerCase()) ||
-                cust.contactNumber.includes(search),
-        ) || []
+    const filteredCustomers = customers.filter(
+        (cust) =>
+            cust.name.toLowerCase().includes(search.toLowerCase()) ||
+            cust.contactNumber.includes(search),
+    )
 
     const handleAdd = () => {
         setSelectedCustomer(null)
@@ -69,15 +86,20 @@ export default function CustomersPage() {
         setDeleteOpen(true)
     }
 
-    const handleDeleteConfirm = () => {
-        if (!data || !selectedCustomer) return
+    const handleDeleteConfirm = async () => {
+        if (!selectedCustomer) return
 
-        const updated = deleteCustomer(data, selectedCustomer.id)
-        saveData(updated)
-        setData(updated)
-        setDeleteOpen(false)
-        setSelectedCustomer(null)
-        toast.success("Customer deleted successfully")
+        try {
+            const res = await fetch(`/api/customers/${selectedCustomer.id}`, { method: 'DELETE' })
+            if (!res.ok) throw new Error("Failed")
+
+            setCustomers(prev => prev.filter(c => c.id !== selectedCustomer.id))
+            setDeleteOpen(false)
+            setSelectedCustomer(null)
+            toast.success("Customer deleted successfully")
+        } catch (e) {
+            toast.error("Failed to delete customer")
+        }
     }
 
     const handleViewHistory = (customer: Customer) => {
@@ -85,26 +107,34 @@ export default function CustomersPage() {
         setHistoryOpen(true)
     }
 
-    const handleFormSubmit = (customerData: Omit<Customer, "id" | "createdAt" | "updatedAt">) => {
-        if (!data) return
-
-        let updated: AppData
-        if (selectedCustomer) {
-            updated = updateCustomer(data, selectedCustomer.id, customerData)
-            toast.success("Customer updated successfully")
-        } else {
-            updated = addCustomer(data, customerData)
-            toast.success("Customer added successfully")
+    const handleFormSubmit = async (customerData: any) => {
+        try {
+            if (selectedCustomer) {
+                // Update
+                const res = await fetch(`/api/customers/${selectedCustomer.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(customerData)
+                })
+                if (!res.ok) throw new Error("Update failed")
+                toast.success("Customer updated successfully")
+            } else {
+                // Create
+                const res = await fetch('/api/customers', {
+                    method: 'POST',
+                    body: JSON.stringify(customerData)
+                })
+                if (!res.ok) throw new Error("Create failed")
+                toast.success("Customer added successfully")
+            }
+            fetchData() // Refresh list
+            setFormOpen(false)
+        } catch (e) {
+            toast.error("Operation failed")
         }
-
-        saveData(updated)
-        setData(updated)
     }
-    // ...
 
     const handleExport = () => {
-        if (!data) return
-        exportCustomersToExcel(data.customers)
+        exportCustomersToExcel(customers)
         toast.success("Customers exported to Excel")
     }
 
@@ -114,32 +144,28 @@ export default function CustomersPage() {
 
     const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (!file || !data) return
+        if (!file) return
 
         try {
             const importedCustomers = await importCustomersFromExcel(file)
-            let updated = data
             let count = 0
 
-            // Add imported customers one by one
+            // Import one by one via API
             for (const cust of importedCustomers) {
-                // Simple duplicate check by name (optional)
-                updated = addCustomer(updated, cust)
+                await fetch('/api/customers', {
+                    method: 'POST',
+                    body: JSON.stringify(cust)
+                })
                 count++
             }
 
-            saveData(updated)
-            setData(updated)
+            fetchData()
             toast.success(`Imported ${count} customers successfully`)
         } catch (error) {
             console.error(error)
-            toast.error("Failed to import customers. Please check the file format.")
+            toast.error("Failed to import customers")
         }
-
-        // Reset input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ""
-        }
+        if (fileInputRef.current) fileInputRef.current.value = ""
     }
 
     return (
@@ -175,7 +201,7 @@ export default function CustomersPage() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <CardTitle className="text-base flex items-center gap-2">
                                 <Users className="h-4 w-4" />
-                                All Customers ({data?.customers?.length || 0})
+                                All Customers ({customers.length})
                             </CardTitle>
                             <div className="relative w-full sm:w-64">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -210,7 +236,7 @@ export default function CustomersPage() {
                 open={historyOpen}
                 onOpenChange={setHistoryOpen}
                 customer={selectedHistoryCustomer}
-                jobs={data?.jobs.filter(j => j.customerId === selectedHistoryCustomer?.id) || []}
+                jobs={jobs} // TODO: Filter jobs from API
             />
 
             <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

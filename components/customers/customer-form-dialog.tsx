@@ -28,6 +28,9 @@ const formSchema = z.object({
     contractStartDate: z.string().optional(),
     contractEndDate: z.string().optional(),
     contractAmount: z.coerce.number().optional(),
+    gst: z.coerce.number().optional(),
+    totalAmount: z.coerce.number().optional(),
+    terms: z.string().optional(),
     frequency: z.string().optional(),
     serviceDates: z.array(z.object({ date: z.string() })).max(10).optional(),
 })
@@ -36,7 +39,7 @@ interface CustomerFormDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     customer: Customer | null
-    onSubmit: (data: Omit<Customer, "id" | "createdAt" | "updatedAt">) => void
+    onSubmit: (data: any) => void
 }
 
 export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: CustomerFormDialogProps) {
@@ -51,6 +54,9 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
             contractStartDate: "",
             contractEndDate: "",
             contractAmount: 0,
+            gst: 0,
+            totalAmount: 0,
+            terms: "",
             frequency: "",
             serviceDates: [],
         },
@@ -103,7 +109,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{customer ? "Edit Customer" : "Add Customer"}</DialogTitle>
                     <DialogDescription>
@@ -169,12 +175,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
-                                name="contractAmount"
+                                name="terms"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Amount</FormLabel>
+                                        <FormLabel>Terms</FormLabel>
                                         <FormControl>
-                                            <Input type="number" {...field} />
+                                            <Input placeholder="e.g. 1 Year, AMC" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -188,6 +194,64 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                                         <FormLabel>Frequency</FormLabel>
                                         <FormControl>
                                             <Input placeholder="e.g. Monthly" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="contractAmount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Value</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Basic Amount"
+                                                {...field}
+                                                onChange={e => {
+                                                    field.onChange(e)
+                                                    const val = parseFloat(e.target.value) || 0
+                                                    const gst = form.getValues("gst") || 0
+                                                    form.setValue("totalAmount", val + gst)
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="gst"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>GST</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="Tax"
+                                                {...field}
+                                                onChange={e => {
+                                                    field.onChange(e)
+                                                    const gst = parseFloat(e.target.value) || 0
+                                                    const val = form.getValues("contractAmount") || 0
+                                                    form.setValue("totalAmount", val + gst)
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="totalAmount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Total</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" readOnly {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

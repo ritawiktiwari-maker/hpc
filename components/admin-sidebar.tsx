@@ -16,6 +16,7 @@ import {
   Settings,
   LogOut,
   ClipboardCheck,
+  TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -35,6 +36,7 @@ const navItems = [
   { href: "/jobs", label: "Job Assignment", icon: ClipboardList },
   { href: "/admin/stock-approvals", label: "Stock Approvals", icon: ClipboardCheck },
   { href: "/admin/reports", label: "Reports", icon: ClipboardList },
+  { href: "/sales", label: "Sales & Leads", icon: TrendingUp },
 ]
 
 export function AdminSidebar() {
