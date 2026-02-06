@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -18,6 +18,66 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2 } from "lucide-react"
 import type { Customer } from "@/lib/types"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+const TERMS_OPTIONS = [
+    "1 Year",
+    "2 Years",
+    "3 Years",
+    "5 Years",
+    "AMC",
+    "Single Service"
+]
+
+const FREQUENCY_OPTIONS = [
+    "Daily excluding Sunday and holidays",
+    "Alternate day",
+    "Thrice in a week",
+    "Weekly",
+    "Fortnightly",
+    "Monthly",
+    "Alternate Month",
+    "Quarterly",
+    "3 Services @ 4 month",
+    "6 Services @ 4 Month",
+    "Initial treatment followed by 1 year's service warranty",
+    "Initial treatment followed by 2 years' service warranty",
+    "Initial treatment followed by 3 years' service warranty",
+    "Initial treatment followed by 5 years' service warranty",
+    "Initial treatment followed by 10 years' service warranty",
+    "Single Service",
+    "As & when required"
+]
+
+const SERVICE_TYPE_OPTIONS = [
+    "Household Pest Management",
+    "Cockroach Management Solutions",
+    "Ants Management Solutions",
+    "Termite Management Solutions",
+    "Wood borer Management",
+    "Termite Management Solutions (Pre-construction)",
+    "Termite Management Solutions (Post-construction)",
+    "Bee safe Service",
+    "Snake Management Solutions",
+    "Night Service for cockroaches",
+    "Weed Management Solutions",
+    "Fly Management Solutions",
+    "Mosquito Management Solutions: Indoor Residual Spray",
+    "Mosquito Management Solutions: Anti-larva Treatment",
+    "Mosquito Management Solutions: Thermal Fogging",
+    "Mosquito Management Solutions: Cold fogging",
+    "General Spray",
+    "Bed Bugs Management Solutions",
+    "Rodent Mangement Solutions",
+    "Peri gaurd Service",
+    "Microbial disinfection Service"
+]
 
 const formSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -67,6 +127,10 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
         name: "serviceDates",
     })
 
+    const [isCustomTerms, setIsCustomTerms] = useState(false)
+    const [isCustomFrequency, setIsCustomFrequency] = useState(false)
+    const [isCustomServiceType, setIsCustomServiceType] = useState(false)
+
     useEffect(() => {
         if (customer) {
             form.reset({
@@ -78,9 +142,15 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                 contractStartDate: customer.contractStartDate || "",
                 contractEndDate: customer.contractEndDate || "",
                 contractAmount: customer.contractAmount || 0,
+                gst: customer.gst || 0,
+                totalAmount: customer.totalAmount || 0,
+                terms: customer.terms || "",
                 frequency: customer.frequency || "",
                 serviceDates: customer.serviceDates?.map(d => ({ date: d })) || [],
             })
+            setIsCustomTerms(customer.terms ? !TERMS_OPTIONS.includes(customer.terms) : false)
+            setIsCustomFrequency(customer.frequency ? !FREQUENCY_OPTIONS.includes(customer.frequency) : false)
+            setIsCustomServiceType(customer.serviceType ? !SERVICE_TYPE_OPTIONS.includes(customer.serviceType) : false)
         } else {
             form.reset({
                 name: "",
@@ -91,9 +161,15 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                 contractStartDate: "",
                 contractEndDate: "",
                 contractAmount: 0,
+                gst: 0,
+                totalAmount: 0,
+                terms: "",
                 frequency: "",
                 serviceDates: [],
             })
+            setIsCustomTerms(false)
+            setIsCustomFrequency(false)
+            setIsCustomServiceType(false)
         }
     }, [customer, form, open])
 
@@ -179,9 +255,40 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Terms</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. 1 Year, AMC" {...field} />
-                                        </FormControl>
+                                        <div className="space-y-2">
+                                            <Select
+                                                value={isCustomTerms ? "Other" : (TERMS_OPTIONS.includes(field.value || "") ? field.value : (field.value ? "Other" : ""))}
+                                                onValueChange={(val) => {
+                                                    if (val === "Other") {
+                                                        setIsCustomTerms(true)
+                                                        field.onChange("")
+                                                    } else {
+                                                        setIsCustomTerms(false)
+                                                        field.onChange(val)
+                                                    }
+                                                }}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Terms" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {TERMS_OPTIONS.map(opt => (
+                                                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                    ))}
+                                                    <SelectItem value="Other">Other</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {isCustomTerms && (
+                                                <Input
+                                                    placeholder="Specify remark..."
+                                                    {...field}
+                                                    value={field.value || ""}
+                                                    onChange={field.onChange}
+                                                />
+                                            )}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -192,9 +299,40 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Frequency</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. Monthly" {...field} />
-                                        </FormControl>
+                                        <div className="space-y-2">
+                                            <Select
+                                                value={isCustomFrequency ? "Other" : (FREQUENCY_OPTIONS.includes(field.value || "") ? field.value : (field.value ? "Other" : ""))}
+                                                onValueChange={(val) => {
+                                                    if (val === "Other") {
+                                                        setIsCustomFrequency(true)
+                                                        field.onChange("")
+                                                    } else {
+                                                        setIsCustomFrequency(false)
+                                                        field.onChange(val)
+                                                    }
+                                                }}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select Frequency" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {FREQUENCY_OPTIONS.map(opt => (
+                                                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                    ))}
+                                                    <SelectItem value="Other">Other</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {isCustomFrequency && (
+                                                <Input
+                                                    placeholder="Specify remark..."
+                                                    {...field}
+                                                    value={field.value || ""}
+                                                    onChange={field.onChange}
+                                                />
+                                            )}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -315,10 +453,41 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
                             name="serviceType"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Service Type (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g. Termite Control" {...field} />
-                                    </FormControl>
+                                    <FormLabel>Service Type</FormLabel>
+                                    <div className="space-y-2">
+                                        <Select
+                                            value={isCustomServiceType ? "Other" : (SERVICE_TYPE_OPTIONS.includes(field.value || "") ? field.value : (field.value ? "Other" : ""))}
+                                            onValueChange={(val) => {
+                                                if (val === "Other") {
+                                                    setIsCustomServiceType(true)
+                                                    field.onChange("")
+                                                } else {
+                                                    setIsCustomServiceType(false)
+                                                    field.onChange(val)
+                                                }
+                                            }}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Service Type" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {SERVICE_TYPE_OPTIONS.map(opt => (
+                                                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                ))}
+                                                <SelectItem value="Other">Other</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {isCustomServiceType && (
+                                            <Input
+                                                placeholder="Specify service type..."
+                                                {...field}
+                                                value={field.value || ""}
+                                                onChange={field.onChange}
+                                            />
+                                        )}
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}

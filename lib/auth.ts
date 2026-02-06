@@ -19,7 +19,7 @@ const ADMIN_USERNAME = "admin"
 const ADMIN_PASSWORD = "Abhay@1995"
 
 const defaultSettings: AdminSettings = {
-  companyName: "HPC - Hygiene Pest Control",
+  companyName: "HPC - Hygienic Pest Control",
   panelName: "Admin Panel",
   adminName: "Admin",
   logoUrl: "/images/logo-20hpc.png",
