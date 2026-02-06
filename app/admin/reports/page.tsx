@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { AdminLayout } from "@/components/admin-layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { DateRange } from "react-day-picker"
 import { addDays, format } from "date-fns"
-import { Calendar as CalendarIcon, Download } from "lucide-react"
+import { Calendar as CalendarIcon, Users, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -22,71 +22,88 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { getData } from "@/lib/data-store"
-import type { AppData, Job } from "@/lib/types"
-import { formatQuantityWithUnit } from "@/lib/types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
+
+interface ServiceReportItem {
+    id: string
+    date: string
+    customerName: string
+    customerAddress: string
+    customerContact: string
+    serviceType: string
+    employeeName: string
+    productsUsed: {
+        productName: string
+        quantity: number
+        unit: string
+    }[]
+}
+
+interface LeadReportItem {
+    id: string
+    name: string
+    mobile: string
+    source: string
+    status: string
+    createdAt: string
+    convertedTo: string | null
+    employeeName: string | null
+}
+
+interface ReportData {
+    services: ServiceReportItem[]
+    leads: {
+        total: number
+        converted: number
+        conversionRate: string
+        list: LeadReportItem[]
+    }
+}
 
 export default function ReportsPage() {
     const [date, setDate] = useState<DateRange | undefined>({
-        from: addDays(new Date(), -7),
+        from: addDays(new Date(), -30),
         to: new Date(),
     })
-    const [data, setData] = useState<AppData | null>(null)
+    const [data, setData] = useState<ReportData | null>(null)
+    const [loading, setLoading] = useState(false)
+
+    const fetchData = useCallback(async () => {
+        if (!date?.from) return
+
+        setLoading(true)
+        try {
+            const params = new URLSearchParams({
+                from: date.from.toISOString(),
+                to: date.to ? date.to.toISOString() : date.from.toISOString()
+            })
+            const res = await fetch(`/api/reports?${params}`)
+            if (!res.ok) throw new Error("Failed to fetch reports")
+            const jsonData = await res.json()
+            setData(jsonData)
+        } catch (error) {
+            console.error(error)
+            toast.error("Failed to load reports")
+        } finally {
+            setLoading(false)
+        }
+    }, [date])
 
     useEffect(() => {
-        setData(getData())
-    }, [])
-
-    if (!data) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-full">Loading...</div>
-            </AdminLayout>
-        )
-    }
-
-    const filteredJobs = data.jobs.filter(job => {
-        if (job.status !== 'completed' || !job.jobDate) return false
-        if (!date?.from) return true
-
-        const jobDate = new Date(job.jobDate)
-        const from = new Date(date.from)
-        from.setHours(0, 0, 0, 0)
-
-        const to = date.to ? new Date(date.to) : new Date(from)
-        to.setHours(23, 59, 59, 999)
-
-        return jobDate >= from && jobDate <= to
-    }).sort((a, b) => new Date(b.jobDate).getTime() - new Date(a.jobDate).getTime())
-
-    // Calculate totals
-    const totalServices = filteredJobs.length
-    const uniqueCustomers = new Set(filteredJobs.map(j => j.customerId)).size
-    // If you want to track total stock usage, you could aggregate here
+        fetchData()
+    }, [fetchData])
 
     return (
         <AdminLayout>
             <div className="p-6 space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold">Service Reports</h1>
-                        <p className="text-muted-foreground">View completed services and stock usage by date range.</p>
+                        <h1 className="text-2xl font-bold">Reports</h1>
+                        <p className="text-muted-foreground">View insights for services, customers, and leads.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={() => {
-                            if (filteredJobs.length === 0) {
-                                toast.error("No data to export")
-                                return
-                            }
-                            // Need to import this function
-                            import("@/lib/excel-export").then(mod => {
-                                mod.exportReportsToExcel(filteredJobs, data.customers)
-                                toast.success("Report downloaded successfully")
-                            })
-                        }}>
-                            <Download className="mr-2 h-4 w-4" /> Export Excel
-                        </Button>
                         <div className={cn("grid gap-2")}>
                             <Popover>
                                 <PopoverTrigger asChild>
@@ -128,80 +145,175 @@ export default function ReportsPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                        <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Services</CardTitle></CardHeader>
-                        <CardContent><div className="text-2xl font-bold">{totalServices}</div></CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Customers Served</CardTitle></CardHeader>
-                        <CardContent><div className="text-2xl font-bold">{uniqueCustomers}</div></CardContent>
-                    </Card>
-                    {/* Add more stats if needed */}
-                </div>
+                {loading ? (
+                    <div className="text-center py-10">Loading report data...</div>
+                ) : data ? (
+                    <Tabs defaultValue="services" className="space-y-4">
+                        <TabsList>
+                            <TabsTrigger value="services">Completed Services</TabsTrigger>
+                            <TabsTrigger value="leads">Leads & Conversion</TabsTrigger>
+                        </TabsList>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Detailed Report</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Customer Details</TableHead>
-                                        <TableHead>Service / Employee</TableHead>
-                                        <TableHead>Stock Used</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredJobs.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                                                No completed services found in this range.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        filteredJobs.map(job => {
-                                            const customer = data.customers.find(c => c.id === job.customerId)
-                                            return (
-                                                <TableRow key={job.id}>
-                                                    <TableCell className="align-top whitespace-nowrap">
-                                                        {new Date(job.jobDate).toLocaleDateString()}
-                                                    </TableCell>
-                                                    <TableCell className="align-top">
-                                                        <div className="font-medium">{job.customerName}</div>
-                                                        <div className="text-xs text-muted-foreground">{customer?.address}</div>
-                                                        <div className="text-xs text-muted-foreground">{customer?.contactNumber}</div>
-                                                    </TableCell>
-                                                    <TableCell className="align-top">
-                                                        <div className="text-sm font-medium">{job.serviceType || "Standard Service"}</div>
-                                                        <div className="text-xs text-muted-foreground">By: {job.employeeName}</div>
-                                                        {job.amount && <div className="text-xs font-semibold mt-1">Bill: ₹{job.amount}</div>}
-                                                    </TableCell>
-                                                    <TableCell className="align-top">
-                                                        {job.productsUsed && job.productsUsed.length > 0 ? (
-                                                            <ul className="text-sm space-y-1">
-                                                                {job.productsUsed.map((p, idx) => (
-                                                                    <li key={idx}>
-                                                                        {p.productName}: <strong>{formatQuantityWithUnit(p.quantityGiven, p.unit)}</strong>
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                        ) : (
-                                                            <span className="text-muted-foreground text-xs">-</span>
-                                                        )}
-                                                    </TableCell>
+                        <TabsContent value="services" className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <Card>
+                                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Services</CardTitle></CardHeader>
+                                    <CardContent><div className="text-2xl font-bold">{data.services.length}</div></CardContent>
+                                </Card>
+                            </div>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Detailed Service Report</CardTitle>
+                                    <CardDescription>
+                                        Completed services within the selected date range.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Date</TableHead>
+                                                    <TableHead>Customer</TableHead>
+                                                    <TableHead>Service / Employee</TableHead>
+                                                    <TableHead>Stock Used</TableHead>
                                                 </TableRow>
-                                            )
-                                        })
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </CardContent>
-                </Card>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {data.services.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                                                            No data found.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    data.services.map(item => (
+                                                        <TableRow key={item.id}>
+                                                            <TableCell className="align-top whitespace-nowrap">
+                                                                {new Date(item.date).toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="align-top">
+                                                                <div className="font-medium">{item.customerName}</div>
+                                                                <div className="text-xs text-muted-foreground">{item.customerAddress}</div>
+                                                                <div className="text-xs text-muted-foreground">{item.customerContact}</div>
+                                                            </TableCell>
+                                                            <TableCell className="align-top">
+                                                                <div className="text-sm font-medium">{item.serviceType}</div>
+                                                                <div className="text-xs text-muted-foreground">By: {item.employeeName}</div>
+                                                            </TableCell>
+                                                            <TableCell className="align-top">
+                                                                {item.productsUsed.length > 0 ? (
+                                                                    <ul className="text-sm space-y-1">
+                                                                        {item.productsUsed.map((p, i) => (
+                                                                            <li key={i}>{p.productName}: <b>{p.quantity} {p.unit}</b></li>
+                                                                        ))}
+                                                                    </ul>
+                                                                ) : (
+                                                                    <span className="text-muted-foreground text-xs">-</span>
+                                                                )}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+
+                        <TabsContent value="leads" className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <Card>
+                                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Leads</CardTitle></CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold flex items-center">
+                                            <Users className="mr-2 h-5 w-5 text-muted-foreground" />
+                                            {data.leads.total}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Converted to Customer</CardTitle></CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold flex items-center text-green-600">
+                                            <TrendingUp className="mr-2 h-5 w-5" />
+                                            {data.leads.converted}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Conversion Rate</CardTitle></CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">{data.leads.conversionRate}%</div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Leads Status Report</CardTitle>
+                                    <CardDescription>
+                                        Track lead conversion and status changes.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Created Date</TableHead>
+                                                    <TableHead>Lead Name</TableHead>
+                                                    <TableHead>Source</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead>Converted To</TableHead>
+                                                    <TableHead>Handled By</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {data.leads.list.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                                            No leads found in this period.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    data.leads.list.map(lead => (
+                                                        <TableRow key={lead.id}>
+                                                            <TableCell className="whitespace-nowrap">
+                                                                {new Date(lead.createdAt).toLocaleDateString()}
+                                                            </TableCell>
+                                                            <TableCell className="font-medium">
+                                                                {lead.name}
+                                                                <div className="text-xs text-muted-foreground">{lead.mobile}</div>
+                                                            </TableCell>
+                                                            <TableCell>{lead.source || "-"}</TableCell>
+                                                            <TableCell>
+                                                                <Badge variant={lead.status === "CONVERTED" ? "success" : "secondary"}>
+                                                                    {lead.status}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {lead.convertedTo ? (
+                                                                    <span className="font-medium text-green-600">
+                                                                        {lead.convertedTo}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-muted-foreground text-xs">-</span>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell>{lead.employeeName || "-"}</TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                ) : null}
             </div>
         </AdminLayout>
     )
