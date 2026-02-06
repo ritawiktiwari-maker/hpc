@@ -8,6 +8,8 @@ import {
   login as authLogin,
   logout as authLogout,
   saveSettings,
+  updatePassword as authUpdatePassword,
+  checkPassword as authCheckPassword,
 } from "@/lib/auth"
 
 interface AuthContextType {
@@ -16,6 +18,8 @@ interface AuthContextType {
   login: (username: string, password: string) => { success: boolean; error?: string }
   logout: () => void
   updateSettings: (settings: AdminSettings) => void
+  updatePassword: (password: string) => void
+  checkPassword: (password: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -56,6 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthState((prev) => ({ ...prev, settings: newSettings }))
   }
 
+  const updatePassword = (password: string) => {
+    authUpdatePassword(password)
+  }
+
+  const checkPassword = (password: string) => {
+    return authCheckPassword(password)
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
@@ -72,6 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: handleLogin,
         logout: handleLogout,
         updateSettings,
+        updatePassword,
+        checkPassword,
       }}
     >
       {children}

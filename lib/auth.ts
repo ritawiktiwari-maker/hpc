@@ -39,11 +39,26 @@ export function getAuthState(): AuthState {
   }
 }
 
+const PASSWORD_KEY = "hpc_admin_password"
+
+export function checkPassword(password: string): boolean {
+  if (typeof window === "undefined") return false
+  const stored = localStorage.getItem(PASSWORD_KEY)
+  const currentPassword = stored || ADMIN_PASSWORD
+  return password === currentPassword
+}
+
+export function updatePassword(newPassword: string): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem(PASSWORD_KEY, newPassword)
+}
+
 export function login(username: string, password: string): { success: boolean; error?: string } {
   if (username !== ADMIN_USERNAME) {
     return { success: false, error: "Invalid username" }
   }
-  if (password !== ADMIN_PASSWORD) {
+
+  if (!checkPassword(password)) {
     return { success: false, error: "Invalid password" }
   }
 
