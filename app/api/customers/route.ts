@@ -60,13 +60,16 @@ export async function POST(request: Request) {
 
             // 2. If leadId is provided, update the Lead
             if (leadId) {
-                await tx.lead.update({
+                const leadUpdate = await tx.lead.update({
                     where: { id: leadId },
                     data: {
                         status: "CONVERTED",
                         convertedCustomerId: newCustomer.id
                     }
                 })
+                if (!leadUpdate) {
+                    throw new Error(`Failed to update lead ${leadId}`)
+                }
             }
 
             return newCustomer
