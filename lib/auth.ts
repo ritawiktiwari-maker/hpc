@@ -11,8 +11,8 @@ export interface AuthState {
   settings: AdminSettings
 }
 
-const AUTH_KEY = "pestcontrol_auth"
-const SETTINGS_KEY = "pestcontrol_settings"
+const AUTH_KEY = "hpc_auth"
+const SETTINGS_KEY = "hpc_settings"
 
 // Default credentials
 const ADMIN_USERNAME = "admin"
@@ -74,7 +74,7 @@ export function saveSettings(settings: AdminSettings): void {
 }
 
 // Employee Authentication
-const EMPLOYEE_AUTH_KEY = "pestcontrol_employee_auth"
+const EMPLOYEE_AUTH_KEY = "hpc_employee_auth"
 
 export function employeeLogin(employeeId: string): void {
   localStorage.setItem(EMPLOYEE_AUTH_KEY, employeeId)
