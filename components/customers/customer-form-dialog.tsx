@@ -394,7 +394,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                                                 onChange={e => {
                                                     field.onChange(e)
                                                     const val = parseFloat(e.target.value) || 0
-                                                    const gstParam = form.getValues("gst") || 0
+                                                    const gstParam = parseFloat(form.getValues("gst") as unknown as string) || 0
                                                     // GST is a percentage (e.g., 18)
                                                     const total = val + (val * gstParam / 100)
                                                     form.setValue("totalAmount", Math.round(total * 100) / 100)
@@ -417,7 +417,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                                                 onChange={e => {
                                                     field.onChange(e)
                                                     const gstParam = parseFloat(e.target.value) || 0
-                                                    const val = form.getValues("contractAmount") || 0
+                                                    const val = parseFloat(form.getValues("contractAmount") as unknown as string) || 0
                                                     // GST is a percentage
                                                     const total = val + (val * gstParam / 100)
                                                     form.setValue("totalAmount", Math.round(total * 100) / 100)
