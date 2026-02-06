@@ -2,13 +2,32 @@ import * as XLSX from "xlsx"
 import type { Product, Job, Customer } from "./types"
 
 export function exportCustomersToExcel(customers: Customer[]): void {
-  const data = customers.map((customer) => ({
-    "Name": customer.name,
-    "Address": customer.address,
-    "Contact Number": customer.contactNumber,
-    "Email": customer.email || "-",
-    "Created At": new Date(customer.createdAt).toLocaleDateString(),
-  }))
+  const data = customers.map((customer) => {
+    // @ts-ignore - Handle potential Prisma structure vs legacy type
+    const contract = customer.contracts && customer.contracts.length > 0 ? customer.contracts[0] : {};
+
+    // Format service dates if available
+    const serviceDates = contract.visits
+      ? contract.visits.map((v: any) => v.scheduledDate ? new Date(v.scheduledDate).toLocaleDateString() : v.date).join(", ")
+      : (customer.serviceDates || []).join(", ");
+
+    return {
+      "Name": customer.name,
+      "Contact Number": customer.contactNumber,
+      "Address": customer.address,
+      "Email": customer.email || "-",
+      "Service Type": contract.serviceType || customer.serviceType || "-",
+      "Contract Start": contract.startDate ? new Date(contract.startDate).toLocaleDateString() : (contract.contractStartDate || "-"),
+      "Contract End": contract.endDate ? new Date(contract.endDate).toLocaleDateString() : (contract.contractEndDate || "-"),
+      "Terms": contract.terms || "-",
+      "Frequency": contract.frequency || "-",
+      "Value": contract.contractValue || contract.contractAmount || 0,
+      "GST": contract.gst || 0,
+      "Total Amount": contract.totalAmount || 0,
+      "Service Dates": serviceDates || "-",
+      "Created At": new Date(customer.createdAt).toLocaleDateString(),
+    }
+  })
 
   const worksheet = XLSX.utils.json_to_sheet(data)
   const workbook = XLSX.utils.book_new()
@@ -17,9 +36,18 @@ export function exportCustomersToExcel(customers: Customer[]): void {
   // Auto-size columns
   const colWidths = [
     { wch: 20 }, // Name
-    { wch: 30 }, // Address
     { wch: 15 }, // Contact
+    { wch: 30 }, // Address
     { wch: 25 }, // Email
+    { wch: 25 }, // Service Type
+    { wch: 15 }, // Start
+    { wch: 15 }, // End
+    { wch: 15 }, // Terms
+    { wch: 20 }, // Frequency
+    { wch: 10 }, // Value
+    { wch: 10 }, // GST
+    { wch: 12 }, // Total
+    { wch: 40 }, // Service Dates
     { wch: 15 }, // Created At
   ]
   worksheet["!cols"] = colWidths

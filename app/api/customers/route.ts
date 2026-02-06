@@ -7,7 +7,13 @@ export async function GET() {
     try {
         const customers = await prisma.customer.findMany({
             orderBy: { createdAt: 'desc' },
-            include: { contracts: true } // Include contracts if needed
+            include: {
+                contracts: {
+                    include: {
+                        visits: true
+                    }
+                }
+            }
         })
         return NextResponse.json(customers)
     } catch (error) {
