@@ -391,12 +391,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                                         <FormControl>
                                             <Input type="number" placeholder="Basic Amount"
                                                 {...field}
-                                                onChange={e => {
-                                                    field.onChange(e)
-                                                    const val = parseFloat(e.target.value) || 0
-                                                    const gst = form.getValues("gst") || 0
-                                                    form.setValue("totalAmount", val + gst)
-                                                }}
+                                                form.onChange(e)
+                                            const val = parseFloat(e.target.value) || 0
+                                            const gstParam = form.getValues("gst") || 0
+                                            // GST is a percentage (e.g., 18)
+                                            const total = val + (val * gstParam / 100)
+                                            form.setValue("totalAmount", Math.round(total * 100) / 100)
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -412,12 +412,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                                         <FormControl>
                                             <Input type="number" placeholder="Tax"
                                                 {...field}
-                                                onChange={e => {
-                                                    field.onChange(e)
-                                                    const gst = parseFloat(e.target.value) || 0
-                                                    const val = form.getValues("contractAmount") || 0
-                                                    form.setValue("totalAmount", val + gst)
-                                                }}
+                                                form.onChange(e)
+                                            const gstParam = parseFloat(e.target.value) || 0
+                                            const val = form.getValues("contractAmount") || 0
+                                            // GST is a percentage
+                                            const total = val + (val * gstParam / 100)
+                                            form.setValue("totalAmount", Math.round(total * 100) / 100)
                                             />
                                         </FormControl>
                                         <FormMessage />

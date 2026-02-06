@@ -7,6 +7,7 @@ import { LeadTable } from "@/components/sales/lead-table"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog" // Import
 import { toast } from "sonner"
+import { Users } from "lucide-react"
 
 export default function SalesPage() {
     const [leads, setLeads] = useState([])
