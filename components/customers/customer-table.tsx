@@ -44,13 +44,24 @@ export function CustomerTable({ customers, onEdit, onDelete, onView }: CustomerT
                             <TableCell>{customer.contactNumber}</TableCell>
                             <TableCell className="hidden md:table-cell truncate max-w-[200px]">{customer.address}</TableCell>
                             <TableCell className="hidden lg:table-cell">
-                                {customer.contractAmount ? `₹${customer.contractAmount}` : "-"}
+                                {(() => {
+                                    // Helper to get contract data
+                                    const contract = customer.contracts && customer.contracts[0] ? customer.contracts[0] : null
+                                    const amount = contract ? (contract.contractValue || contract.contractAmount) : customer.contractAmount
+                                    return amount ? `₹${amount}` : "-"
+                                })()}
                             </TableCell>
                             <TableCell className="hidden lg:table-cell">
-                                {customer.contractStartDate && customer.contractEndDate
-                                    ? <span className="text-xs">{new Date(customer.contractStartDate).toLocaleDateString()} - {new Date(customer.contractEndDate).toLocaleDateString()}</span>
-                                    : "-"
-                                }
+                                {(() => {
+                                    const contract = customer.contracts && customer.contracts[0] ? customer.contracts[0] : null
+                                    const start = contract ? (contract.startDate || contract.contractStartDate) : customer.contractStartDate
+                                    const end = contract ? (contract.endDate || contract.contractEndDate) : customer.contractEndDate
+
+                                    if (start && end) {
+                                        return <span className="text-xs">{new Date(start).toLocaleDateString()} - {new Date(end).toLocaleDateString()}</span>
+                                    }
+                                    return "-"
+                                })()}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">{new Date(customer.createdAt).toLocaleDateString()}</TableCell>
                             <TableCell className="text-right">
