@@ -80,12 +80,15 @@ export default function ReportsPage() {
                 to: date.to ? date.to.toISOString() : date.from.toISOString()
             })
             const res = await fetch(`/api/reports?${params}`)
-            if (!res.ok) throw new Error("Failed to fetch reports")
+            if (!res.ok) {
+                const errorData = await res.json()
+                throw new Error(errorData.details || "Failed to fetch reports")
+            }
             const jsonData = await res.json()
             setData(jsonData)
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
-            toast.error("Failed to load reports")
+            toast.error(error.message || "Failed to load reports")
         } finally {
             setLoading(false)
         }
