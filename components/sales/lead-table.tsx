@@ -28,11 +28,13 @@ interface Lead {
 interface LeadTableProps {
     leads: Lead[]
     onUpdate: () => void
+    onConvert?: (lead: Lead) => void // New prop
 }
 
-export function LeadTable({ leads, onUpdate }: LeadTableProps) {
+export function LeadTable({ leads, onUpdate, onConvert }: LeadTableProps) {
 
     const handleConvert = async (leadId: string) => {
+        // Fallback if onConvert logic isn't passed (legacy)
         try {
             const res = await fetch(`/api/leads/${leadId}/convert`, {
                 method: 'POST'
@@ -43,7 +45,6 @@ export function LeadTable({ leads, onUpdate }: LeadTableProps) {
             }
             toast.success("Lead converted to Customer successfully!")
             onUpdate()
-            // Here we could redirect to the Customer Contract page
         } catch (e: any) {
             toast.error(e.message)
         }
@@ -93,7 +94,7 @@ export function LeadTable({ leads, onUpdate }: LeadTableProps) {
                                             size="sm"
                                             variant="outline"
                                             className="gap-2"
-                                            onClick={() => handleConvert(lead.id)}
+                                            onClick={() => onConvert ? onConvert(lead) : handleConvert(lead.id)}
                                         >
                                             Convert <ArrowRight className="w-4 h-4" />
                                         </Button>

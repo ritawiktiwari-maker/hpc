@@ -18,6 +18,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2 } from "lucide-react"
 import type { Customer } from "@/lib/types"
+
+// Add Lead type interface locally if needed, or proper import
+interface InitialCustomerData {
+    name?: string
+    contactNumber?: string
+    address?: string
+    leadId?: string
+}
 import {
     Select,
     SelectContent,
@@ -99,10 +107,11 @@ interface CustomerFormDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     customer: Customer | null
+    initialData?: InitialCustomerData | null // For pre-filling from Lead
     onSubmit: (data: any) => void
 }
 
-export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: CustomerFormDialogProps) {
+export function CustomerFormDialog({ open, onOpenChange, customer, initialData, onSubmit }: CustomerFormDialogProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -133,24 +142,56 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
 
     useEffect(() => {
         if (customer) {
+            // Check if we have nested contracts (Prisma structure) or flat properties (Types/Legacy)
+            // @ts-ignore - We are handling potential structure mismatch dynamically
+            const activeContract = customer.contracts && customer.contracts.length > 0 ? customer.contracts[0] : customer;
+
             form.reset({
                 name: customer.name,
                 address: customer.address,
                 contactNumber: customer.contactNumber,
                 email: customer.email || "",
-                serviceType: customer.serviceType || "",
-                contractStartDate: customer.contractStartDate || "",
-                contractEndDate: customer.contractEndDate || "",
-                contractAmount: customer.contractAmount || 0,
-                gst: customer.gst || 0,
-                totalAmount: customer.totalAmount || 0,
-                terms: customer.terms || "",
-                frequency: customer.frequency || "",
-                serviceDates: customer.serviceDates?.map(d => ({ date: d })) || [],
+                // Use activeContract for these fields
+                serviceType: activeContract.serviceType || customer.serviceType || "",
+                contractStartDate: activeContract.startDate ? new Date(activeContract.startDate).toISOString().split('T')[0] : (activeContract.contractStartDate || ""),
+                contractEndDate: activeContract.endDate ? new Date(activeContract.endDate).toISOString().split('T')[0] : (activeContract.contractEndDate || ""),
+                contractAmount: activeContract.contractValue || activeContract.contractAmount || 0,
+                gst: activeContract.gst || 0,
+                totalAmount: activeContract.totalAmount || 0,
+                terms: activeContract.terms || "",
+                frequency: activeContract.frequency || "",
+                // Handle visits/serviceDates if they exist on contract
+                serviceDates: activeContract.visits ? activeContract.visits.map((v: any) => ({ date: v.scheduledDate ? new Date(v.scheduledDate).toISOString().split('T')[0] : v.date })) : (customer.serviceDates?.map(d => ({ date: d })) || []),
             })
-            setIsCustomTerms(customer.terms ? !TERMS_OPTIONS.includes(customer.terms) : false)
-            setIsCustomFrequency(customer.frequency ? !FREQUENCY_OPTIONS.includes(customer.frequency) : false)
-            setIsCustomServiceType(customer.serviceType ? !SERVICE_TYPE_OPTIONS.includes(customer.serviceType) : false)
+
+            const termsVal = activeContract.terms || "";
+            const freqVal = activeContract.frequency || "";
+            const typeVal = activeContract.serviceType || "";
+
+            setIsCustomTerms(termsVal ? !TERMS_OPTIONS.includes(termsVal) : false)
+            setIsCustomFrequency(freqVal ? !FREQUENCY_OPTIONS.includes(freqVal) : false)
+            setIsCustomServiceType(typeVal ? !SERVICE_TYPE_OPTIONS.includes(typeVal) : false)
+        } else if (initialData) {
+            // Pre-fill from Lead
+            form.reset({
+                name: initialData.name || "",
+                address: initialData.address || "",
+                contactNumber: initialData.contactNumber || "",
+                email: "",
+                serviceType: "",
+                contractStartDate: "",
+                contractEndDate: "",
+                contractAmount: 0,
+                gst: 0,
+                totalAmount: 0,
+                terms: "",
+                frequency: "",
+                serviceDates: [],
+            })
+            // Reset custom flags
+            setIsCustomTerms(false)
+            setIsCustomFrequency(false)
+            setIsCustomServiceType(false)
         } else {
             form.reset({
                 name: "",
@@ -171,13 +212,14 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSubmit }: C
             setIsCustomFrequency(false)
             setIsCustomServiceType(false)
         }
-    }, [customer, form, open])
+    }, [customer, initialData, form, open])
 
     function handleSubmit(values: z.infer<typeof formSchema>) {
         // Flatten serviceDates from object array to string array
         const submissionData = {
             ...values,
-            serviceDates: values.serviceDates?.map(d => d.date) || []
+            serviceDates: values.serviceDates?.map(d => d.date) || [],
+            leadId: initialData?.leadId // Pass the lead ID if we are converting
         }
         onSubmit(submissionData)
         onOpenChange(false)

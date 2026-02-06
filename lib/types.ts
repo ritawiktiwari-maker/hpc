@@ -51,6 +51,10 @@ export interface Customer {
   contractAmount?: number
   frequency?: string // e.g., Monthly
   serviceDates?: string[] // Max 10 dates
+  terms?: string // Frontend legacy support
+  gst?: number // Frontend legacy support
+  totalAmount?: number // Frontend legacy support
+  contracts?: any[] // Prisma relation
   createdAt: string
   updatedAt: string
 }

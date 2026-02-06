@@ -5,11 +5,14 @@ import { AdminLayout } from "@/components/admin-layout" // Assuming this compone
 import { LeadFormDialog } from "@/components/sales/lead-form"
 import { LeadTable } from "@/components/sales/lead-table"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, Filter } from "lucide-react"
+import { CustomerFormDialog } from "@/components/customers/customer-form-dialog" // Import
+import { toast } from "sonner"
 
 export default function SalesPage() {
     const [leads, setLeads] = useState([])
     const [loading, setLoading] = useState(true)
+    const [convertingLead, setConvertingLead] = useState<any>(null)
+    const [isConvertOpen, setIsConvertOpen] = useState(false)
 
     const fetchLeads = async () => {
         try {
@@ -28,6 +31,38 @@ export default function SalesPage() {
     useEffect(() => {
         fetchLeads()
     }, [])
+
+    const handleConvertClick = (lead: any) => {
+        setConvertingLead({
+            name: lead.name,
+            contactNumber: lead.mobile,
+            address: lead.address,
+            leadId: lead.id
+        })
+        setIsConvertOpen(true)
+    }
+
+    const handleCustomerSubmit = async (data: any) => {
+        try {
+            const res = await fetch('/api/customers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+
+            if (!res.ok) {
+                const err = await res.json()
+                throw new Error(err.details || "Failed to create customer")
+            }
+
+            toast.success("Customer created and lead converted successfully")
+            setConvertingLead(null)
+            setIsConvertOpen(false)
+            fetchLeads() // Refresh leads to show updated status
+        } catch (error: any) {
+            toast.error(error.message)
+        }
+    }
 
     return (
         <AdminLayout>
@@ -85,10 +120,23 @@ export default function SalesPage() {
                         {loading ? (
                             <div>Loading leads...</div>
                         ) : (
-                            <LeadTable leads={leads} onUpdate={fetchLeads} />
+                            <LeadTable
+                                leads={leads}
+                                onUpdate={fetchLeads}
+                                onConvert={handleConvertClick}
+                            />
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Conversion Dialog */}
+                <CustomerFormDialog
+                    open={isConvertOpen}
+                    onOpenChange={setIsConvertOpen}
+                    customer={null}
+                    initialData={convertingLead}
+                    onSubmit={handleCustomerSubmit}
+                />
             </div>
         </AdminLayout>
     )
