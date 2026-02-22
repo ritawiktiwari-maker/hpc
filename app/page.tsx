@@ -10,18 +10,40 @@ import { LowStockAlert } from "@/components/dashboard/low-stock-alert"
 import { UpcomingServices } from "@/components/dashboard/upcoming-services"
 import { type AppData, LOW_STOCK_THRESHOLD } from "@/lib/types"
 import { getData } from "@/lib/data-store"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Clock } from "lucide-react"
 
 const HPC_LOGO_URL = "/images/logo-20hpc.png"
 
 export default function DashboardPage() {
   const { isLoggedIn, settings } = useAuth()
   const [data, setData] = useState<AppData | null>(null)
+  const [runningOrders, setRunningOrders] = useState<any[]>([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
 
   useEffect(() => {
     if (isLoggedIn) {
       setData(getData())
+      fetchRunningOrders()
     }
   }, [isLoggedIn])
+
+  const fetchRunningOrders = async () => {
+    try {
+      setLoadingOrders(true)
+      const response = await fetch("/api/jobs/pending")
+      if (response.ok) {
+        const orders = await response.json()
+        setRunningOrders(orders)
+      }
+    } catch (error) {
+      console.error("Failed to fetch running orders:", error)
+    } finally {
+      setLoadingOrders(false)
+    }
+  }
 
   if (!isLoggedIn) {
     return <LoginScreen />
@@ -63,11 +85,73 @@ export default function DashboardPage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <RunningOrders orders={runningOrders} loading={loadingOrders} />
           <UpcomingServices jobs={data.jobs} />
           <LowStockAlert products={data.products} />
-          <ActivityLog activities={data.activities} />
+          <div className="lg:col-span-3">
+            <ActivityLog activities={data.activities} />
+          </div>
         </div>
       </div>
     </AdminLayout>
   )
 }
+
+function RunningOrders({ orders, loading }: { orders: any[], loading: boolean }) {
+  return (
+    <Card className="col-span-1 md:col-span-2 lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5 text-amber-500" />
+          Running Orders (Pending)
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="space-y-2 animate-pulse">
+            <div className="h-10 bg-muted rounded" />
+            <div className="h-10 bg-muted rounded" />
+            <div className="h-10 bg-muted rounded" />
+          </div>
+        ) : orders.length === 0 ? (
+          <p className="text-center py-6 text-muted-foreground">No running orders at the moment.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.slice(0, 5).map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">
+                      {order.customerName}
+                      <div className="text-xs text-muted-foreground">{order.customerContact}</div>
+                    </TableCell>
+                    <TableCell className="text-sm">{order.serviceType}</TableCell>
+                    <TableCell className="text-sm">{order.employeeName}</TableCell>
+                    <TableCell className="text-sm">
+                      {new Date(order.scheduledDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200 uppercase text-[10px]">
+                        {order.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+

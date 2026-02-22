@@ -17,44 +17,71 @@ import { format } from "date-fns"
 
 export default function StockApprovalsPage() {
     const { isLoggedIn } = useAuth()
-    const [data, setData] = useState<AppData | null>(null)
+    const [requests, setRequests] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         if (isLoggedIn) {
-            setData(getData())
+            fetchRequests()
         }
     }, [isLoggedIn])
+
+    const fetchRequests = async () => {
+        try {
+            setLoading(true)
+            const response = await fetch("/api/stock/return-request?status=PENDING")
+            if (response.ok) {
+                const data = await response.json()
+                setRequests(data)
+            }
+        } catch (error) {
+            console.error("Failed to fetch requests:", error)
+            toast.error("Failed to load return requests")
+        } finally {
+            setLoading(false)
+        }
+    }
 
     if (!isLoggedIn) {
         return <LoginScreen />
     }
 
-    if (!data) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-full">
-                    <div className="animate-pulse text-muted-foreground">Loading...</div>
-                </div>
-            </AdminLayout>
-        )
+    const handleApprove = async (id: string) => {
+        try {
+            const response = await fetch(`/api/stock/return-request/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "APPROVED" })
+            })
+            if (response.ok) {
+                toast.success("Stock return approved successfully")
+                fetchRequests()
+            } else {
+                const error = await response.json()
+                toast.error(error.error || "Failed to approve request")
+            }
+        } catch (error) {
+            toast.error("An error occurred")
+        }
     }
 
-    const pendingRequests = data.stockReturnRequests.filter(r => r.status === "pending")
-
-    const handleApprove = (id: string) => {
-        if (!data) return
-        const updated = approveStockReturn(data, id)
-        saveData(updated)
-        setData(updated)
-        toast.success("Stock return approved successfully")
-    }
-
-    const handleReject = (id: string) => {
-        if (!data) return
-        const updated = rejectStockReturn(data, id)
-        saveData(updated)
-        setData(updated)
-        toast.success("Stock return rejected")
+    const handleReject = async (id: string) => {
+        try {
+            const response = await fetch(`/api/stock/return-request/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "REJECTED" })
+            })
+            if (response.ok) {
+                toast.success("Stock return rejected")
+                fetchRequests()
+            } else {
+                const error = await response.json()
+                toast.error(error.error || "Failed to reject request")
+            }
+        } catch (error) {
+            toast.error("An error occurred")
+        }
     }
 
     return (
@@ -69,11 +96,13 @@ export default function StockApprovalsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Package className="h-5 w-5" />
-                            Pending Requests ({pendingRequests.length})
+                            Pending Requests ({requests.length})
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {pendingRequests.length === 0 ? (
+                        {loading ? (
+                            <div className="text-center py-12 text-muted-foreground animate-pulse">Loading...</div>
+                        ) : requests.length === 0 ? (
                             <div className="text-center py-12 text-muted-foreground">
                                 <Clock className="h-12 w-12 mx-auto mb-3 opacity-20" />
                                 No pending stock return requests.
@@ -84,30 +113,26 @@ export default function StockApprovalsPage() {
                                     <TableRow>
                                         <TableHead>Date</TableHead>
                                         <TableHead>Employee</TableHead>
-                                        <TableHead>Job/Bill</TableHead>
-                                        <TableHead>Returned Items</TableHead>
+                                        <TableHead>Items to Return</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {pendingRequests.map((request) => (
+                                    {requests.map((request) => (
                                         <TableRow key={request.id}>
                                             <TableCell>
                                                 {format(new Date(request.requestedAt), "dd MMM yyyy, HH:mm")}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="font-medium">{request.employeeName}</div>
-                                                <div className="text-xs text-muted-foreground">{request.employeeId}</div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline">{request.billNumber}</Badge>
+                                                <div className="font-medium">{request.employee?.name}</div>
+                                                <div className="text-xs text-muted-foreground">{request.employee?.employeeId}</div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="space-y-1 text-sm">
-                                                    {request.productsReturned.map((p, idx) => (
+                                                    {request.items.map((item: any, idx: number) => (
                                                         <div key={idx} className="flex items-center gap-2">
-                                                            <span className="font-medium">{p.productName}:</span>
-                                                            <span>{formatQuantityWithUnit(p.quantityGiven, p.unit)}</span>
+                                                            <span className="font-medium">{item.product?.name}:</span>
+                                                            <span>{formatQuantityWithUnit(item.quantity, item.product?.unit)}</span>
                                                         </div>
                                                     ))}
                                                 </div>

@@ -54,6 +54,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
   const [amount, setAmount] = useState("")
   const [serviceType, setServiceType] = useState("")
   const [nextServiceDate, setNextServiceDate] = useState("")
+  const [frequency, setFrequency] = useState("")
 
   const [assignments, setAssignments] = useState<ProductAssignmentRow[]>([])
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -63,6 +64,35 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
   const selectedEmployee = employees.find((e) => e.employeeId === selectedEmployeeId)
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId)
+
+  useEffect(() => {
+    if (selectedCustomer) {
+      // Find the most recent contract
+      const contract = selectedCustomer.contracts && selectedCustomer.contracts.length > 0
+        ? selectedCustomer.contracts[0]
+        : null
+
+      if (contract) {
+        setServiceType(contract.serviceType || selectedCustomer.serviceType || "")
+        setFrequency(contract.frequency || selectedCustomer.frequency || "")
+
+        // Suggest next service date from next pending visit
+        const nextVisit = contract.visits?.find((v: any) => v.status === "PENDING")
+        if (nextVisit && nextVisit.scheduledDate) {
+          setNextServiceDate(new Date(nextVisit.scheduledDate).toISOString().split("T")[0])
+        } else if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
+          setNextServiceDate(selectedCustomer.serviceDates[0])
+        }
+      } else {
+        // Fallback for customers without nested contracts
+        setServiceType(selectedCustomer.serviceType || "")
+        setFrequency(selectedCustomer.frequency || "")
+        if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
+          setNextServiceDate(selectedCustomer.serviceDates[0])
+        }
+      }
+    }
+  }, [selectedCustomerId, customers])
 
   const checkBillNumberDuplicate = (value: string): boolean => {
     return existingJobs.some((job) => job.billNumber.toLowerCase() === value.toLowerCase())
@@ -97,6 +127,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
     setRemarks("")
     setAmount("")
     setServiceType("")
+    setFrequency("")
     setNextServiceDate("")
     setAssignments([])
     setConfirmOpen(false)
@@ -337,6 +368,17 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
                 placeholder="e.g. Termite Control, General Pest"
                 value={serviceType}
                 onChange={(e) => setServiceType(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="frequency">Contract Frequency</Label>
+              <Input
+                id="frequency"
+                placeholder="Showing from contract..."
+                value={frequency}
+                readOnly
+                className="bg-muted"
               />
             </div>
 

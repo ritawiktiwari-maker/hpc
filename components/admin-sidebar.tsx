@@ -17,6 +17,7 @@ import {
   LogOut,
   ClipboardCheck,
   TrendingUp,
+  History,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -33,8 +34,9 @@ const navItems = [
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/employees", label: "Employees", icon: Users },
   { href: "/stock", label: "Stock", icon: Package },
+  { href: "/admin/stock-history", label: "Stock History", icon: History },
   { href: "/jobs", label: "Job Assignment", icon: ClipboardList },
-  { href: "/admin/stock-approvals", label: "Stock Approvals", icon: ClipboardCheck },
+  { href: "/admin/stock-approvals", label: "Approvals", icon: ClipboardCheck },
   { href: "/admin/reports", label: "Reports", icon: ClipboardList },
   { href: "/sales", label: "Sales & Leads", icon: TrendingUp },
 ]

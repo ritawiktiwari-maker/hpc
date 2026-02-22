@@ -328,34 +328,40 @@ function ReturnStockDialog({ open, onOpenChange, employee, onReturn }: ReturnSto
         setSelectedProducts(prev => ({ ...prev, [productId]: num }))
     }
 
-    const handleSubmit = () => {
-        const productsToReturn: ProductAssignment[] = []
-
-        Object.entries(selectedProducts).forEach(([productId, qty]) => {
-            if (qty > 0) {
-                const stockItem = employee.stockInHand?.find(s => s.productId === productId)
-                if (stockItem) {
-                    productsToReturn.push({
-                        ...stockItem,
-                        quantityGiven: qty
-                    })
-                }
-            }
-        })
+    const handleSubmit = async () => {
+        const productsToReturn = Object.entries(selectedProducts)
+            .filter(([_, qty]) => qty > 0)
+            .map(([productId, qty]) => ({
+                productId,
+                quantity: qty
+            }))
 
         if (productsToReturn.length === 0) {
             toast.error("Please select at least one item to return")
             return
         }
 
-        const data = getData()
-        // We know employee exists
-        const updated = createStockReturnRequest(data, employee.employeeId, productsToReturn)
-        saveData(updated)
-        toast.success("Stock return request sent to admin")
-        onReturn()
-        onOpenChange(false)
-        setSelectedProducts({})
+        try {
+            const response = await fetch("/api/stock/return-request", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    employeeId: employee.employeeId,
+                    items: productsToReturn
+                })
+            })
+
+            if (response.ok) {
+                toast.success("Stock return request sent to admin")
+                onReturn()
+                onOpenChange(false)
+                setSelectedProducts({})
+            } else {
+                toast.error("Failed to send return request")
+            }
+        } catch (error) {
+            toast.error("An error occurred while sending request")
+        }
     }
 
     const availableStock = employee.stockInHand || []
