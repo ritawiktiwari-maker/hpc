@@ -138,6 +138,7 @@ export default function StockPage() {
     toast.success("Product deleted successfully")
   }
 
+
   const handleExport = () => {
     if (!data) return
     exportStockToExcel(data.products, data.jobs)

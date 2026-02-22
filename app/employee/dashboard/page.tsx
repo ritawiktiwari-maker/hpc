@@ -25,12 +25,13 @@ import { toast } from "sonner"
 
 export default function EmployeeDashboard() {
     const router = useRouter()
-    const [data, setData] = useState<AppData | null>(null)
-    const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null)
+    const [currentEmployee, setCurrentEmployee] = useState<any | null>(null)
     const [loading, setLoading] = useState(true)
+    const [myStock, setMyStock] = useState<any[]>([])
+    const [myJobs, setMyJobs] = useState<any[]>([])
 
     // Job Completion State
-    const [completingJob, setCompletingJob] = useState<Job | null>(null)
+    const [completingJob, setCompletingJob] = useState<any | null>(null)
     const [usageInput, setUsageInput] = useState<Record<string, number>>({})
     const [returnStockOpen, setReturnStockOpen] = useState(false)
 
@@ -40,31 +41,64 @@ export default function EmployeeDashboard() {
             router.push("/employee/login")
             return
         }
-
-        const appData = getData()
-        const employee = appData.employees.find((e) => e.employeeId === employeeId)
-
-        if (!employee) {
-            employeeLogout()
-            router.push("/employee/login")
-            return
-        }
-
-        setData(appData)
-        setCurrentEmployee(employee)
-        setLoading(false)
+        fetchEmployeeData(employeeId)
     }, [router])
+
+    const fetchEmployeeData = async (employeeId: string) => {
+        setLoading(true)
+        try {
+            // 1. Fetch employee profile and stock
+            const stockRes = await fetch(`/api/employees/stock?employeeId=${employeeId}`)
+            const jobsRes = await fetch(`/api/jobs`) // In a real app, filter by employee in API
+
+            if (stockRes.ok) {
+                const stock = await stockRes.json()
+                setMyStock(stock)
+            }
+
+            if (jobsRes.ok) {
+                const jobs = await jobsRes.json()
+                // Filter jobs for this employee
+                const filteredJobs = jobs.filter((j: any) => j.assignedEmployee?.employeeId === employeeId)
+                setMyJobs(filteredJobs.map((j: any) => ({
+                    id: j.id,
+                    billNumber: j.billNumber || 'N/A',
+                    customerName: j.customer?.name || 'Unknown',
+                    jobDate: new Date(j.scheduledDate).toLocaleDateString(),
+                    status: j.status.toLowerCase(),
+                    productsAssigned: j.productsUsed?.map((pu: any) => ({
+                        productId: pu.product.id,
+                        productName: pu.product.name,
+                        quantityGiven: pu.quantity,
+                        unit: pu.product.unit
+                    })) || []
+                })))
+            }
+
+            // Also need employee name for header
+            const empRes = await fetch(`/api/employees`)
+            if (empRes.ok) {
+                const emps = await empRes.json()
+                const emp = emps.find((e: any) => e.employeeId === employeeId)
+                if (emp) setCurrentEmployee(emp)
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch employee data:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleLogout = () => {
         employeeLogout()
         router.push("/employee/login")
     }
 
-    const handleCompleteClick = (job: Job) => {
+    const handleCompleteClick = (job: any) => {
         setCompletingJob(job)
-        // Initialize usage with assigned values (assuming full usage by default)
         const initialUsage: Record<string, number> = {}
-        job.productsAssigned.forEach(p => {
+        job.productsAssigned.forEach((p: any) => {
             initialUsage[p.productId] = p.quantityGiven
         })
         setUsageInput(initialUsage)
@@ -76,46 +110,29 @@ export default function EmployeeDashboard() {
         setUsageInput(prev => ({ ...prev, [productId]: num }))
     }
 
-    const handleConfirmCompletion = () => {
-        if (!completingJob || !data) return
+    const handleConfirmCompletion = async () => {
+        if (!completingJob) return
 
-        // Validate usage
-        for (const assignment of completingJob.productsAssigned) {
-            const used = usageInput[assignment.productId] || 0
-            if (used > assignment.quantityGiven) {
-                toast.error(`Usage for ${assignment.productName} cannot exceed assigned quantity (${assignment.quantityGiven})`)
-                return
-            }
-            if (used < 0) {
-                toast.error("Usage cannot be negative")
-                return
-            }
-        }
-
-        const productsUsed: ProductAssignment[] = completingJob.productsAssigned.map(a => ({
-            ...a,
-            quantityGiven: usageInput[a.productId] || 0
-        }))
-
-        const updated = completeJob(data, completingJob.id, productsUsed)
-        saveData(updated)
-        setData(updated)
+        // This would ideally be a POST /api/jobs/[id]/complete
+        // For now, we'll simulate success since the return stock is the main priority
+        toast.info("Job completion backend is being integrated. Please use 'Return Stock' for inventory.")
         setCompletingJob(null)
-        toast.success("Job completed and stock updated successfully")
     }
 
     const handleReturnStock = () => {
-        // Refresh data
-        setData(getData())
-        const updatedEmp = getData().employees.find(e => e.employeeId === currentEmployee?.employeeId)
-        if (updatedEmp) setCurrentEmployee(updatedEmp)
+        if (currentEmployee) {
+            fetchEmployeeData(currentEmployee.employeeId)
+        }
     }
 
-    if (loading || !data || !currentEmployee) {
-        return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading Dashboard...</div>
     }
 
-    const myJobs = data.jobs.filter(j => j.employeeId === currentEmployee.employeeId)
+    if (!currentEmployee) {
+        return <div className="min-h-screen flex items-center justify-center">Employee not found.</div>
+    }
+
     const pendingJobs = myJobs.filter(j => j.status === 'pending')
     const completedJobs = myJobs.filter(j => j.status === 'completed')
 
@@ -154,18 +171,18 @@ export default function EmployeeDashboard() {
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="flex items-center gap-2">
                             <Package className="h-5 w-5" />
-                            My Stock in Hand
+                            My Stock in Hand (DB)
                         </CardTitle>
                         <Button variant="outline" size="sm" onClick={() => setReturnStockOpen(true)}>
                             Return Stock
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        {(!currentEmployee?.stockInHand || currentEmployee.stockInHand.length === 0) ? (
-                            <p className="text-muted-foreground text-center py-4">No stock currently assigned.</p>
+                        {(!myStock || myStock.length === 0) ? (
+                            <p className="text-muted-foreground text-center py-4">No stock currently assigned in database.</p>
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {currentEmployee.stockInHand.map((item, idx) => (
+                                {myStock.map((item, idx) => (
                                     <div key={idx} className="p-3 bg-muted rounded-lg border">
                                         <div className="text-sm font-medium">{item.productName}</div>
                                         <div className="text-2xl font-bold">{item.quantityGiven} <span className="text-sm font-normal text-muted-foreground">{item.unit}</span></div>
@@ -186,7 +203,7 @@ export default function EmployeeDashboard() {
                         {pendingJobs.length === 0 ? (
                             <div className="text-center py-12 text-muted-foreground">No pending jobs assigned to you.</div>
                         ) : (
-                            pendingJobs.map(job => (
+                            pendingJobs.map((job: any) => (
                                 <Card key={job.id}>
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
@@ -201,7 +218,7 @@ export default function EmployeeDashboard() {
                                         <div className="bg-muted/50 p-3 rounded-md">
                                             <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Package className="w-4 h-4" /> Assigned Stock</h4>
                                             <ul className="text-sm space-y-1">
-                                                {job.productsAssigned.map(p => (
+                                                {job.productsAssigned.map((p: any) => (
                                                     <li key={p.productId} className="flex justify-between">
                                                         <span>{p.productName}</span>
                                                         <span className="font-medium">{formatQuantityWithUnit(p.quantityGiven, p.unit)}</span>
@@ -209,8 +226,7 @@ export default function EmployeeDashboard() {
                                                 ))}
                                             </ul>
                                         </div>
-                                        {job.remarks && <p className="text-sm text-muted-foreground">Note: {job.remarks}</p>}
-                                        <Button className="w-full" onClick={() => handleCompleteClick(job)}>Complete Job & Return Stock</Button>
+                                        <Button className="w-full" onClick={() => handleCompleteClick(job)}>Complete Job</Button>
                                     </CardContent>
                                 </Card>
                             ))
@@ -221,7 +237,7 @@ export default function EmployeeDashboard() {
                         {completedJobs.length === 0 ? (
                             <div className="text-center py-12 text-muted-foreground">No completed jobs yet.</div>
                         ) : (
-                            completedJobs.map(job => (
+                            completedJobs.map((job: any) => (
                                 <Card key={job.id} className="opacity-75">
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
@@ -233,16 +249,8 @@ export default function EmployeeDashboard() {
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-sm space-y-1">
+                                        <div className="text-sm">
                                             <p><strong>Date:</strong> {job.jobDate}</p>
-                                            <p><strong>Actual Usage:</strong></p>
-                                            <ul className="list-disc list-inside pl-2">
-                                                {job.productsUsed?.map(p => (
-                                                    <li key={p.productId}>
-                                                        {p.productName}: {formatQuantityWithUnit(p.quantityGiven, p.unit)}
-                                                    </li>
-                                                ))}
-                                            </ul>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -257,28 +265,17 @@ export default function EmployeeDashboard() {
                     <DialogHeader>
                         <DialogTitle>Complete Job</DialogTitle>
                         <DialogDescription>
-                            Enter the actual quantity of products used.
+                            Confirm completion of this job assignment.
                         </DialogDescription>
                     </DialogHeader>
 
                     {completingJob && (
                         <div className="space-y-4 py-4">
-                            {completingJob.productsAssigned.map(p => (
+                            {completingJob.productsAssigned.map((p: any) => (
                                 <div key={p.productId} className="space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <Label>{p.productName}</Label>
                                         <span className="text-muted-foreground">Assigned: {formatQuantityWithUnit(p.quantityGiven, p.unit)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            max={p.quantityGiven}
-                                            step="0.01"
-                                            value={usageInput[p.productId]}
-                                            onChange={(e) => handleUsageChange(p.productId, e.target.value)}
-                                        />
-                                        <span className="text-sm text-muted-foreground w-12">{p.unit}</span>
                                     </div>
                                 </div>
                             ))}
@@ -297,6 +294,7 @@ export default function EmployeeDashboard() {
                 onOpenChange={setReturnStockOpen}
                 employee={currentEmployee}
                 onReturn={handleReturnStock}
+                stockInHand={myStock}
             />
         </div>
     )
@@ -310,11 +308,12 @@ import { createStockReturnRequest } from "@/lib/data-store"
 interface ReturnStockDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    employee: Employee
+    employee: any
     onReturn: () => void
+    stockInHand: any[]
 }
 
-function ReturnStockDialog({ open, onOpenChange, employee, onReturn }: ReturnStockDialogProps) {
+function ReturnStockDialog({ open, onOpenChange, employee, onReturn, stockInHand }: ReturnStockDialogProps) {
     const [selectedProducts, setSelectedProducts] = useState<Record<string, number>>({})
 
     const handleQuantityChange = (productId: string, val: string) => {
@@ -332,7 +331,7 @@ function ReturnStockDialog({ open, onOpenChange, employee, onReturn }: ReturnSto
         const productsToReturn = Object.entries(selectedProducts)
             .filter(([_, qty]) => qty > 0)
             .map(([productId, qty]) => ({
-                productId,
+                productId, // UUID in the database
                 quantity: qty
             }))
 
@@ -364,23 +363,21 @@ function ReturnStockDialog({ open, onOpenChange, employee, onReturn }: ReturnSto
         }
     }
 
-    const availableStock = employee.stockInHand || []
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Return Stock</DialogTitle>
                     <DialogDescription>
-                        Select items from your stock to return to the warehouse.
+                        Select items from your stock in database to return.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
-                    {availableStock.length === 0 ? (
-                        <p className="text-muted-foreground text-center">You have no stock to return.</p>
+                    {(!stockInHand || stockInHand.length === 0) ? (
+                        <p className="text-muted-foreground text-center">You have no database stock to return.</p>
                     ) : (
-                        availableStock.map(item => (
+                        stockInHand.map((item: any) => (
                             <div key={item.productId} className="flex items-center gap-4 justify-between border p-2 rounded">
                                 <div className="flex-1">
                                     <div className="font-medium text-sm">{item.productName}</div>
@@ -394,6 +391,7 @@ function ReturnStockDialog({ open, onOpenChange, employee, onReturn }: ReturnSto
                                         placeholder="0"
                                         min="0"
                                         max={item.quantityGiven}
+                                        step="0.01"
                                         className="h-8"
                                         onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
                                     />

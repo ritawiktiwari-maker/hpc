@@ -17,10 +17,11 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { name, quantityAvailable, unit } = body
+        const { productId, name, quantityAvailable, unit } = body
 
         const product = await prisma.product.create({
             data: {
+                productId,
                 name,
                 quantityAvailable: parseFloat(quantityAvailable || 0),
                 unit,

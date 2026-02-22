@@ -335,7 +335,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
                   <SelectValue placeholder="Choose an employee" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees.map((emp) => (
+                  {employees.filter(e => e.isActive).map((emp) => (
                     <SelectItem key={emp.employeeId} value={emp.employeeId}>
                       {emp.name} ({emp.employeeId})
                     </SelectItem>

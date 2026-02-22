@@ -7,15 +7,18 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { format } from "date-fns"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 interface EmployeeTableProps {
   employees: Employee[]
   onEdit: (employee: Employee) => void
   onDelete: (employee: Employee) => void
   onView: (employee: Employee) => void
+  onToggleStatus: (employee: Employee) => void
 }
 
-export function EmployeeTable({ employees, onEdit, onDelete, onView }: EmployeeTableProps) {
+export function EmployeeTable({ employees, onEdit, onDelete, onView, onToggleStatus }: EmployeeTableProps) {
   if (employees.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -35,6 +38,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onView }: EmployeeT
             <TableHead className="hidden md:table-cell">Mobile</TableHead>
             <TableHead className="hidden lg:table-cell">Aadhaar</TableHead>
             <TableHead className="hidden lg:table-cell">Joined</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -66,6 +70,18 @@ export function EmployeeTable({ employees, onEdit, onDelete, onView }: EmployeeT
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 {employee.dateOfJoining ? format(new Date(employee.dateOfJoining), "dd MMM yyyy") : "-"}
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant={employee.isActive ? "default" : "secondary"}
+                  className={cn(
+                    "cursor-pointer",
+                    employee.isActive ? "bg-[#7CB342] hover:bg-[#689F38]" : ""
+                  )}
+                  onClick={() => onToggleStatus(employee)}
+                >
+                  {employee.isActive ? "Active" : "Inactive"}
+                </Badge>
               </TableCell>
               <TableCell>
                 <DropdownMenu>

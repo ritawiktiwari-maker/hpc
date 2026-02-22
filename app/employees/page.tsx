@@ -27,16 +27,33 @@ import {
 
 export default function EmployeesPage() {
   const { isLoggedIn } = useAuth()
-  const [data, setData] = useState<AppData | null>(null)
+  const [employees, setEmployees] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [formOpen, setFormOpen] = useState(false)
   const [viewOpen, setViewOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
 
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/employees')
+      if (res.ok) {
+        const data = await res.json()
+        setEmployees(data)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to load employees")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (isLoggedIn) {
-      setData(getData())
+      fetchData()
     }
   }, [isLoggedIn])
 
@@ -44,12 +61,11 @@ export default function EmployeesPage() {
     return <LoginScreen />
   }
 
-  const filteredEmployees =
-    data?.employees.filter(
-      (emp) =>
-        emp.name.toLowerCase().includes(search.toLowerCase()) ||
-        emp.employeeId.toLowerCase().includes(search.toLowerCase()),
-    ) || []
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.name.toLowerCase().includes(search.toLowerCase()) ||
+      emp.employeeId.toLowerCase().includes(search.toLowerCase()),
+  )
 
   const handleAdd = () => {
     setSelectedEmployee(null)
@@ -71,38 +87,70 @@ export default function EmployeesPage() {
     setDeleteOpen(true)
   }
 
-  const handleFormSubmit = (employeeData: Omit<Employee, "id" | "createdAt" | "updatedAt">) => {
-    if (!data) return
-
-    let updated: AppData
-    if (selectedEmployee) {
-      updated = updateEmployee(data, selectedEmployee.id, employeeData)
-      toast.success("Employee updated successfully")
-    } else {
-      updated = addEmployee(data, employeeData)
-      toast.success("Employee added successfully")
+  const handleFormSubmit = async (employeeData: any) => {
+    try {
+      if (selectedEmployee) {
+        const res = await fetch(`/api/employees/${selectedEmployee.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(employeeData)
+        })
+        if (!res.ok) throw new Error("Update failed")
+        toast.success("Employee updated successfully")
+      } else {
+        const res = await fetch('/api/employees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(employeeData)
+        })
+        if (!res.ok) throw new Error("Create failed")
+        toast.success("Employee added successfully")
+      }
+      fetchData()
+      setFormOpen(false)
+    } catch (e) {
+      toast.error("Operation failed")
     }
-
-    saveData(updated)
-    setData(updated)
   }
 
-  const handleDeleteConfirm = () => {
-    if (!data || !selectedEmployee) return
-
-    const updated = deleteEmployee(data, selectedEmployee.id)
-    saveData(updated)
-    setData(updated)
-    setDeleteOpen(false)
-    setSelectedEmployee(null)
-    toast.success("Employee deleted successfully")
+  const handleDeleteConfirm = async () => {
+    if (!selectedEmployee) return
+    try {
+      const res = await fetch(`/api/employees/${selectedEmployee.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error("Delete failed")
+      toast.success("Employee deleted successfully")
+      fetchData()
+      setDeleteOpen(false)
+      setSelectedEmployee(null)
+    } catch (e) {
+      toast.error("Failed to delete employee")
+    }
   }
 
-  if (!data) {
+  const handleToggleStatus = async (employee: Employee) => {
+    try {
+      const res = await fetch(`/api/employees/${employee.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !employee.isActive })
+      })
+      if (!res.ok) throw new Error("Status update failed")
+
+      setEmployees(prev => prev.map(e =>
+        e.id === employee.id ? { ...e, isActive: !e.isActive } : e
+      ))
+
+      toast.success(`Employee ${!employee.isActive ? 'activated' : 'deactivated'}`)
+    } catch (e) {
+      toast.error("Failed to update status")
+    }
+  }
+
+  if (loading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
+          <div className="animate-pulse text-muted-foreground">Loading Employees...</div>
         </div>
       </AdminLayout>
     )
@@ -126,7 +174,7 @@ export default function EmployeesPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <CardTitle className="text-base flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                All Employees ({data.employees.length})
+                All Employees ({employees.length})
               </CardTitle>
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -145,6 +193,7 @@ export default function EmployeesPage() {
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
               onView={handleView}
+              onToggleStatus={handleToggleStatus}
             />
           </CardContent>
         </Card>
@@ -154,7 +203,7 @@ export default function EmployeesPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         employee={selectedEmployee}
-        existingEmployees={data.employees}
+        existingEmployees={employees}
         onSubmit={handleFormSubmit}
       />
 

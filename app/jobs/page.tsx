@@ -17,23 +17,36 @@ export default function JobsPage() {
   const { isLoggedIn } = useAuth()
   const [data, setData] = useState<AppData | null>(null)
   const [dbCustomers, setDbCustomers] = useState<Customer[]>([])
+  const [dbEmployees, setDbEmployees] = useState<any[]>([])
+  const [dbProducts, setDbProducts] = useState<any[]>([])
+  const [dbJobs, setDbJobs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (isLoggedIn) {
       setData(getData())
-      fetchCustomers()
+      fetchData()
     }
   }, [isLoggedIn])
 
-  const fetchCustomers = async () => {
+  const fetchData = async () => {
+    setLoading(true)
     try {
-      const response = await fetch("/api/customers")
-      if (response.ok) {
-        const customers = await response.json()
-        setDbCustomers(customers)
-      }
+      const [custRes, empRes, prodRes, jobsRes] = await Promise.all([
+        fetch("/api/customers"),
+        fetch("/api/employees"),
+        fetch("/api/products"),
+        fetch("/api/jobs")
+      ])
+
+      if (custRes.ok) setDbCustomers(await custRes.json())
+      if (empRes.ok) setDbEmployees(await empRes.json())
+      if (prodRes.ok) setDbProducts(await prodRes.json())
+      if (jobsRes.ok) setDbJobs(await jobsRes.json())
     } catch (error) {
-      console.error("Failed to fetch customers:", error)
+      console.error("Failed to fetch data:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -41,7 +54,7 @@ export default function JobsPage() {
     return <LoginScreen />
   }
 
-  const handleJobSubmit = (
+  const handleJobSubmit = async (
     billNumber: string,
     customerId: string,
     customerName: string,
@@ -54,28 +67,36 @@ export default function JobsPage() {
     nextServiceDate: string | undefined,
     remarks: string,
   ) => {
-    if (!data) return
+    try {
+      const response = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          billNumber,
+          customerId,
+          employeeId,
+          jobDate,
+          productsAssigned,
+          amount,
+          serviceType,
+          nextServiceDate,
+          remarks,
+        })
+      })
 
-    const updated = assignJob(
-      data,
-      billNumber,
-      customerId,
-      customerName,
-      employeeId,
-      employeeName,
-      jobDate,
-      productsAssigned,
-      amount,
-      serviceType,
-      nextServiceDate,
-      remarks,
-    )
-    saveData(updated)
-    setData(updated)
-    toast.success(`Job ${billNumber} successfully assigned to ${employeeName}`)
+      if (response.ok) {
+        toast.success(`Job ${billNumber} successfully assigned to ${employeeName}`)
+        fetchData() // Refresh everything
+      } else {
+        const err = await response.json()
+        toast.error(err.error || "Failed to assign job")
+      }
+    } catch (error) {
+      toast.error("An error occurred while assigning job")
+    }
   }
 
-  if (!data) {
+  if (loading && !data) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-full">
@@ -101,35 +122,32 @@ export default function JobsPage() {
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
-              Job History ({data.jobs.length})
+              Job History ({dbJobs.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="assign">
-            {data.employees.length === 0 ? (
+            {dbEmployees.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  No employees available. Please add employees first.
+                  No employees available in database. Please sync/add employees first.
                 </CardContent>
               </Card>
-            ) : data.products.length === 0 ? (
+            ) : dbProducts.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  No products available. Please add products first.
-                </CardContent>
-              </Card>
-            ) : data.products.every((p) => p.quantityAvailable === 0) ? (
-              <Card>
-                <CardContent className="py-12 text-center text-muted-foreground">
-                  All products are out of stock. Please restock to assign jobs.
+                  No products available in database. Please sync/add products first.
                 </CardContent>
               </Card>
             ) : (
               <JobAssignmentForm
-                employees={data.employees}
-                products={data.products}
+                employees={dbEmployees}
+                products={dbProducts.map(p => ({
+                  ...p,
+                  productName: p.name // Map DB format to form format
+                }))}
                 customers={dbCustomers}
-                existingJobs={data.jobs}
+                existingJobs={dbJobs}
                 onSubmit={handleJobSubmit}
               />
             )}
@@ -140,11 +158,30 @@ export default function JobsPage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <History className="h-4 w-4" />
-                  Job History
+                  Job History (Database)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <JobHistoryTable jobs={data.jobs} />
+                {/* We can reuse the table but map the data */}
+                <JobHistoryTable jobs={dbJobs.map(j => ({
+                  id: j.id,
+                  billNumber: j.billNumber || 'N/A',
+                  customerId: j.customerId || '',
+                  customerName: j.customer?.name || 'Unknown',
+                  employeeId: j.assignedEmployee?.employeeId || '',
+                  employeeName: j.assignedEmployee?.name || 'Unassigned',
+                  jobDate: j.scheduledDate,
+                  status: j.status,
+                  remarks: j.remarks || '',
+                  createdAt: j.createdAt,
+                  amount: 0, // DB Visit doesn't have amount yet, could add if needed
+                  productsAssigned: j.productsUsed?.map((pu: any) => ({
+                    productId: pu.product.productId,
+                    productName: pu.product.name,
+                    quantityGiven: pu.quantity,
+                    unit: pu.product.unit
+                  })) || []
+                }))} />
               </CardContent>
             </Card>
           </TabsContent>

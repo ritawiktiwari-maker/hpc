@@ -11,6 +11,7 @@ export interface Employee {
   photo: string | null
   dateOfJoining: string
   password?: string
+  isActive: boolean
   stockInHand?: ProductAssignment[] // Tracking current stock with employee
   createdAt: string
   updatedAt: string

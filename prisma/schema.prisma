@@ -22,6 +22,7 @@ model Employee {
   photo            String?
   dateOfJoining    DateTime
   password         String?  // Hashed
+  isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -67,6 +68,7 @@ model Customer {
   // Relations
   lead      Lead?
   contracts Contract[]
+  visits    Visit[]
 
   @@index([name])
   @@index([contactNumber])
@@ -101,8 +103,12 @@ model Contract {
 
 model Visit {
   id                 String   @id @default(uuid())
-  contractId         String
-  contract           Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId         String?
+  contract           Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  billNumber         String?
+  customerId         String?
+  customer           Customer? @relation(fields: [customerId], references: [id])
   
   scheduledDate      DateTime
   completionDate     DateTime?
@@ -119,6 +125,7 @@ model Visit {
   updatedAt          DateTime @updatedAt
 
   @@index([contractId])
+  @@index([customerId])
   @@index([assignedEmployeeId])
   @@index([status])
   @@index([scheduledDate])
@@ -129,6 +136,7 @@ model Visit {
 
 model Product {
   id                String   @id @default(uuid())
+  productId         String   @unique // e.g., PRD0001
   name              String
   quantityAvailable Float
   unit              String
