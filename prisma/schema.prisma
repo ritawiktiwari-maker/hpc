@@ -48,7 +48,7 @@ model Lead {
 
   // Conversion
   convertedCustomerId String? @unique
-  convertedCustomer   Customer? @relation(fields: [convertedCustomerId], references: [id])
+  convertedCustomer   Customer? @relation(fields: [convertedCustomerId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([createdAt])
@@ -76,7 +76,7 @@ model Customer {
 model Contract {
   id             String           @id @default(uuid())
   customerId     String
-  customer       Customer         @relation(fields: [customerId], references: [id])
+  customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
   
   serviceType    String
   terms          String?  // e.g. "5 Years", "AMC"
@@ -102,7 +102,7 @@ model Contract {
 model Visit {
   id                 String   @id @default(uuid())
   contractId         String
-  contract           Contract @relation(fields: [contractId], references: [id])
+  contract           Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   
   scheduledDate      DateTime
   completionDate     DateTime?

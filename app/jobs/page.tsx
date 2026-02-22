@@ -7,7 +7,7 @@ import { AdminLayout } from "@/components/admin-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { JobAssignmentForm } from "@/components/jobs/job-assignment-form"
 import { JobHistoryTable } from "@/components/jobs/job-history-table"
-import type { AppData, ProductAssignment } from "@/lib/types"
+import type { AppData, ProductAssignment, Customer } from "@/lib/types"
 import { getData, saveData, assignJob } from "@/lib/data-store"
 import { ClipboardList, History } from "lucide-react"
 import { toast } from "sonner"
@@ -16,12 +16,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 export default function JobsPage() {
   const { isLoggedIn } = useAuth()
   const [data, setData] = useState<AppData | null>(null)
+  const [dbCustomers, setDbCustomers] = useState<Customer[]>([])
 
   useEffect(() => {
     if (isLoggedIn) {
       setData(getData())
+      fetchCustomers()
     }
   }, [isLoggedIn])
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch("/api/customers")
+      if (response.ok) {
+        const customers = await response.json()
+        setDbCustomers(customers)
+      }
+    } catch (error) {
+      console.error("Failed to fetch customers:", error)
+    }
+  }
 
   if (!isLoggedIn) {
     return <LoginScreen />
@@ -114,7 +128,7 @@ export default function JobsPage() {
               <JobAssignmentForm
                 employees={data.employees}
                 products={data.products}
-                customers={data.customers || []} // Pass customers
+                customers={dbCustomers}
                 existingJobs={data.jobs}
                 onSubmit={handleJobSubmit}
               />

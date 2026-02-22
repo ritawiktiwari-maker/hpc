@@ -10,10 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Employee, Product, ProductAssignment, ProductUnit, Customer } from "@/lib/types"
 import { formatQuantityWithUnit } from "@/lib/types"
 import type { Job } from "@/lib/types"
-import { Plus, Trash2, AlertCircle, CheckCircle, Receipt, User } from "lucide-react"
+import { Plus, Trash2, AlertCircle, CheckCircle, Receipt, User, Check, ChevronsUpDown } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 
 interface JobAssignmentFormProps {
   employees: Employee[]
@@ -55,6 +57,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
   const [assignments, setAssignments] = useState<ProductAssignmentRow[]>([])
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [openCustomerSearch, setOpenCustomerSearch] = useState(false)
   const [billNumber, setBillNumber] = useState("")
   const [billNumberError, setBillNumberError] = useState("")
 
@@ -246,18 +249,52 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Select Customer *</Label>
-              <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a customer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((cust) => (
-                    <SelectItem key={cust.id} value={cust.id}>
-                      {cust.name} ({cust.contactNumber})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openCustomerSearch} onOpenChange={setOpenCustomerSearch}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openCustomerSearch}
+                    className="w-full justify-between font-normal"
+                  >
+                    {selectedCustomerId
+                      ? customers.find((c) => c.id === selectedCustomerId)?.name
+                      : "Search customer..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search customer name or mobile..." />
+                    <CommandList>
+                      <CommandEmpty>No customer found.</CommandEmpty>
+                      <CommandGroup>
+                        {customers.map((cust) => (
+                          <CommandItem
+                            key={cust.id}
+                            value={`${cust.name} ${cust.contactNumber}`}
+                            onSelect={() => {
+                              setSelectedCustomerId(cust.id)
+                              setOpenCustomerSearch(false)
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedCustomerId === cust.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col">
+                              <span>{cust.name}</span>
+                              <span className="text-xs text-muted-foreground">{cust.contactNumber}</span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
