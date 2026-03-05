@@ -1,171 +1,245 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { LoginScreen } from "@/components/login-screen"
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ProductTable } from "@/components/stock/product-table"
-import { ProductFormDialog } from "@/components/stock/product-form-dialog"
-import type { AppData, Product } from "@/lib/types"
-import { getData, saveData, addProduct, updateProduct, deleteProduct } from "@/lib/data-store"
-import { exportStockToExcel } from "@/lib/excel-export"
-import { Plus, Search, Package, Download } from "lucide-react"
-import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { History, RefreshCw } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
-import { restockProduct } from "@/lib/data-store"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+import { formatQuantityWithUnit, LOW_STOCK_THRESHOLD } from "@/lib/types"
+import type { ProductUnit } from "@/lib/types"
+import { Plus, Search, Package, Download, MoreHorizontal, Pencil, Trash2, RefreshCw, History, AlertTriangle } from "lucide-react"
+import { toast } from "sonner"
+import { format } from "date-fns"
+import { exportStockToExcel } from "@/lib/excel-export"
+
+interface DBProduct {
+  id: string
+  productId: string
+  name: string
+  quantityAvailable: number
+  quantityPurchased: number
+  unit: string
+  supplierName?: string | null
+  dateOfPurchase?: string | null
+  remarks?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+interface DBTransaction {
+  id: string
+  type: string
+  quantity: number
+  remarks?: string | null
+  createdAt: string
+  product: { name: string; productId: string; unit: string }
+}
 
 export default function StockPage() {
   const { isLoggedIn } = useAuth()
-  const [data, setData] = useState<AppData | null>(null)
+  const [products, setProducts] = useState<DBProduct[]>([])
+  const [transactions, setTransactions] = useState<DBTransaction[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+
+  // Form state
   const [formOpen, setFormOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [restockOpen, setRestockOpen] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [clearOpen, setClearOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<DBProduct | null>(null)
   const [restockQuantity, setRestockQuantity] = useState("")
+  const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState({
+    productId: "", name: "", unit: "litres" as ProductUnit,
+    quantityAvailable: "", supplierName: "", dateOfPurchase: "", remarks: ""
+  })
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      setData(getData())
+  const fetchData = useCallback(async () => {
+    try {
+      const [prodRes, txRes] = await Promise.all([
+        fetch('/api/products'),
+        fetch('/api/stock/transactions')
+      ])
+      if (prodRes.ok) setProducts(await prodRes.json())
+      if (txRes.ok) setTransactions(await txRes.json())
+    } catch (e) {
+      toast.error("Failed to load stock data")
+    } finally {
+      setLoading(false)
     }
-  }, [isLoggedIn])
+  }, [])
 
-  if (!isLoggedIn) {
-    return <LoginScreen />
-  }
+  useEffect(() => { if (isLoggedIn) fetchData() }, [isLoggedIn, fetchData])
 
-  const filteredProducts =
-    data?.products.filter(
-      (prod) =>
-        prod.productName.toLowerCase().includes(search.toLowerCase()) ||
-        prod.productId.toLowerCase().includes(search.toLowerCase()),
-    ) || []
+  if (!isLoggedIn) return <LoginScreen />
 
-  // Filter activities for Stock History
-  const stockHistory = data?.activities.filter(a =>
-    ['product_added', 'product_updated', 'product_deleted', 'stock_restocked', 'stock_return_approved', 'job_assigned'].includes(a.type)
-  ) || []
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.productId.toLowerCase().includes(search.toLowerCase())
+  )
+
+  // ──────────  Handlers  ──────────
 
   const handleAdd = () => {
+    setIsEditing(false)
     setSelectedProduct(null)
+    const nextId = `PRD${String(products.length + 1).padStart(4, '0')}`
+    setFormData({ productId: nextId, name: "", unit: "litres", quantityAvailable: "", supplierName: "", dateOfPurchase: new Date().toISOString().split('T')[0], remarks: "" })
     setFormOpen(true)
   }
 
-  const handleEdit = (product: Product) => {
-    setSelectedProduct(product)
+  const handleEdit = (p: DBProduct) => {
+    setIsEditing(true)
+    setSelectedProduct(p)
+    setFormData({
+      productId: p.productId,
+      name: p.name,
+      unit: (p.unit as ProductUnit) || "litres",
+      quantityAvailable: String(p.quantityAvailable),
+      supplierName: p.supplierName || "",
+      dateOfPurchase: p.dateOfPurchase ? new Date(p.dateOfPurchase).toISOString().split('T')[0] : "",
+      remarks: p.remarks || ""
+    })
     setFormOpen(true)
   }
 
-  const handleDeleteClick = (product: Product) => {
-    setSelectedProduct(product)
-    setDeleteOpen(true)
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.name.trim()) { toast.error("Product name is required"); return }
+
+    try {
+      if (isEditing && selectedProduct) {
+        const res = await fetch(`/api/products/${selectedProduct.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name, unit: formData.unit,
+            supplierName: formData.supplierName, dateOfPurchase: formData.dateOfPurchase,
+            remarks: formData.remarks
+          })
+        })
+        if (!res.ok) throw new Error("Update failed")
+        toast.success("Product updated successfully")
+      } else {
+        if (!formData.quantityAvailable || parseFloat(formData.quantityAvailable) <= 0) {
+          toast.error("Quantity must be greater than 0"); return
+        }
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: formData.productId, name: formData.name,
+            quantityAvailable: parseFloat(formData.quantityAvailable),
+            unit: formData.unit, supplierName: formData.supplierName,
+            dateOfPurchase: formData.dateOfPurchase, remarks: formData.remarks
+          })
+        })
+        if (!res.ok) {
+          const err = await res.json()
+          throw new Error(err.details || "Create failed")
+        }
+        toast.success("Product added successfully")
+      }
+      setFormOpen(false)
+      fetchData()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
   }
 
-  const handleRestockClick = (product: Product) => {
-    setSelectedProduct(product)
-    setRestockQuantity("")
-    setRestockOpen(true)
-  }
-
-  const handleRestockSubmit = () => {
-    if (!data || !selectedProduct) return
+  const handleRestockSubmit = async () => {
+    if (!selectedProduct) return
     const qty = parseFloat(restockQuantity)
-    if (isNaN(qty) || qty <= 0) {
-      toast.error("Please enter a valid quantity")
-      return
-    }
-
-    const updated = restockProduct(data, selectedProduct.id, qty)
-    saveData(updated)
-    setData(updated)
-    setRestockOpen(false)
-    setSelectedProduct(null)
-    toast.success("Stock restocked successfully")
-  }
-
-  const handleFormSubmit = (productData: Omit<Product, "id" | "createdAt" | "updatedAt" | "quantityAvailable">) => {
-    if (!data) return
-
-    let updated: AppData
-    if (selectedProduct) {
-      // If editing, we keep the existing quantityAvailable and calculate difference if needed?
-      // Actually `updateProduct` replaces fields. 
-      // If user changes `quantityPurchased` in Edit, we might need logic. 
-      // Current `updateProduct` logic in this page:
-      const quantityDiff = productData.quantityPurchased - selectedProduct.quantityPurchased
-      const newQuantityAvailable = Math.max(0, selectedProduct.quantityAvailable + quantityDiff)
-
-      updated = updateProduct(data, selectedProduct.id, {
-        ...productData,
-        quantityAvailable: newQuantityAvailable,
+    if (isNaN(qty) || qty <= 0) { toast.error("Please enter a valid quantity"); return }
+    try {
+      const res = await fetch(`/api/products/${selectedProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'restock', quantityAdded: qty })
       })
-      toast.success("Product updated successfully")
-    } else {
-      updated = addProduct(data, productData)
-      toast.success("Product added successfully")
-    }
-
-    saveData(updated)
-    setData(updated)
+      if (!res.ok) throw new Error("Restock failed")
+      toast.success(`Restocked ${selectedProduct.name} by ${qty} ${selectedProduct.unit}`)
+      setRestockOpen(false)
+      fetchData()
+    } catch (err) { toast.error("Failed to restock") }
   }
 
-  const handleDeleteConfirm = () => {
-    if (!data || !selectedProduct) return
-
-    const updated = deleteProduct(data, selectedProduct.id)
-    saveData(updated)
-    setData(updated)
-    setDeleteOpen(false)
-    setSelectedProduct(null)
-    toast.success("Product deleted successfully")
+  const handleDeleteConfirm = async () => {
+    if (!selectedProduct) return
+    try {
+      const res = await fetch(`/api/products/${selectedProduct.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error("Delete failed")
+      toast.success("Product deleted")
+      setDeleteOpen(false)
+      fetchData()
+    } catch { toast.error("Failed to delete product") }
   }
 
+  const handleClearStock = async () => {
+    try {
+      const res = await fetch('/api/admin/clear-stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true })
+      })
+      if (!res.ok) throw new Error("Clear failed")
+      toast.success("All stock data cleared successfully")
+      setClearOpen(false)
+      fetchData()
+    } catch { toast.error("Failed to clear stock data") }
+  }
 
   const handleExport = () => {
-    if (!data) return
-    exportStockToExcel(data.products, data.jobs)
-    toast.success("Stock report downloaded successfully")
+    // Map to the legacy format for the export utility
+    const mapped = products.map(p => ({
+      id: p.id, productId: p.productId, productName: p.name,
+      quantityAvailable: p.quantityAvailable, quantityPurchased: p.quantityPurchased,
+      unit: p.unit as ProductUnit, supplierName: p.supplierName || "",
+      dateOfPurchase: p.dateOfPurchase || "", remarks: p.remarks || "",
+      createdAt: p.createdAt, updatedAt: p.updatedAt
+    }))
+    exportStockToExcel(mapped as any, [])
+    toast.success("Stock exported to Excel")
   }
 
-  if (!data) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
-        </div>
-      </AdminLayout>
-    )
+  const typeColor: Record<string, string> = {
+    PURCHASE: "bg-green-100 text-green-700",
+    ASSIGN_TO_EMPLOYEE: "bg-orange-100 text-orange-700",
+    RETURN_FROM_EMPLOYEE: "bg-blue-100 text-blue-700",
+    USED_IN_VISIT: "bg-purple-100 text-purple-700",
   }
 
   return (
     <AdminLayout>
       <div className="p-6 space-y-6">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Stock Management</h1>
             <p className="text-muted-foreground">Manage your inventory and track history</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
+            </Button>
+            <Button variant="destructive" onClick={() => setClearOpen(true)}>
+              <AlertTriangle className="mr-2 h-4 w-4" /> Clear Stock Data
             </Button>
             <Button onClick={handleAdd}>
               <Plus className="mr-2 h-4 w-4" /> Add Product
@@ -176,127 +250,210 @@ export default function StockPage() {
         <Tabs defaultValue="current">
           <TabsList>
             <TabsTrigger value="current" className="gap-2"><Package className="w-4 h-4" /> Current Stock</TabsTrigger>
-            <TabsTrigger value="history" className="gap-2"><History className="w-4 h-4" /> Stock History</TabsTrigger>
+            <TabsTrigger value="history" className="gap-2"><History className="w-4 h-4" /> Stock History ({transactions.length})</TabsTrigger>
           </TabsList>
 
+          {/* Current Stock Tab */}
           <TabsContent value="current">
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    All Products ({data.products.length})
-                  </CardTitle>
+                  <CardTitle className="text-base">All Products ({filteredProducts.length})</CardTitle>
                   <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search by name or ID..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9"
-                    />
+                    <Input placeholder="Search by name or ID..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <ProductTable
-                  products={filteredProducts}
-                  jobs={data.jobs}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteClick}
-                  onRestock={handleRestockClick}
-                />
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground animate-pulse">Loading products...</div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">No products found. Add your first product.</div>
+                ) : (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Product ID</TableHead>
+                          <TableHead>Product Name</TableHead>
+                          <TableHead className="hidden sm:table-cell">Unit</TableHead>
+                          <TableHead className="hidden md:table-cell">Purchase Date</TableHead>
+                          <TableHead className="text-right">Purchased</TableHead>
+                          <TableHead className="text-right">Available</TableHead>
+                          <TableHead className="w-12"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredProducts.map(p => {
+                          const isLow = p.quantityAvailable <= LOW_STOCK_THRESHOLD
+                          const isOut = p.quantityAvailable === 0
+                          const unit = (p.unit || "pieces") as ProductUnit
+                          return (
+                            <TableRow key={p.id} className={cn(isOut && "bg-destructive/5")}>
+                              <TableCell className="font-mono text-sm">{p.productId}</TableCell>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">{p.name}</p>
+                                  {p.supplierName && <p className="text-xs text-muted-foreground">{p.supplierName}</p>}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell">
+                                <Badge variant="outline" className="capitalize">{unit}</Badge>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                {p.dateOfPurchase ? format(new Date(p.dateOfPurchase), "dd MMM yyyy") : "—"}
+                              </TableCell>
+                              <TableCell className="text-right">{formatQuantityWithUnit(p.quantityPurchased || 0, unit)}</TableCell>
+                              <TableCell className="text-right">
+                                <Badge variant={isOut ? "destructive" : isLow ? "secondary" : "default"}
+                                  className={cn(!isOut && !isLow && "bg-[#7CB342]/10 text-[#7CB342] border-[#7CB342]/20")}>
+                                  {formatQuantityWithUnit(p.quantityAvailable, unit)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => { setSelectedProduct(p); setRestockQuantity(""); setRestockOpen(true) }}>
+                                      <Plus className="mr-2 h-4 w-4" /> Restock
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleEdit(p)}>
+                                      <Pencil className="mr-2 h-4 w-4" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => { setSelectedProduct(p); setDeleteOpen(true) }} className="text-destructive">
+                                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* Stock History Tab */}
           <TabsContent value="history">
             <Card>
-              <CardHeader>
-                <CardTitle>Stock Activity Log</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><History className="h-4 w-4" /> Stock Transaction History</CardTitle></CardHeader>
               <CardContent>
-                <ScrollArea className="h-[500px] w-full pr-4">
-                  <div className="space-y-4">
-                    {stockHistory.length === 0 ? (
-                      <div className="text-center text-muted-foreground py-8">No stock activity recorded yet.</div>
-                    ) : (
-                      stockHistory.map((activity) => (
-                        <div key={activity.id} className="flex gap-4 items-start border-b pb-4 last:border-0">
-                          <div className="bg-muted p-2 rounded-full mt-1">
-                            {activity.type === 'stock_restocked' ? <RefreshCw className="w-4 h-4 text-green-600" /> :
-                              activity.type === 'product_added' ? <Plus className="w-4 h-4" /> :
-                                activity.type === 'job_assigned' ? <Package className="w-4 h-4 text-orange-500" /> :
-                                  <History className="w-4 h-4" />}
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">{activity.description}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(activity.timestamp).toLocaleString()}
-                            </p>
-                            <Badge variant="outline" className="mt-1 text-xs">
-                              {activity.type.replace(/_/g, " ")}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">No stock transactions recorded yet.</div>
+                ) : (
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead>Date</TableHead>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead className="text-right">Quantity</TableHead>
+                          <TableHead className="hidden md:table-cell">Remarks</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {transactions.map(tx => (
+                          <TableRow key={tx.id}>
+                            <TableCell className="text-sm">{format(new Date(tx.createdAt), "dd MMM yyyy, HH:mm")}</TableCell>
+                            <TableCell>
+                              <p className="font-medium">{tx.product?.name}</p>
+                              <p className="text-xs text-muted-foreground font-mono">{tx.product?.productId}</p>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={cn("text-xs", typeColor[tx.type] || "bg-gray-100 text-gray-700")}>
+                                {tx.type.replace(/_/g, " ")}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              <span className={cn(tx.quantity > 0 ? "text-green-600" : "text-red-500")}>
+                                {tx.quantity > 0 ? "+" : ""}{tx.quantity} {tx.product?.unit}
+                              </span>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell text-sm text-muted-foreground">{tx.remarks || "—"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
-                </ScrollArea>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
 
-      <ProductFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        product={selectedProduct}
-        existingProducts={data.products}
-        onSubmit={handleFormSubmit}
-      />
+      {/* Add / Edit Product Dialog */}
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{isEditing ? "Edit Product" : "Add New Product"}</DialogTitle></DialogHeader>
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Product ID</Label>
+              <Input value={formData.productId} onChange={e => setFormData(p => ({ ...p, productId: e.target.value.toUpperCase() }))} placeholder="PRD0001" disabled={isEditing} />
+            </div>
+            <div className="space-y-2">
+              <Label>Product Name *</Label>
+              <Input value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="Enter product name" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Purchase Date</Label>
+                <Input type="date" value={formData.dateOfPurchase} onChange={e => setFormData(p => ({ ...p, dateOfPurchase: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Unit *</Label>
+                <Select value={formData.unit} onValueChange={(v: ProductUnit) => setFormData(p => ({ ...p, unit: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="litres">Litres</SelectItem>
+                    <SelectItem value="ml">Millilitres</SelectItem>
+                    <SelectItem value="kg">Kilograms</SelectItem>
+                    <SelectItem value="mg">Milligrams</SelectItem>
+                    <SelectItem value="pieces">Pieces</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {!isEditing && (
+              <div className="space-y-2">
+                <Label>Quantity *</Label>
+                <Input type="number" min="0.01" step="0.01" value={formData.quantityAvailable} onChange={e => setFormData(p => ({ ...p, quantityAvailable: e.target.value }))} placeholder="0" />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label>Supplier Name</Label>
+              <Input value={formData.supplierName} onChange={e => setFormData(p => ({ ...p, supplierName: e.target.value }))} placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label>Remarks</Label>
+              <Textarea value={formData.remarks} onChange={e => setFormData(p => ({ ...p, remarks: e.target.value }))} rows={2} />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+              <Button type="submit">{isEditing ? "Update Product" : "Add Product"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Product</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete {selectedProduct?.productName} ({selectedProduct?.productId})? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
+      {/* Restock Dialog */}
       <Dialog open={restockOpen} onOpenChange={setRestockOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Restock Product</DialogTitle>
-            <DialogDescription>
-              Add more stock for {selectedProduct?.productName}.
-            </DialogDescription>
+            <DialogDescription>Add more stock for <strong>{selectedProduct?.name}</strong>.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Quantity to Add ({selectedProduct?.unit})</Label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={restockQuantity}
-                onChange={(e) => setRestockQuantity(e.target.value)}
-                placeholder="e.g., 50"
-              />
-            </div>
+          <div className="space-y-2 py-2">
+            <Label>Quantity to Add ({selectedProduct?.unit})</Label>
+            <Input type="number" min="0" step="0.01" value={restockQuantity} onChange={e => setRestockQuantity(e.target.value)} placeholder="e.g., 50" autoFocus />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRestockOpen(false)}>Cancel</Button>
@@ -304,6 +461,42 @@ export default function StockPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete <strong>{selectedProduct?.name}</strong>? This will remove all stock history for this product. Cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear Stock Confirmation */}
+      <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" /> Clear All Stock Data
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This will <strong>permanently delete</strong> all stock transactions, employee stock allocations, return requests, and reset all product quantities to 0. This action <strong>cannot be undone</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearStock} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Yes, Clear All Data
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   )
 }

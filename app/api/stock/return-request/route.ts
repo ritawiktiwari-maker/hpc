@@ -34,9 +34,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { employeeId, items } = body // items: [{ productId, quantity }]
+        const { employeeId, items } = body // items: [{ productId (could be public code or UUID), quantity }]
 
-        // We need the internal database ID for employee, but body might send public employeeId
         const employee = await prisma.employee.findUnique({
             where: { employeeId: employeeId }
         })
@@ -45,19 +44,28 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
         }
 
+        // Resolve each productId (public code like PRD0001) to internal UUID
+        const resolvedItems = await Promise.all(items.map(async (item: any) => {
+            // Try to find by internal UUID first, then by public productId
+            let product = await prisma.product.findUnique({ where: { id: item.productId } })
+            if (!product) {
+                product = await prisma.product.findUnique({ where: { productId: item.productId } })
+            }
+            if (!product) throw new Error(`Product ${item.productId} not found`)
+            return { productId: product.id, quantity: parseFloat(item.quantity) }
+        }))
+
         const returnRequest = await prisma.stockReturnRequest.create({
             data: {
                 employeeId: employee.id,
                 status: 'PENDING',
                 items: {
-                    create: items.map((item: any) => ({
-                        productId: item.productId,
-                        quantity: parseFloat(item.quantity)
-                    }))
+                    create: resolvedItems
                 }
             },
             include: {
-                items: true
+                items: { include: { product: true } },
+                employee: true,
             }
         })
 
@@ -67,3 +75,4 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to create return request', details: error.message }, { status: 500 })
     }
 }
+

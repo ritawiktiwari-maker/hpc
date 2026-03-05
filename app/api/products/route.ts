@@ -17,14 +17,18 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { productId, name, quantityAvailable, unit } = body
+        const { productId, name, quantityAvailable, unit, supplierName, dateOfPurchase, remarks } = body
 
         const product = await prisma.product.create({
             data: {
                 productId,
                 name,
                 quantityAvailable: parseFloat(quantityAvailable || 0),
+                quantityPurchased: parseFloat(quantityAvailable || 0),
                 unit,
+                supplierName: supplierName || null,
+                dateOfPurchase: dateOfPurchase ? new Date(dateOfPurchase) : null,
+                remarks: remarks || null,
                 stockTransactions: {
                     create: {
                         type: 'PURCHASE',

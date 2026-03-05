@@ -142,9 +142,19 @@ export default function JobsPage() {
             ) : (
               <JobAssignmentForm
                 employees={dbEmployees}
-                products={dbProducts.map(p => ({
-                  ...p,
-                  productName: p.name // Map DB format to form format
+                products={dbProducts.map((p: any) => ({
+                  id: p.id,
+                  productId: p.productId,
+                  productName: p.name,
+                  name: p.name,
+                  quantityAvailable: p.quantityAvailable,
+                  quantityPurchased: p.quantityPurchased || p.quantityAvailable,
+                  unit: p.unit,
+                  supplierName: p.supplierName || '',
+                  dateOfPurchase: p.dateOfPurchase || '',
+                  remarks: p.remarks || '',
+                  createdAt: p.createdAt,
+                  updatedAt: p.updatedAt,
                 }))}
                 customers={dbCustomers}
                 existingJobs={dbJobs}

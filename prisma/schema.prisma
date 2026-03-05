@@ -144,7 +144,11 @@ model Product {
   productId         String   @unique // e.g., PRD0001
   name              String
   quantityAvailable Float
+  quantityPurchased Float    @default(0)
   unit              String
+  supplierName      String?
+  dateOfPurchase    DateTime?
+  remarks           String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

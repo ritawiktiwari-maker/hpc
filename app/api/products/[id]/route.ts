@@ -21,7 +21,8 @@ export async function PUT(
                 const updatedProduct = await tx.product.update({
                     where: { id },
                     data: {
-                        quantityAvailable: { increment: quantityAdded }
+                        quantityAvailable: { increment: quantityAdded },
+                        quantityPurchased: { increment: quantityAdded },
                     }
                 })
 
@@ -39,12 +40,15 @@ export async function PUT(
         }
 
         // Handle standard Edit
-        const { name, unit } = body
+        const { name, unit, supplierName, dateOfPurchase, remarks } = body
         const product = await prisma.product.update({
             where: { id },
             data: {
                 ...(name && { name }),
                 ...(unit && { unit }),
+                ...(supplierName !== undefined && { supplierName: supplierName || null }),
+                ...(dateOfPurchase !== undefined && { dateOfPurchase: dateOfPurchase ? new Date(dateOfPurchase) : null }),
+                ...(remarks !== undefined && { remarks: remarks || null }),
             }
         })
         return NextResponse.json(product)
