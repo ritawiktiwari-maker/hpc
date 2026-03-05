@@ -17,20 +17,25 @@ export default function EmployeeLoginPage() {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
 
         try {
-            const data = getData()
-            const employee = validateEmployeeCredentials(data, employeeId.toUpperCase(), password)
+            const response = await fetch("/api/employees/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ employeeId, password })
+            })
 
-            if (employee) {
+            if (response.ok) {
+                const employee = await response.json()
                 employeeLogin(employee.employeeId)
                 toast.success(`Welcome back, ${employee.name}`)
                 router.push("/employee/dashboard")
             } else {
-                toast.error("Invalid Employee ID or Password")
+                const errorData = await response.json()
+                toast.error(errorData.error || "Invalid Employee ID or Password")
             }
         } catch (error) {
             console.error(error)
