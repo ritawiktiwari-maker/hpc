@@ -113,6 +113,7 @@ export default function CustomersPage() {
                 // Update
                 const res = await fetch(`/api/customers/${selectedCustomer.id}`, {
                     method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(customerData)
                 })
                 if (!res.ok) throw new Error("Update failed")
@@ -121,6 +122,7 @@ export default function CustomersPage() {
                 // Create
                 const res = await fetch('/api/customers', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(customerData)
                 })
                 if (!res.ok) throw new Error("Create failed")

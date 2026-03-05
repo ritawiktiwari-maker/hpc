@@ -60,12 +60,16 @@ export async function PUT(
                     })
 
                     // Create new PENDING visits
-                    if (serviceDates.length > 0) {
+                    const validDates = (serviceDates || [])
+                        .map((date: string) => new Date(date))
+                        .filter((d: Date) => !isNaN(d.getTime()))
+
+                    if (validDates.length > 0) {
                         await tx.visit.createMany({
-                            data: serviceDates.map((date: string) => ({
+                            data: validDates.map((d: Date) => ({
                                 contractId: existingContract.id,
                                 customerId: id,
-                                scheduledDate: new Date(date),
+                                scheduledDate: d,
                                 status: "PENDING"
                             }))
                         })

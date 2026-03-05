@@ -231,10 +231,22 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
     }, [customer, initialData, form, open])
 
     function handleSubmit(values: z.infer<typeof formSchema>) {
-        // Flatten serviceDates from object array to string array
         const submissionData = {
-            ...values,
+            name: values.name,
+            address: values.address,
+            contactNumber: values.contactNumber,
+            email: values.email,
+            contractStartDate: values.contractStartDate,
+            contractEndDate: values.contractEndDate,
+            contractAmount: values.contractAmount,
+            gst: values.gst,
+            totalAmount: values.totalAmount,
+            terms: values.terms,
+            frequency: values.frequency,
+            // Map serviceTypes array of objects to a single comma-separated string
             serviceType: values.serviceTypes?.map(s => s.type).filter(Boolean).join(', ') || "",
+            // Map serviceDates array of objects to array of date strings, filtering empty ones
+            serviceDates: values.serviceDates?.map(d => d.date).filter(Boolean) || [],
             leadId: initialData?.leadId // Pass the lead ID if we are converting
         }
         onSubmit(submissionData)

@@ -51,10 +51,13 @@ export async function POST(request: Request) {
                             totalAmount: parseFloat(totalAmount || 0),
                             terms: terms || "",
                             visits: {
-                                create: (serviceDates || []).map((date: string) => ({
-                                    scheduledDate: new Date(date),
-                                    status: "PENDING"
-                                }))
+                                create: (serviceDates || [])
+                                    .map((date: string) => new Date(date))
+                                    .filter((d: Date) => !isNaN(d.getTime()))
+                                    .map((d: Date) => ({
+                                        scheduledDate: d,
+                                        status: "PENDING"
+                                    }))
                             }
                         }
                     }
