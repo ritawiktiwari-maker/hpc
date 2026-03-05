@@ -173,26 +173,30 @@ export default function JobsPage() {
               </CardHeader>
               <CardContent>
                 {/* We can reuse the table but map the data */}
-                <JobHistoryTable jobs={dbJobs.map(j => ({
-                  id: j.id,
-                  billNumber: j.billNumber || 'N/A',
-                  customerId: j.customerId || '',
-                  customerName: j.customer?.name || 'Unknown',
-                  employeeId: j.assignedEmployee?.employeeId || '',
-                  employeeName: j.assignedEmployee?.name || 'Unassigned',
-                  jobDate: j.scheduledDate,
-                  status: j.status,
-                  remarks: j.remarks || '',
-                  createdAt: j.createdAt,
-                  serviceType: j.serviceType || j.contract?.serviceType || 'Direct Visit',
-                  amount: j.billAmount || 0,
-                  productsAssigned: j.productsUsed?.map((pu: any) => ({
-                    productId: pu.product.productId,
-                    productName: pu.product.name,
-                    quantityGiven: pu.quantity,
-                    unit: pu.product.unit
-                  })) || []
-                }))} />
+                <JobHistoryTable jobs={dbJobs
+                  .slice()
+                  .sort((a: any, b: any) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime())
+                  .map((j: any, idx: number) => ({
+                    id: j.id,
+                    billNumber: j.billNumber || 'N/A',
+                    customerId: j.customerId || '',
+                    customerName: j.customer?.name || 'Unknown',
+                    employeeId: j.assignedEmployee?.employeeId || '',
+                    employeeName: j.assignedEmployee?.name || 'Unassigned',
+                    jobDate: j.scheduledDate,
+                    status: j.status,
+                    remarks: j.remarks || '',
+                    createdAt: j.createdAt,
+                    serviceType: j.serviceType || j.contract?.serviceType || 'Direct Visit',
+                    amount: j.billAmount || 0,
+                    serialNo: idx + 1,
+                    productsAssigned: j.productsUsed?.map((pu: any) => ({
+                      productId: pu.product.productId,
+                      productName: pu.product.name,
+                      quantityGiven: pu.quantity,
+                      unit: pu.product.unit
+                    })) || []
+                  }))} />
               </CardContent>
             </Card>
           </TabsContent>

@@ -10,7 +10,7 @@ import { useState, Fragment } from "react"
 import { cn } from "@/lib/utils"
 
 interface JobHistoryTableProps {
-  jobs: Job[]
+  jobs: (Job & { serialNo?: number })[]
 }
 
 export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
@@ -41,8 +41,10 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
+            <TableHead className="w-12 text-center">#</TableHead>
             <TableHead className="w-10"></TableHead>
             <TableHead>Bill No.</TableHead>
+            <TableHead>Customer</TableHead>
             <TableHead>Employee</TableHead>
             <TableHead>Job Date</TableHead>
             <TableHead>Service</TableHead>
@@ -59,6 +61,9 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
             return (
               <Fragment key={job.id}>
                 <TableRow className="cursor-pointer hover:bg-muted/30" onClick={() => toggleRow(job.id)}>
+                  <TableCell className="text-center text-xs font-mono text-muted-foreground font-medium">
+                    {(job as any).serialNo ?? "-"}
+                  </TableCell>
                   <TableCell>
                     {isExpanded ? (
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -71,6 +76,9 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
                       <Receipt className="h-3 w-3" />
                       {job.billNumber || "N/A"}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <p className="font-medium text-sm">{job.customerName}</p>
                   </TableCell>
                   <TableCell>
                     <div>
@@ -99,7 +107,7 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
 
                 {isExpanded && (
                   <TableRow>
-                    <TableCell colSpan={6} className="bg-muted/20 p-4">
+                    <TableCell colSpan={8} className="bg-muted/20 p-4">
                       <div className="space-y-3">
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                           {job.productsAssigned.map((product, idx) => (
