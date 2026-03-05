@@ -66,7 +66,7 @@ export function EmployeeTable({ employees, onEdit, onDelete, onView, onToggleSta
               </TableCell>
               <TableCell className="hidden md:table-cell">{employee.mobileNumber}</TableCell>
               <TableCell className="hidden lg:table-cell font-mono text-sm">
-                {employee.aadhaarNumber.replace(/(\d{4})/g, "$1 ").trim()}
+                {employee.aadhaarNumber ? employee.aadhaarNumber.replace(/(\d{4})/g, "$1 ").trim() : "-"}
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 {employee.dateOfJoining ? format(new Date(employee.dateOfJoining), "dd MMM yyyy") : "-"}
