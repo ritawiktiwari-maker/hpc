@@ -22,13 +22,55 @@ export default function DashboardPage() {
   const [data, setData] = useState<AppData | null>(null)
   const [runningOrders, setRunningOrders] = useState<any[]>([])
   const [loadingOrders, setLoadingOrders] = useState(true)
+  const [dbEmployeeCount, setDbEmployeeCount] = useState<number>(0)
+  const [dbProductCount, setDbProductCount] = useState<number>(0)
+  const [dbJobCount, setDbJobCount] = useState<number>(0)
 
   useEffect(() => {
     if (isLoggedIn) {
       setData(getData())
       fetchRunningOrders()
+      fetchEmployeeCount()
+      fetchProductCount()
+      fetchJobCount()
     }
   }, [isLoggedIn])
+
+  const fetchEmployeeCount = async () => {
+    try {
+      const response = await fetch("/api/employees")
+      if (response.ok) {
+        const employees = await response.json()
+        setDbEmployeeCount(employees.length)
+      }
+    } catch (error) {
+      console.error("Failed to fetch employee count:", error)
+    }
+  }
+
+  const fetchProductCount = async () => {
+    try {
+      const response = await fetch("/api/products")
+      if (response.ok) {
+        const products = await response.json()
+        setDbProductCount(products.length)
+      }
+    } catch (error) {
+      console.error("Failed to fetch product count:", error)
+    }
+  }
+
+  const fetchJobCount = async () => {
+    try {
+      const response = await fetch("/api/jobs")
+      if (response.ok) {
+        const jobs = await response.json()
+        setDbJobCount(jobs.length)
+      }
+    } catch (error) {
+      console.error("Failed to fetch job count:", error)
+    }
+  }
 
   const fetchRunningOrders = async () => {
     try {
@@ -78,9 +120,9 @@ export default function DashboardPage() {
         </div>
 
         <StatsCards
-          totalEmployees={data.employees.length}
-          totalProducts={data.products.length}
-          totalJobs={data.jobs.length}
+          totalEmployees={dbEmployeeCount}
+          totalProducts={dbProductCount}
+          totalJobs={dbJobCount}
           lowStockCount={lowStockCount}
         />
 
