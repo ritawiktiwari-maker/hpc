@@ -53,6 +53,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
   const [remarks, setRemarks] = useState("")
   const [amount, setAmount] = useState("")
   const [serviceType, setServiceType] = useState("")
+  const [customerServices, setCustomerServices] = useState<string[]>([]) // All services of selected customer
   const [nextServiceDate, setNextServiceDate] = useState("")
   const [frequency, setFrequency] = useState("")
 
@@ -67,32 +68,33 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
   useEffect(() => {
     if (selectedCustomer) {
-      // Find the most recent contract
       const contract = selectedCustomer.contracts && selectedCustomer.contracts.length > 0
         ? selectedCustomer.contracts[0]
         : null
 
-      if (contract) {
-        const rawServiceType = contract.serviceType || selectedCustomer.serviceType || ""
-        setServiceType(rawServiceType.includes(',') ? rawServiceType.split(',')[0].trim() : rawServiceType)
-        setFrequency(contract.frequency || selectedCustomer.frequency || "")
+      const rawServiceType = contract?.serviceType || selectedCustomer.serviceType || ""
+      // Split into individual services so the dropdown shows all options
+      const services = rawServiceType
+        ? rawServiceType.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : []
+      setCustomerServices(services)
+      // If only one service, auto-select it; otherwise let employee choose
+      setServiceType(services.length === 1 ? services[0] : "")
 
-        // Suggest next service date from next pending visit
-        const nextVisit = contract.visits?.find((v: any) => v.status === "PENDING")
-        if (nextVisit && nextVisit.scheduledDate) {
-          setNextServiceDate(new Date(nextVisit.scheduledDate).toISOString().split("T")[0])
-        } else if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
-          setNextServiceDate(selectedCustomer.serviceDates[0])
-        }
-      } else {
-        // Fallback for customers without nested contracts
-        const rawServiceType = selectedCustomer.serviceType || ""
-        setServiceType(rawServiceType.includes(',') ? rawServiceType.split(',')[0].trim() : rawServiceType)
-        setFrequency(selectedCustomer.frequency || "")
-        if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
-          setNextServiceDate(selectedCustomer.serviceDates[0])
-        }
+      setFrequency(contract?.frequency || selectedCustomer.frequency || "")
+
+      // Suggest next service date from next pending visit
+      const nextVisit = contract?.visits?.find((v: any) => v.status === "PENDING")
+      if (nextVisit?.scheduledDate) {
+        setNextServiceDate(new Date(nextVisit.scheduledDate).toISOString().split("T")[0])
+      } else if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
+        setNextServiceDate(selectedCustomer.serviceDates[0])
       }
+    } else {
+      setCustomerServices([])
+      setServiceType("")
+      setFrequency("")
+      setNextServiceDate("")
     }
   }, [selectedCustomerId, customers])
 
@@ -129,6 +131,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
     setRemarks("")
     setAmount("")
     setServiceType("")
+    setCustomerServices([])
     setFrequency("")
     setNextServiceDate("")
     setAssignments([])
@@ -363,36 +366,62 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="serviceType">Service Type</Label>
-              {(() => {
-                const contract = selectedCustomer?.contracts?.[0]
-                const rawServiceType = contract?.serviceType || selectedCustomer?.serviceType || ""
-                if (rawServiceType.includes(',')) {
-                  return (
-                    <Select value={serviceType} onValueChange={setServiceType}>
-                      <SelectTrigger id="serviceType">
-                        <SelectValue placeholder="Select one of purchased services" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rawServiceType.split(',').map((s: string) => (
-                          <SelectItem key={s.trim()} value={s.trim()}>
-                            {s.trim()}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="Other">Custom / Manual Entry</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )
-                }
-                return (
-                  <Input
-                    id="serviceType"
-                    placeholder="e.g. Termite Control, General Pest"
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
-                  />
-                )
-              })()}
+              <Label htmlFor="serviceType">
+                Service Type
+                {customerServices.length > 1 && (
+                  <span className="ml-2 text-xs text-muted-foreground font-normal">
+                    (Customer has {customerServices.length} services — pick one)
+                  </span>
+                )}
+              </Label>
+              {customerServices.length > 1 ? (
+                // Multiple services — show a dropdown with ALL of them
+                <Select value={serviceType} onValueChange={setServiceType}>
+                  <SelectTrigger id="serviceType">
+                    <SelectValue placeholder="Select service for this visit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customerServices.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                    <SelectItem value="Other">Other / Custom Entry</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : customerServices.length === 1 ? (
+                // Single service — auto-filled, still editable
+                <Input
+                  id="serviceType"
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                />
+              ) : (
+                // No customer selected — free text
+                <Input
+                  id="serviceType"
+                  placeholder="e.g. Termite Control, General Pest"
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                />
+              )}
+              {/* Badge strip showing all customer's subscribed services */}
+              {customerServices.length > 0 && (
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {customerServices.map((s) => (
+                    <span
+                      key={s}
+                      onClick={() => setServiceType(s)}
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border transition-colors",
+                        serviceType === s
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-muted text-muted-foreground border-border hover:border-primary hover:text-primary"
+                      )}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
