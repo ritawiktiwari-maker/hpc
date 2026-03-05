@@ -111,12 +111,27 @@ export default function EmployeeDashboard() {
     }
 
     const handleConfirmCompletion = async () => {
-        if (!completingJob) return
+        if (!completingJob || !currentEmployee) return
 
-        // This would ideally be a POST /api/jobs/[id]/complete
-        // For now, we'll simulate success since the return stock is the main priority
-        toast.info("Job completion backend is being integrated. Please use 'Return Stock' for inventory.")
-        setCompletingJob(null)
+        try {
+            const response = await fetch(`/api/jobs/${completingJob.id}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})  // no usage data for now — simple completion
+            })
+
+            if (response.ok) {
+                toast.success(`Job for ${completingJob.customerName} marked as Completed!`)
+                setCompletingJob(null)
+                // Refresh dashboard data so job moves to Completed tab
+                fetchEmployeeData(currentEmployee.employeeId)
+            } else {
+                const error = await response.json()
+                toast.error(error.error || 'Failed to complete job')
+            }
+        } catch (err) {
+            toast.error('An error occurred while completing the job')
+        }
     }
 
     const handleReturnStock = () => {
