@@ -9,7 +9,19 @@ export async function PUT(
         const params = await props.params
         const id = params.id
         const body = await request.json()
-        const { isActive, name, mobileNumber, address } = body
+        const {
+            isActive,
+            name,
+            mobileNumber,
+            address,
+            fatherName,
+            aadhaarNumber,
+            dateOfBirth,
+            emergencyContact,
+            photo,
+            dateOfJoining,
+            password
+        } = body
 
         const employee = await prisma.employee.update({
             where: { id },
@@ -18,6 +30,13 @@ export async function PUT(
                 ...(name && { name }),
                 ...(mobileNumber && { mobileNumber }),
                 ...(address && { address }),
+                ...(fatherName !== undefined && { fatherName }),
+                ...(aadhaarNumber !== undefined && { aadhaarNumber }),
+                ...(dateOfBirth && { dateOfBirth: new Date(dateOfBirth) }),
+                ...(emergencyContact !== undefined && { emergencyContact }),
+                ...(photo !== undefined && { photo }),
+                ...(dateOfJoining && { dateOfJoining: new Date(dateOfJoining) }),
+                ...(password && { password }),
             }
         })
         return NextResponse.json(employee)
