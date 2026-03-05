@@ -63,7 +63,9 @@ export async function POST(request: Request) {
                     assignedEmployeeId: (await tx.employee.findUnique({ where: { employeeId } }))?.id,
                     scheduledDate: new Date(jobDate),
                     status: 'PENDING',
-                    // Note: productsAssigned in this context means "given to employee for this job"
+                    serviceType: serviceType || undefined,
+                    remarks: remarks || undefined,
+                    billAmount: parseFloat(amount || 0),
                 }
             })
 

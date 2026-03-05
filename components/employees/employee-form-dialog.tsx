@@ -135,7 +135,7 @@ export function EmployeeFormDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
-      onSubmit(formData)
+      onSubmit({ ...formData, isActive: employee?.isActive ?? true })
       onOpenChange(false)
     }
   }

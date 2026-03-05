@@ -45,6 +45,8 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
             <TableHead>Bill No.</TableHead>
             <TableHead>Employee</TableHead>
             <TableHead>Job Date</TableHead>
+            <TableHead>Service</TableHead>
+            <TableHead>Amount (₹)</TableHead>
             <TableHead className="hidden sm:table-cell">Products</TableHead>
             <TableHead className="hidden md:table-cell">Assigned On</TableHead>
           </TableRow>
@@ -77,6 +79,14 @@ export function JobHistoryTable({ jobs }: JobHistoryTableProps) {
                     </div>
                   </TableCell>
                   <TableCell>{format(new Date(job.jobDate), "dd MMM yyyy")}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="whitespace-nowrap">
+                      {(job as any).serviceType || "N/A"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-medium text-green-600">
+                    ₹{(job as any).amount?.toLocaleString() || "0"}
+                  </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="secondary">
                       {job.productsAssigned.length} product{job.productsAssigned.length !== 1 ? "s" : ""}

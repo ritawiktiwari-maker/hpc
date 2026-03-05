@@ -92,7 +92,7 @@ const formSchema = z.object({
     address: z.string().min(5, "Address must be at least 5 characters"),
     contactNumber: z.string().min(10, "Contact number must be at least 10 digits"),
     email: z.string().email("Invalid email address").optional().or(z.literal("")),
-    serviceType: z.string().optional(),
+    serviceTypes: z.array(z.object({ type: z.string() })).min(1, "At least one service type is required").optional(),
     contractStartDate: z.string().optional(),
     contractEndDate: z.string().optional(),
     contractAmount: z.coerce.number().optional(),
@@ -119,7 +119,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
             address: "",
             contactNumber: "",
             email: "",
-            serviceType: "",
+            serviceTypes: [{ type: "" }],
             contractStartDate: "",
             contractEndDate: "",
             contractAmount: 0,
@@ -138,7 +138,12 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
 
     const [isCustomTerms, setIsCustomTerms] = useState(false)
     const [isCustomFrequency, setIsCustomFrequency] = useState(false)
-    const [isCustomServiceType, setIsCustomServiceType] = useState(false)
+    const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
+        control: form.control,
+        name: "serviceTypes",
+    })
+
+    const [customServiceTypes, setCustomServiceTypes] = useState<Record<number, boolean>>({})
 
     useEffect(() => {
         if (customer) {
@@ -152,7 +157,9 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                 contactNumber: customer.contactNumber,
                 email: customer.email || "",
                 // Use activeContract for these fields
-                serviceType: activeContract.serviceType || customer.serviceType || "",
+                serviceTypes: activeContract.serviceType
+                    ? activeContract.serviceType.split(',').map((s: string) => ({ type: s.trim() }))
+                    : (customer.serviceType ? customer.serviceType.split(',').map((s: string) => ({ type: s.trim() })) : [{ type: "" }]),
                 contractStartDate: activeContract.startDate ? new Date(activeContract.startDate).toISOString().split('T')[0] : (activeContract.contractStartDate || ""),
                 contractEndDate: activeContract.endDate ? new Date(activeContract.endDate).toISOString().split('T')[0] : (activeContract.contractEndDate || ""),
                 contractAmount: activeContract.contractValue || activeContract.contractAmount || 0,
@@ -170,7 +177,16 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
 
             setIsCustomTerms(termsVal ? !TERMS_OPTIONS.includes(termsVal) : false)
             setIsCustomFrequency(freqVal ? !FREQUENCY_OPTIONS.includes(freqVal) : false)
-            setIsCustomServiceType(typeVal ? !SERVICE_TYPE_OPTIONS.includes(typeVal) : false)
+            const customServiceFlags: Record<number, boolean> = {}
+            if (activeContract.serviceType || customer.serviceType) {
+                const types = (activeContract.serviceType || customer.serviceType || "").split(',').map((s: string) => s.trim())
+                types.forEach((t: string, i: number) => {
+                    if (t && !SERVICE_TYPE_OPTIONS.includes(t)) {
+                        customServiceFlags[i] = true
+                    }
+                })
+            }
+            setCustomServiceTypes(customServiceFlags)
         } else if (initialData) {
             // Pre-fill from Lead
             form.reset({
@@ -178,7 +194,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                 address: initialData.address || "",
                 contactNumber: initialData.contactNumber || "",
                 email: "",
-                serviceType: "",
+                serviceTypes: [{ type: "" }],
                 contractStartDate: "",
                 contractEndDate: "",
                 contractAmount: 0,
@@ -191,14 +207,14 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
             // Reset custom flags
             setIsCustomTerms(false)
             setIsCustomFrequency(false)
-            setIsCustomServiceType(false)
+            setCustomServiceTypes({})
         } else {
             form.reset({
                 name: "",
                 address: "",
                 contactNumber: "",
                 email: "",
-                serviceType: "",
+                serviceTypes: [{ type: "" }],
                 contractStartDate: "",
                 contractEndDate: "",
                 contractAmount: 0,
@@ -210,7 +226,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
             })
             setIsCustomTerms(false)
             setIsCustomFrequency(false)
-            setIsCustomServiceType(false)
+            setCustomServiceTypes({})
         }
     }, [customer, initialData, form, open])
 
@@ -218,7 +234,7 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
         // Flatten serviceDates from object array to string array
         const submissionData = {
             ...values,
-            serviceDates: values.serviceDates?.map(d => d.date) || [],
+            serviceType: values.serviceTypes?.map(s => s.type).filter(Boolean).join(', ') || "",
             leadId: initialData?.leadId // Pass the lead ID if we are converting
         }
         onSubmit(submissionData)
@@ -494,50 +510,77 @@ export function CustomerFormDialog({ open, onOpenChange, customer, initialData, 
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="serviceType"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Service Type</FormLabel>
-                                    <div className="space-y-2">
-                                        <Select
-                                            value={isCustomServiceType ? "Other" : (SERVICE_TYPE_OPTIONS.includes(field.value || "") ? field.value : (field.value ? "Other" : ""))}
-                                            onValueChange={(val) => {
-                                                if (val === "Other") {
-                                                    setIsCustomServiceType(true)
-                                                    field.onChange("")
-                                                } else {
-                                                    setIsCustomServiceType(false)
-                                                    field.onChange(val)
-                                                }
-                                            }}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select Service Type" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {SERVICE_TYPE_OPTIONS.map(opt => (
-                                                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                                                ))}
-                                                <SelectItem value="Other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        {isCustomServiceType && (
-                                            <Input
-                                                placeholder="Specify service type..."
-                                                {...field}
-                                                value={field.value || ""}
-                                                onChange={field.onChange}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <FormLabel>Service Type(s)</FormLabel>
+                                <Button type="button" variant="outline" size="sm" onClick={() => appendService({ type: "" })}>
+                                    <Plus className="h-4 w-4 mr-1" /> Add Service
+                                </Button>
+                            </div>
+                            <div className="space-y-3">
+                                {serviceFields.map((field, index) => {
+                                    const isCustom = customServiceTypes[index]
+                                    return (
+                                        <div key={field.id} className="flex items-start gap-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`serviceTypes.${index}.type`}
+                                                render={({ field }) => (
+                                                    <FormItem className="flex-1">
+                                                        <div className="space-y-2">
+                                                            <Select
+                                                                value={isCustom ? "Other" : (SERVICE_TYPE_OPTIONS.includes(field.value || "") ? field.value : (field.value ? "Other" : ""))}
+                                                                onValueChange={(val) => {
+                                                                    if (val === "Other") {
+                                                                        setCustomServiceTypes(prev => ({ ...prev, [index]: true }))
+                                                                        field.onChange("")
+                                                                    } else {
+                                                                        setCustomServiceTypes(prev => ({ ...prev, [index]: false }))
+                                                                        field.onChange(val)
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <FormControl>
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Select Service Type" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {SERVICE_TYPE_OPTIONS.map(opt => (
+                                                                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                                    ))}
+                                                                    <SelectItem value="Other">Other</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {isCustom && (
+                                                                <Input
+                                                                    placeholder="Specify service type..."
+                                                                    {...field}
+                                                                    value={field.value || ""}
+                                                                    onChange={field.onChange}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
                                             />
-                                        )}
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                            {serviceFields.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => removeService(index)}
+                                                    className="text-destructive mt-1 shrink-0"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
                         <FormField
                             control={form.control}
                             name="address"

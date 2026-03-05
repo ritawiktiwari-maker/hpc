@@ -11,20 +11,75 @@ export async function PUT(
         const params = await props.params
         const id = params.id
         const body = await request.json()
-        const { name, contactNumber, address, email } = body
+        const {
+            name, contactNumber, address, email,
+            serviceType, frequency, contractStartDate, contractEndDate,
+            contractAmount, gst, totalAmount, terms, serviceDates
+        } = body
 
-        const customer = await prisma.customer.update({
-            where: { id },
-            data: {
-                name,
-                contactNumber,
-                address,
-                email
+        const customer = await prisma.$transaction(async (tx) => {
+            // 1. Update Customer base details
+            const updatedCustomer = await tx.customer.update({
+                where: { id },
+                data: {
+                    name,
+                    contactNumber,
+                    address,
+                    email
+                }
+            })
+
+            // 2. Update the active/first contract if form sent contract details
+            const existingContract = await tx.contract.findFirst({
+                where: { customerId: id }
+            })
+
+            if (existingContract) {
+                await tx.contract.update({
+                    where: { id: existingContract.id },
+                    data: {
+                        ...(serviceType && { serviceType }),
+                        ...(frequency && { frequency }),
+                        ...(terms && { terms }),
+                        ...(contractStartDate && { startDate: new Date(contractStartDate) }),
+                        ...(contractEndDate && { endDate: new Date(contractEndDate) }),
+                        ...(contractAmount !== undefined && { contractValue: parseFloat(contractAmount) }),
+                        ...(gst !== undefined && { gst: parseFloat(gst) }),
+                        ...(totalAmount !== undefined && { totalAmount: parseFloat(totalAmount) }),
+                    }
+                })
+
+                // 3. Recreate PENDING visits based on new serviceDates
+                if (serviceDates && Array.isArray(serviceDates)) {
+                    // Delete existing PENDING visits for this contract
+                    await tx.visit.deleteMany({
+                        where: {
+                            contractId: existingContract.id,
+                            status: "PENDING"
+                        }
+                    })
+
+                    // Create new PENDING visits
+                    if (serviceDates.length > 0) {
+                        await tx.visit.createMany({
+                            data: serviceDates.map((date: string) => ({
+                                contractId: existingContract.id,
+                                customerId: id,
+                                scheduledDate: new Date(date),
+                                status: "PENDING"
+                            }))
+                        })
+                    }
+                }
             }
+
+            return updatedCustomer
         })
+
         return NextResponse.json(customer)
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 })
+    } catch (error: any) {
+        console.error("Customer Update Error:", error)
+        return NextResponse.json({ error: 'Failed to update customer', details: error.message }, { status: 500 })
     }
 }
 

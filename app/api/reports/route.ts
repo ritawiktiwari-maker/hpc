@@ -75,10 +75,10 @@ export async function GET(request: Request) {
             services: completedVisits.map(visit => ({
                 id: visit.id,
                 date: visit.completionDate,
-                customerName: visit.contract.customer.name,
-                customerAddress: visit.contract.customer.address,
-                customerContact: visit.contract.customer.contactNumber,
-                serviceType: visit.contract.serviceType,
+                customerName: visit.contract?.customer.name || 'Direct Visit',
+                customerAddress: visit.contract?.customer.address || '',
+                customerContact: visit.contract?.customer.contactNumber || '',
+                serviceType: visit.serviceType || visit.contract?.serviceType || 'Direct Visit',
                 employeeName: visit.assignedEmployee?.name || 'Unassigned',
                 productsUsed: visit.productsUsed.map(p => ({
                     productName: p.product.name,

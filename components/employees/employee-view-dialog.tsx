@@ -49,11 +49,15 @@ export function EmployeeViewDialog({ open, onOpenChange, employee }: EmployeeVie
             </div>
             <div>
               <p className="text-muted-foreground">Date of Birth</p>
-              <p className="font-medium">{format(new Date(employee.dateOfBirth), "dd MMM yyyy")}</p>
+              <p className="font-medium">
+                {employee.dateOfBirth ? format(new Date(employee.dateOfBirth), "dd MMM yyyy") : "-"}
+              </p>
             </div>
             <div>
               <p className="text-muted-foreground">Aadhaar Number</p>
-              <p className="font-medium font-mono">{employee.aadhaarNumber.replace(/(\d{4})/g, "$1 ").trim()}</p>
+              <p className="font-medium font-mono">
+                {employee.aadhaarNumber ? employee.aadhaarNumber.replace(/(\d{4})/g, "$1 ").trim() : "-"}
+              </p>
             </div>
             <div>
               <p className="text-muted-foreground">Mobile Number</p>

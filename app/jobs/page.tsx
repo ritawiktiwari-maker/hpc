@@ -174,7 +174,8 @@ export default function JobsPage() {
                   status: j.status,
                   remarks: j.remarks || '',
                   createdAt: j.createdAt,
-                  amount: 0, // DB Visit doesn't have amount yet, could add if needed
+                  serviceType: j.serviceType || j.contract?.serviceType || 'Direct Visit',
+                  amount: j.billAmount || 0,
                   productsAssigned: j.productsUsed?.map((pu: any) => ({
                     productId: pu.product.productId,
                     productName: pu.product.name,

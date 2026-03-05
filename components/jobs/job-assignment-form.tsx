@@ -363,12 +363,28 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
             <div className="space-y-2">
               <Label htmlFor="serviceType">Service Type</Label>
-              <Input
-                id="serviceType"
-                placeholder="e.g. Termite Control, General Pest"
-                value={serviceType}
-                onChange={(e) => setServiceType(e.target.value)}
-              />
+              {selectedCustomer?.serviceType?.includes(',') ? (
+                <Select value={serviceType} onValueChange={setServiceType}>
+                  <SelectTrigger id="serviceType">
+                    <SelectValue placeholder="Select one of purchased services" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCustomer.serviceType.split(',').map((s: string) => (
+                      <SelectItem key={s.trim()} value={s.trim()}>
+                        {s.trim()}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="Other">Custom / Manual Entry</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="serviceType"
+                  placeholder="e.g. Termite Control, General Pest"
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                />
+              )}
             </div>
 
             <div className="space-y-2">

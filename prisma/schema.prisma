@@ -117,6 +117,9 @@ model Visit {
   assignedEmployee   Employee? @relation(fields: [assignedEmployeeId], references: [id])
   
   status             String   @default("PENDING") // PENDING, COMPLETED, MISSED
+  serviceType        String?  // The specific service this visit is for
+  remarks            String?
+  billAmount         Float?
   chkImg             String?  // Checkup Image/Proof
   
   productsUsed       VisitProductUsage[]
