@@ -54,6 +54,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
   const [amount, setAmount] = useState("")
   const [serviceType, setServiceType] = useState("")
   const [customerServices, setCustomerServices] = useState<string[]>([]) // All services of selected customer
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set()) // Checked services
   const [nextServiceDate, setNextServiceDate] = useState("")
   const [frequency, setFrequency] = useState("")
 
@@ -73,13 +74,15 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
         : null
 
       const rawServiceType = contract?.serviceType || selectedCustomer.serviceType || ""
-      // Split into individual services so the dropdown shows all options
+      // Split into individual services so checkboxes can show all options
       const services = rawServiceType
         ? rawServiceType.split(',').map((s: string) => s.trim()).filter(Boolean)
         : []
       setCustomerServices(services)
-      // If only one service, auto-select it; otherwise let employee choose
-      setServiceType(services.length === 1 ? services[0] : "")
+      // Pre-select ALL services (they are done together)
+      const allSelected = new Set(services)
+      setSelectedServices(allSelected)
+      setServiceType(services.join(', '))
 
       setFrequency(contract?.frequency || selectedCustomer.frequency || "")
 
@@ -92,6 +95,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
       }
     } else {
       setCustomerServices([])
+      setSelectedServices(new Set())
       setServiceType("")
       setFrequency("")
       setNextServiceDate("")
@@ -132,6 +136,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
     setAmount("")
     setServiceType("")
     setCustomerServices([])
+    setSelectedServices(new Set())
     setFrequency("")
     setNextServiceDate("")
     setAssignments([])
@@ -366,61 +371,58 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="serviceType">
+              <Label>
                 Service Type
-                {customerServices.length > 1 && (
+                {customerServices.length > 0 && (
                   <span className="ml-2 text-xs text-muted-foreground font-normal">
-                    (Customer has {customerServices.length} services — pick one)
+                    (select all that apply for this visit)
                   </span>
                 )}
               </Label>
-              {customerServices.length > 1 ? (
-                // Multiple services — show a dropdown with ALL of them
-                <Select value={serviceType} onValueChange={setServiceType}>
-                  <SelectTrigger id="serviceType">
-                    <SelectValue placeholder="Select service for this visit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customerServices.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                    <SelectItem value="Other">Other / Custom Entry</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : customerServices.length === 1 ? (
-                // Single service — auto-filled, still editable
-                <Input
-                  id="serviceType"
-                  value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                />
+              {customerServices.length > 0 ? (
+                // Show checkboxes for all purchased services
+                <div className="rounded-md border p-3 space-y-2">
+                  {customerServices.map((s) => {
+                    const checked = selectedServices.has(s)
+                    return (
+                      <label
+                        key={s}
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            setSelectedServices(prev => {
+                              const next = new Set(prev)
+                              if (next.has(s)) next.delete(s)
+                              else next.add(s)
+                              // Keep order consistent with original list
+                              const ordered = customerServices.filter(svc => next.has(svc))
+                              setServiceType(ordered.join(', '))
+                              return next
+                            })
+                          }}
+                          className="h-4 w-4 rounded border-gray-300 accent-primary cursor-pointer"
+                        />
+                        <span className={cn(
+                          "text-sm transition-colors",
+                          checked ? "text-foreground font-medium" : "text-muted-foreground"
+                        )}>
+                          {s}
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
               ) : (
-                // No customer selected — free text
+                // No customer selected or no services on record — free text
                 <Input
                   id="serviceType"
                   placeholder="e.g. Termite Control, General Pest"
                   value={serviceType}
                   onChange={(e) => setServiceType(e.target.value)}
                 />
-              )}
-              {/* Badge strip showing all customer's subscribed services */}
-              {customerServices.length > 0 && (
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {customerServices.map((s) => (
-                    <span
-                      key={s}
-                      onClick={() => setServiceType(s)}
-                      className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium cursor-pointer border transition-colors",
-                        serviceType === s
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-muted text-muted-foreground border-border hover:border-primary hover:text-primary"
-                      )}
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
               )}
             </div>
 
