@@ -80,7 +80,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
         : []
       setCustomerServices(services)
       // Pre-select ALL services (they are done together)
-      const allSelected = new Set(services)
+      const allSelected = new Set<string>(services)
       setSelectedServices(allSelected)
       setServiceType(services.join(', '))
 
@@ -103,7 +103,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
   }, [selectedCustomerId, customers])
 
   const checkBillNumberDuplicate = (value: string): boolean => {
-    return existingJobs.some((job) => job.billNumber.toLowerCase() === value.toLowerCase())
+    return existingJobs.some((job) => job.billNumber?.toLowerCase() === value.toLowerCase())
   }
 
   const handleConfirm = () => {
