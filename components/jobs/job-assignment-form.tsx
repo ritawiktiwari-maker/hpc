@@ -73,7 +73,8 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
         : null
 
       if (contract) {
-        setServiceType(contract.serviceType || selectedCustomer.serviceType || "")
+        const rawServiceType = contract.serviceType || selectedCustomer.serviceType || ""
+        setServiceType(rawServiceType.includes(',') ? rawServiceType.split(',')[0].trim() : rawServiceType)
         setFrequency(contract.frequency || selectedCustomer.frequency || "")
 
         // Suggest next service date from next pending visit
@@ -85,7 +86,8 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
         }
       } else {
         // Fallback for customers without nested contracts
-        setServiceType(selectedCustomer.serviceType || "")
+        const rawServiceType = selectedCustomer.serviceType || ""
+        setServiceType(rawServiceType.includes(',') ? rawServiceType.split(',')[0].trim() : rawServiceType)
         setFrequency(selectedCustomer.frequency || "")
         if (selectedCustomer.serviceDates && selectedCustomer.serviceDates.length > 0) {
           setNextServiceDate(selectedCustomer.serviceDates[0])
@@ -226,8 +228,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
     if (!selectedCustomerId) return "Please select a customer"
     if (!selectedEmployeeId) return "Please select an employee"
     if (!jobDate) return "Please select a job date"
-    if (assignments.length === 0) return "Please add at least one product"
-
+    // Products are now optional
     for (const a of assignments) {
       if (!a.productId) return "Please select a product for all rows"
       if (a.quantityGiven <= 0) return "Quantity must be greater than 0"
@@ -363,28 +364,35 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
             <div className="space-y-2">
               <Label htmlFor="serviceType">Service Type</Label>
-              {selectedCustomer?.serviceType?.includes(',') ? (
-                <Select value={serviceType} onValueChange={setServiceType}>
-                  <SelectTrigger id="serviceType">
-                    <SelectValue placeholder="Select one of purchased services" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectedCustomer.serviceType.split(',').map((s: string) => (
-                      <SelectItem key={s.trim()} value={s.trim()}>
-                        {s.trim()}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="Other">Custom / Manual Entry</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  id="serviceType"
-                  placeholder="e.g. Termite Control, General Pest"
-                  value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                />
-              )}
+              {(() => {
+                const contract = selectedCustomer?.contracts?.[0]
+                const rawServiceType = contract?.serviceType || selectedCustomer?.serviceType || ""
+                if (rawServiceType.includes(',')) {
+                  return (
+                    <Select value={serviceType} onValueChange={setServiceType}>
+                      <SelectTrigger id="serviceType">
+                        <SelectValue placeholder="Select one of purchased services" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rawServiceType.split(',').map((s: string) => (
+                          <SelectItem key={s.trim()} value={s.trim()}>
+                            {s.trim()}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="Other">Custom / Manual Entry</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )
+                }
+                return (
+                  <Input
+                    id="serviceType"
+                    placeholder="e.g. Termite Control, General Pest"
+                    value={serviceType}
+                    onChange={(e) => setServiceType(e.target.value)}
+                  />
+                )
+              })()}
             </div>
 
             <div className="space-y-2">
@@ -528,7 +536,7 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
                 </span>
               )}
             </div>
-            <Button onClick={handleSubmitClick} disabled={assignments.length === 0}>
+            <Button onClick={handleSubmitClick}>
               Assign Job
             </Button>
           </div>
@@ -560,13 +568,17 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
               <p>
                 <strong>Products:</strong>
               </p>
-              <ul className="list-disc list-inside text-sm pl-2">
-                {assignments.map((a) => (
-                  <li key={a.id}>
-                    {a.productName}: {formatQuantityWithUnit(a.quantityGiven, a.unit)}
-                  </li>
-                ))}
-              </ul>
+              {assignments.length > 0 ? (
+                <ul className="list-disc list-inside text-sm pl-2">
+                  {assignments.map((a) => (
+                    <li key={a.id}>
+                      {a.productName}: {formatQuantityWithUnit(a.quantityGiven, a.unit)}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground pl-2 italic">No products assigned</p>
+              )}
               {remarks && (
                 <p>
                   <strong>Remarks:</strong> {remarks}

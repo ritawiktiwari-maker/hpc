@@ -62,6 +62,8 @@ model Customer {
   address       String
   contactNumber String
   email         String?
+  serviceType   String?
+  frequency     String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

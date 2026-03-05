@@ -40,6 +40,8 @@ export async function POST(request: Request) {
                     contactNumber,
                     address,
                     email,
+                    serviceType: serviceType || "General",
+                    frequency: frequency || "Once",
                     contracts: {
                         create: {
                             serviceType: serviceType || "General",

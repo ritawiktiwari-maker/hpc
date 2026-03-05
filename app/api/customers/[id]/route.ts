@@ -25,7 +25,9 @@ export async function PUT(
                     name,
                     contactNumber,
                     address,
-                    email
+                    email,
+                    serviceType: serviceType || undefined,
+                    frequency: frequency || undefined,
                 }
             })
 
