@@ -59,17 +59,17 @@ export function EmployeeFormDialog({
     if (open) {
       if (employee) {
         setFormData({
-          employeeId: employee.employeeId,
-          name: employee.name,
-          fatherName: employee.fatherName,
-          aadhaarNumber: employee.aadhaarNumber,
-          dateOfBirth: employee.dateOfBirth,
-          mobileNumber: employee.mobileNumber,
-          emergencyContact: employee.emergencyContact,
-          address: employee.address,
-          photo: employee.photo,
-          dateOfJoining: employee.dateOfJoining,
-          password: employee.password || "", // Add password
+          employeeId: employee.employeeId || "",
+          name: employee.name || "",
+          fatherName: employee.fatherName || "",
+          aadhaarNumber: employee.aadhaarNumber || "",
+          dateOfBirth: employee.dateOfBirth || "",
+          mobileNumber: employee.mobileNumber || "",
+          emergencyContact: employee.emergencyContact || "",
+          address: employee.address || "",
+          photo: employee.photo, // photo can be null
+          dateOfJoining: employee.dateOfJoining || "",
+          password: employee.password || "",
         })
       } else {
         setFormData({

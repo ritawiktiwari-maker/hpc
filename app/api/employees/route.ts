@@ -6,12 +6,6 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
     try {
         const employees = await prisma.employee.findMany({
-            select: {
-                id: true,
-                name: true,
-                employeeId: true,
-                isActive: true
-            },
             orderBy: { name: 'asc' }
         })
         return NextResponse.json(employees)

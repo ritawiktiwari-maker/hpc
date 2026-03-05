@@ -9,8 +9,10 @@ export async function PUT(
         const params = await props.params
         const id = params.id
         const body = await request.json()
+        console.log("Updating employee:", id, JSON.stringify(body, null, 2))
         const {
             isActive,
+            employeeId,
             name,
             mobileNumber,
             address,
@@ -27,6 +29,7 @@ export async function PUT(
             where: { id },
             data: {
                 ...(isActive !== undefined && { isActive }),
+                ...(employeeId && { employeeId }),
                 ...(name && { name }),
                 ...(mobileNumber && { mobileNumber }),
                 ...(address && { address }),
@@ -39,10 +42,11 @@ export async function PUT(
                 ...(password && { password }),
             }
         })
+        console.log("Employee updated successfully:", employee.id)
         return NextResponse.json(employee)
-    } catch (error) {
+    } catch (error: any) {
         console.error("Employee Update Error:", error)
-        return NextResponse.json({ error: 'Failed to update employee' }, { status: 500 })
+        return NextResponse.json({ error: error.message || 'Failed to update employee' }, { status: 500 })
     }
 }
 
