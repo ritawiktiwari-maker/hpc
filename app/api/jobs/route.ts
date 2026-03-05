@@ -58,13 +58,13 @@ export async function POST(request: Request) {
             // 1. Create the Visit (Job)
             const visit = await tx.visit.create({
                 data: {
-                    billNumber,
-                    customerId,
+                    billNumber: billNumber || null,
+                    customerId: customerId || null,
                     assignedEmployeeId: (await tx.employee.findUnique({ where: { employeeId } }))?.id,
                     scheduledDate: new Date(jobDate),
                     status: 'PENDING',
-                    serviceType: serviceType || undefined,
-                    remarks: remarks || undefined,
+                    serviceType: serviceType || null,
+                    remarks: remarks || null,
                     billAmount: parseFloat(amount || 0),
                 }
             })
@@ -83,7 +83,16 @@ export async function POST(request: Request) {
                     throw new Error(`Insufficient stock for ${dbProduct.name}`)
                 }
 
-                // 2a. Create Stock Transaction
+                // 2a. Create VisitProductUsage (the join record that makes products appear on the visit)
+                await tx.visitProductUsage.create({
+                    data: {
+                        visitId: visit.id,
+                        productId: dbProduct.id,
+                        quantity: item.quantityGiven,
+                    }
+                })
+
+                // 2b. Create Stock Transaction
                 await tx.stockTransaction.create({
                     data: {
                         productId: dbProduct.id,
@@ -94,7 +103,7 @@ export async function POST(request: Request) {
                     }
                 })
 
-                // 2b. Update Product main stock
+                // 2c. Update Product main stock
                 await tx.product.update({
                     where: { id: dbProduct.id },
                     data: {
@@ -102,7 +111,7 @@ export async function POST(request: Request) {
                     }
                 })
 
-                // 2c. Update Employee Stock in hand
+                // 2d. Update Employee Stock in hand
                 const employeeIdInDb = (await tx.employee.findUnique({ where: { employeeId } }))?.id
                 if (employeeIdInDb) {
                     await tx.employeeStock.upsert({
