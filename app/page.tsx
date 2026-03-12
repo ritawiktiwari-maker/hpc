@@ -25,16 +25,34 @@ export default function DashboardPage() {
   const [dbEmployeeCount, setDbEmployeeCount] = useState<number>(0)
   const [dbProductCount, setDbProductCount] = useState<number>(0)
   const [dbJobCount, setDbJobCount] = useState<number>(0)
+  const [upcomingJobs, setUpcomingJobs] = useState<any[]>([])
+  const [loadingUpcoming, setLoadingUpcoming] = useState(true)
 
   useEffect(() => {
     if (isLoggedIn) {
       setData(getData())
       fetchRunningOrders()
+      fetchUpcomingJobs()
       fetchEmployeeCount()
       fetchProductCount()
       fetchJobCount()
     }
   }, [isLoggedIn])
+
+  const fetchUpcomingJobs = async () => {
+    try {
+      setLoadingUpcoming(true)
+      const response = await fetch("/api/jobs/upcoming")
+      if (response.ok) {
+        const jobs = await response.json()
+        setUpcomingJobs(jobs)
+      }
+    } catch (error) {
+      console.error("Failed to fetch upcoming jobs:", error)
+    } finally {
+      setLoadingUpcoming(false)
+    }
+  }
 
   const fetchEmployeeCount = async () => {
     try {
@@ -129,7 +147,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <RunningOrders orders={runningOrders} loading={loadingOrders} />
-          <UpcomingServices jobs={data.jobs} />
+          <UpcomingServices jobs={upcomingJobs} />
           <LowStockAlert products={data.products} />
           <div className="lg:col-span-3">
             <ActivityLog activities={data.activities} />
