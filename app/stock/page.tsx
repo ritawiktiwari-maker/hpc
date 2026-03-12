@@ -238,9 +238,6 @@ export default function StockPage() {
             <Button variant="outline" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
-            <Button variant="destructive" onClick={() => setClearOpen(true)}>
-              <AlertTriangle className="mr-2 h-4 w-4" /> Clear Stock Data
-            </Button>
             <Button onClick={handleAdd}>
               <Plus className="mr-2 h-4 w-4" /> Add Product
             </Button>

@@ -37,6 +37,22 @@ export async function POST(
                     const product = await tx.product.findUnique({ where: { id: usage.productId } })
                     if (!product) continue
 
+                    // Update or Create VisitProductUsage for accurate history
+                    const existingUsage = await tx.visitProductUsage.findFirst({
+                        where: { visitId: visit.id, productId: product.id }
+                    })
+
+                    if (existingUsage) {
+                        await tx.visitProductUsage.update({
+                            where: { id: existingUsage.id },
+                            data: { quantity: usage.quantity }
+                        })
+                    } else {
+                        await tx.visitProductUsage.create({
+                            data: { visitId: visit.id, productId: product.id, quantity: usage.quantity }
+                        })
+                    }
+
                     // Record USED_IN_VISIT transaction
                     await tx.stockTransaction.create({
                         data: {

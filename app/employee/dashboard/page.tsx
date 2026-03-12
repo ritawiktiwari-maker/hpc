@@ -114,10 +114,15 @@ export default function EmployeeDashboard() {
         if (!completingJob || !currentEmployee) return
 
         try {
+            const productsUsedPayload = Object.entries(usageInput).map(([productId, quantity]) => ({
+                productId,
+                quantity
+            }))
+
             const response = await fetch(`/api/jobs/${completingJob.id}/complete`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({})  // no usage data for now — simple completion
+                body: JSON.stringify({ productsUsed: productsUsedPayload })
             })
 
             if (response.ok) {
@@ -288,10 +293,20 @@ export default function EmployeeDashboard() {
                         <div className="space-y-4 py-4">
                             {completingJob.productsAssigned.map((p: any) => (
                                 <div key={p.productId} className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <Label>{p.productName}</Label>
-                                        <span className="text-muted-foreground">Assigned: {formatQuantityWithUnit(p.quantityGiven, p.unit)}</span>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <Label className="flex-1">{p.productName}</Label>
+                                        <div className="flex items-center gap-2 w-32">
+                                            <Input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={usageInput[p.productId] !== undefined ? usageInput[p.productId] : ''}
+                                                onChange={(e) => handleUsageChange(p.productId, e.target.value)}
+                                            />
+                                            <span className="text-muted-foreground">{p.unit}</span>
+                                        </div>
                                     </div>
+                                    <p className="text-xs text-muted-foreground text-right border-b pb-2">Assigned: {formatQuantityWithUnit(p.quantityGiven, p.unit)}</p>
                                 </div>
                             ))}
                         </div>
