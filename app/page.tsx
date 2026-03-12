@@ -78,7 +78,8 @@ export default function DashboardPage() {
       const response = await fetch("/api/jobs/pending")
       if (response.ok) {
         const orders = await response.json()
-        setRunningOrders(orders)
+        const assignedOrders = orders.filter((order: any) => order.employeeName !== 'Unassigned')
+        setRunningOrders(assignedOrders)
       }
     } catch (error) {
       console.error("Failed to fetch running orders:", error)
