@@ -102,9 +102,19 @@ export default function CustomersPage() {
         }
     }
 
-    const handleViewHistory = (customer: Customer) => {
+    const handleViewHistory = async (customer: Customer) => {
         setSelectedHistoryCustomer(customer)
         setHistoryOpen(true)
+        
+        try {
+            const res = await fetch(`/api/customers/${customer.id}/jobs`)
+            if (res.ok) {
+                const customerJobs = await res.json()
+                setJobs(customerJobs)
+            }
+        } catch (error) {
+            console.error("Failed to fetch customer jobs:", error)
+        }
     }
 
     const handleFormSubmit = async (customerData: any) => {
