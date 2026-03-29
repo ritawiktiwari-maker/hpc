@@ -239,30 +239,30 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="max-w-3xl">
-            <div className="animate-slide-in-left" style={{ animationDelay: "0ms" }}>
+            <div className="hero-fade hero-fade-1">
               <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-6 text-sm px-4 py-1.5 rounded-full">
                 <Shield className="w-3.5 h-3.5 mr-1.5" />
                 Trusted Pest Control in Ranchi
               </Badge>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 animate-blur-in">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 hero-fade hero-fade-2">
               Protecting Your Home &amp;
               <br />
               Business from Pests
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342] animate-fade-in-up delay-300" style={{ animationFillMode: "both" }}>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342]">
                 Since 2019
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl animate-fade-in-up leading-relaxed" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl leading-relaxed hero-fade hero-fade-3">
               Professional, eco-friendly pest control services in Ranchi,
               Jharkhand. We eliminate termites, cockroaches, mosquitoes, rodents
               and more with guaranteed results.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
+            <div className="flex flex-wrap gap-4 mb-16 hero-fade hero-fade-4">
               <Link href="/contact">
                 <Button
                   size="lg"
@@ -294,8 +294,7 @@ export default function HomePage() {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center animate-scale-up-bounce"
-                style={{ animationDelay: `${500 + i * 120}ms`, animationFillMode: "both" }}
+                className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center hero-fade hero-fade-${5 + i}`}
               >
                 <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                 <p className="text-gray-400 text-sm mt-1">{stat.label}</p>
