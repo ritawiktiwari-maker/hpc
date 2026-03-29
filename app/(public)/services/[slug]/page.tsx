@@ -152,7 +152,7 @@ export default function ServiceDetailPage({
   }
 
   return (
-    <div className="page-enter">
+    <div>
       {/* Hero */}
       <section className="relative pt-32 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />

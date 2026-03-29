@@ -202,7 +202,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="page-enter">
+    <div>
       {/* ==================== HERO ==================== */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
         {/* Background */}
