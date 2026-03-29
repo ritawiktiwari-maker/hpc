@@ -204,7 +204,7 @@ export default function HomePage() {
   return (
     <div>
       {/* ==================== HERO ==================== */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+      <section className="relative min-h-svh flex items-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12]" />
         {/* Animated CSS Video-like Background */}
