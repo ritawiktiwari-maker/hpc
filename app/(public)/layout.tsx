@@ -1,6 +1,7 @@
 import "@/app/globals.css";
 import { Navbar } from "@/components/website/navbar";
 import { Footer } from "@/components/website/footer";
+import { BugBlastEffect } from "@/components/website/bug-blast";
 
 export const metadata = {
   title: {
@@ -26,6 +27,7 @@ export default function PublicLayout({
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <BugBlastEffect />
     </div>
   );
 }
