@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
     settings: {
-      companyName: "HPC - Hygienic Pest Control",
+      companyName: "Hygienic Pest Control Pvt Ltd",
       panelName: "Admin Panel",
       adminName: "Admin",
       logoUrl: "/images/logo-20hpc.png",

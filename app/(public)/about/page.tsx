@@ -122,7 +122,7 @@ export default function AboutPage() {
             About Us
           </Badge>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 animate-fade-in">
-            About HPC Pest Lifecare
+            About Hygienic Pest Control
           </h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
             Your trusted partner in professional pest control services in
@@ -149,7 +149,7 @@ export default function AboutPage() {
                 </h2>
                 <div className="space-y-4 text-gray-600 leading-relaxed">
                   <p>
-                    HPC Pest Lifecare Pvt Ltd was founded in 2019 with a simple
+                    Hygienic Pest Control Pvt Ltd was founded in 2019 with a simple
                     yet powerful mission: to provide Ranchi and Jharkhand with
                     world-class pest control services that are effective,
                     affordable, and environmentally responsible.
@@ -288,7 +288,7 @@ export default function AboutPage() {
           <RevealDiv>
             <div className="text-center mb-14">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
-                Why Ranchi Trusts HPC Pest Lifecare
+                Why Ranchi Trusts Hygienic Pest Control
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-lg">
                 We have earned the trust of hundreds of families and businesses

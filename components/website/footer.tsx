@@ -38,13 +38,13 @@ export function Footer() {
             <div className="flex items-center gap-3">
               <Image
                 src="/images/logo-20hpc.png"
-                alt="HPC Pest Lifecare"
+                alt="Hygienic Pest Control"
                 width={44}
                 height={44}
                 className="rounded-lg"
               />
               <div>
-                <h3 className="text-lg font-bold">HPC Pest Lifecare</h3>
+                <h3 className="text-lg font-bold">Hygienic Pest Control</h3>
                 <p className="text-xs text-green-400 font-medium tracking-wider uppercase">
                   Pvt Ltd
                 </p>
@@ -154,7 +154,7 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-500">
             <p>
-              &copy; {new Date().getFullYear()} HPC Pest Lifecare Pvt Ltd. All
+              &copy; {new Date().getFullYear()} Hygienic Pest Control Pvt Ltd. All
               rights reserved.
             </p>
             <p>

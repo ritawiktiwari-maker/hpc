@@ -51,7 +51,7 @@ export function Navbar() {
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <Image
                 src="/images/logo-20hpc.png"
-                alt="HPC Pest Lifecare"
+                alt="Hygienic Pest Control"
                 width={44}
                 height={44}
                 className="rounded-lg"
@@ -62,7 +62,7 @@ export function Navbar() {
                     scrolled ? "text-[#1a2332]" : "text-white"
                   }`}
                 >
-                  HPC Pest Lifecare
+                  Hygienic Pest Control
                 </span>
                 <span
                   className={`block text-[10px] font-medium tracking-wider uppercase transition-colors duration-300 ${
@@ -153,7 +153,7 @@ export function Navbar() {
                   className="rounded-lg"
                 />
                 <span className="font-bold text-[#1a2332]">
-                  HPC Pest Lifecare
+                  Hygienic Pest Control
                 </span>
               </div>
               <button

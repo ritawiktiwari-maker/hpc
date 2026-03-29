@@ -375,7 +375,7 @@ export default function HomePage() {
                 Why Us
               </Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
-                Why Choose HPC Pest Lifecare?
+                Why Choose Hygienic Pest Control?
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-lg">
                 We are Ranchi&apos;s trusted pest control partner, delivering
