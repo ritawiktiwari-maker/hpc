@@ -204,13 +204,13 @@ export default function HomePage() {
   return (
     <div>
       {/* ==================== HERO ==================== */}
-      <section className="relative min-h-svh flex items-center overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12]" />
+      <section className="hero-section relative flex items-center overflow-hidden">
+        {/* Background - GPU composited layer */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12] will-change-auto" />
         {/* Animated CSS Video-like Background */}
-        <div className="absolute inset-0 hero-bg-animation" />
+        <div className="absolute inset-0 hero-bg-animation will-change-[opacity]" />
         {/* Crawling bugs silhouettes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform">
           <div className="hero-bug hero-bug-1">🐛</div>
           <div className="hero-bug hero-bug-2">🪲</div>
           <div className="hero-bug hero-bug-3">🐜</div>
@@ -221,7 +221,7 @@ export default function HomePage() {
           <div className="hero-bug hero-bug-8">🪲</div>
         </div>
         {/* Floating particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform">
           <div className="hero-particle hero-particle-1" />
           <div className="hero-particle hero-particle-2" />
           <div className="hero-particle hero-particle-3" />
@@ -231,11 +231,10 @@ export default function HomePage() {
         </div>
         {/* Hex grid overlay */}
         <div className="absolute inset-0 hero-hex-grid opacity-[0.04]" />
-        {/* Green accent glow - animated pulse */}
-        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7CB342]/12 blur-[150px] hero-glow-pulse" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-[#42A5F5]/10 blur-[120px] hero-glow-pulse-alt" />
-        {/* Red danger glow for pest theme */}
-        <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-red-500/5 blur-[100px] hero-glow-pulse" />
+        {/* Accent glows - static, no animation to avoid repaints */}
+        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7CB342]/10 blur-[150px]" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-[#42A5F5]/8 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-red-500/5 blur-[100px]" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="max-w-3xl">
