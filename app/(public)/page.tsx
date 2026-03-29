@@ -89,7 +89,9 @@ function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string })
   );
 }
 
-/* ---------- Scroll Reveal ---------- */
+/* ---------- Scroll Reveal with Direction ---------- */
+type SlideDirection = "up" | "down" | "left" | "right" | "scale" | "blur";
+
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -102,7 +104,7 @@ function useScrollReveal() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.08, rootMargin: "0px 0px -60px 0px" }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -111,20 +113,35 @@ function useScrollReveal() {
   return { ref, visible };
 }
 
+const directionClasses: Record<SlideDirection, { hidden: string; visible: string }> = {
+  up: { hidden: "opacity-0 translate-y-10", visible: "opacity-100 translate-y-0" },
+  down: { hidden: "opacity-0 -translate-y-10", visible: "opacity-100 translate-y-0" },
+  left: { hidden: "opacity-0 -translate-x-12", visible: "opacity-100 translate-x-0" },
+  right: { hidden: "opacity-0 translate-x-12", visible: "opacity-100 translate-x-0" },
+  scale: { hidden: "opacity-0 scale-90", visible: "opacity-100 scale-100" },
+  blur: { hidden: "opacity-0 blur-sm scale-95", visible: "opacity-100 blur-0 scale-100" },
+};
+
 function Section({
   children,
   className = "",
+  direction = "up",
+  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
+  direction?: SlideDirection;
+  delay?: number;
 }) {
   const { ref, visible } = useScrollReveal();
+  const cls = directionClasses[direction];
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      className={`transition-all duration-700 ease-out ${
+        visible ? cls.visible : cls.hidden
       } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
     </div>
@@ -222,28 +239,30 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="max-w-3xl">
-            <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-6 text-sm px-4 py-1.5 rounded-full">
-              <Shield className="w-3.5 h-3.5 mr-1.5" />
-              Trusted Pest Control in Ranchi
-            </Badge>
+            <div className="animate-slide-in-left" style={{ animationDelay: "0ms" }}>
+              <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-6 text-sm px-4 py-1.5 rounded-full">
+                <Shield className="w-3.5 h-3.5 mr-1.5" />
+                Trusted Pest Control in Ranchi
+              </Badge>
+            </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 animate-fade-in">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 animate-blur-in">
               Protecting Your Home &amp;
               <br />
               Business from Pests
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342] animate-fade-in-up delay-300" style={{ animationFillMode: "both" }}>
                 Since 2019
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl animate-fade-in-up leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl animate-fade-in-up leading-relaxed" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
               Professional, eco-friendly pest control services in Ranchi,
               Jharkhand. We eliminate termites, cockroaches, mosquitoes, rodents
               and more with guaranteed results.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up">
+            <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
               <Link href="/contact">
                 <Button
                   size="lg"
@@ -272,10 +291,11 @@ export default function HomePage() {
               { value: 15, suffix: "+", label: "Services" },
               { value: 5, suffix: "+", label: "Years Experience" },
               { value: 100, suffix: "%", label: "Satisfaction" },
-            ].map((stat) => (
+            ].map((stat, i) => (
               <div
                 key={stat.label}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center animate-scale-up-bounce"
+                style={{ animationDelay: `${500 + i * 120}ms`, animationFillMode: "both" }}
               >
                 <AnimatedCounter end={stat.value} suffix={stat.suffix} />
                 <p className="text-gray-400 text-sm mt-1">{stat.label}</p>
@@ -288,7 +308,7 @@ export default function HomePage() {
       {/* ==================== SERVICES ==================== */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Section>
+          <Section direction="down">
             <div className="text-center mb-14">
               <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-4 text-sm rounded-full">
                 What We Offer
@@ -306,10 +326,13 @@ export default function HomePage() {
           {services.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, i) => (
-                <Section key={service.id}>
+                <Section
+                  key={service.id}
+                  direction={i % 3 === 0 ? "left" : i % 3 === 1 ? "up" : "right"}
+                  delay={i * 100}
+                >
                   <Card
-                    className={`p-6 border-0 shadow-md hover-lift cursor-pointer group bg-white rounded-2xl stagger-item overflow-hidden`}
-                    style={{ animationDelay: `${i * 80}ms` }}
+                    className="p-6 border-0 shadow-md hover-lift cursor-pointer group bg-white rounded-2xl overflow-hidden"
                   >
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:from-[#42A5F5] group-hover:to-[#1E88E5] group-hover:text-white transition-all duration-300">
                       {iconMap[service.icon || "Bug"] || (
@@ -334,7 +357,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <Section>
+            <Section direction="scale">
               <div className="text-center py-12">
                 <Bug className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-400">
@@ -350,7 +373,7 @@ export default function HomePage() {
             </Section>
           )}
 
-          <Section>
+          <Section direction="up" delay={200}>
             <div className="text-center mt-10">
               <Link href="/services">
                 <Button
@@ -369,7 +392,7 @@ export default function HomePage() {
       {/* ==================== WHY CHOOSE US ==================== */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Section>
+          <Section direction="left">
             <div className="text-center mb-14">
               <Badge className="bg-green-50 text-[#7CB342] border-green-200 mb-4 text-sm rounded-full">
                 Why Us
@@ -386,10 +409,13 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {whyChooseUs.map((item, i) => (
-              <Section key={item.title}>
+              <Section
+                key={item.title}
+                direction={i < 3 ? "up" : "scale"}
+                delay={i * 100}
+              >
                 <div
-                  className="group p-6 rounded-2xl border border-gray-100 hover:border-[#42A5F5]/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 stagger-item"
-                  style={{ animationDelay: `${i * 80}ms` }}
+                  className="group p-6 rounded-2xl border border-gray-100 hover:border-[#42A5F5]/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:scale-110 transition-transform">
                     {item.icon}
@@ -411,7 +437,7 @@ export default function HomePage() {
       {testimonials.length > 0 && (
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Section>
+            <Section direction="right">
               <div className="text-center mb-14">
                 <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-4 text-sm rounded-full">
                   <Star className="w-3.5 h-3.5 mr-1.5" />
@@ -428,10 +454,13 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {testimonials.map((t, i) => (
-                <Section key={t.id}>
+                <Section
+                  key={t.id}
+                  direction={i % 2 === 0 ? "left" : "right"}
+                  delay={i * 120}
+                >
                   <Card
-                    className="p-6 border-0 shadow-md rounded-2xl bg-white stagger-item"
-                    style={{ animationDelay: `${i * 100}ms` }}
+                    className="p-6 border-0 shadow-md rounded-2xl bg-white"
                   >
                     <div className="flex gap-1 mb-3">
                       {Array.from({ length: 5 }).map((_, si) => (
@@ -477,7 +506,7 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <Section>
+            <Section direction="left">
               <div>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6">
                   Ready to Get Rid of Pests?
@@ -532,7 +561,7 @@ export default function HomePage() {
               </div>
             </Section>
 
-            <Section>
+            <Section direction="right" delay={200}>
               <Card className="p-6 sm:p-8 rounded-2xl border-0 shadow-2xl bg-white">
                 <h3 className="text-xl font-bold text-[#1a2332] mb-1">
                   Quick Enquiry

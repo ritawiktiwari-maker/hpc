@@ -12,7 +12,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Hygienic Pest Control - Admin Panel",
   description: "Employee, Stock & Job Management for Hygienic Pest Control",
-  generator: "v0.app",
+  generator: "Hygienic Pest Control",
 }
 
 export const viewport: Viewport = {

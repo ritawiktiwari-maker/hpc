@@ -3,9 +3,17 @@ import { Navbar } from "@/components/website/navbar";
 import { Footer } from "@/components/website/footer";
 
 export const metadata = {
-  title: "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Ranchi",
+  title: {
+    default: "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Ranchi",
+    template: "%s | Hygienic Pest Control Pvt Ltd",
+  },
   description:
-    "Professional pest control services in Ranchi, Jharkhand. Termite treatment, mosquito control, rodent control and more. Call +91-7277234534.",
+    "Professional pest control services in Ranchi, Jharkhand by Hygienic Pest Control Pvt Ltd. Termite treatment, mosquito control, rodent control and more. Call +91-7277234534.",
+  openGraph: {
+    siteName: "Hygienic Pest Control Pvt Ltd",
+    type: "website",
+    locale: "en_IN",
+  },
 };
 
 export default function PublicLayout({
