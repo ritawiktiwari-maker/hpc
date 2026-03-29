@@ -4,7 +4,8 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined
 }
 
-console.log("Initializing Prisma Client...")
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ['query', 'info', 'warn', 'error'] })
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({
+    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error']
+})
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

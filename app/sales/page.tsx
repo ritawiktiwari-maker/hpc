@@ -7,7 +7,7 @@ import { LeadTable } from "@/components/sales/lead-table"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog" // Import
 import { toast } from "sonner"
-import { Users } from "lucide-react"
+import { Users, UserCheck, Globe, Clock } from "lucide-react"
 
 export default function SalesPage() {
     const [leads, setLeads] = useState([])
@@ -76,7 +76,7 @@ export default function SalesPage() {
                     <LeadFormDialog onSuccess={fetchLeads} />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
@@ -86,10 +86,31 @@ export default function SalesPage() {
                             <div className="text-2xl font-bold">{leads.length}</div>
                         </CardContent>
                     </Card>
+                    <Card className={leads.filter((l: any) => !l.isViewed).length > 0 ? "border-red-200 bg-red-50/50" : ""}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Website Enquiries</CardTitle>
+                            <div className="relative">
+                                <Globe className="h-4 w-4 text-blue-500" />
+                                {leads.filter((l: any) => !l.isViewed).length > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                                )}
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">
+                                {leads.filter((l: any) => l.source === 'Website').length}
+                            </div>
+                            {leads.filter((l: any) => !l.isViewed).length > 0 && (
+                                <p className="text-xs text-red-600 font-medium mt-1">
+                                    {leads.filter((l: any) => !l.isViewed).length} unread
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Converted</CardTitle>
-                            {/* Icon */}
+                            <UserCheck className="h-4 w-4 text-green-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -100,7 +121,7 @@ export default function SalesPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                            {/* Icon */}
+                            <Clock className="h-4 w-4 text-amber-500" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">

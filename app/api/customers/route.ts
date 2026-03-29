@@ -3,14 +3,27 @@ import { prisma } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url)
+        const includeContracts = searchParams.get('includeContracts')
+
         const customers = await prisma.customer.findMany({
             orderBy: { createdAt: 'desc' },
-            include: {
+            include: includeContracts === 'true' ? {
                 contracts: {
                     include: {
                         visits: true
+                    }
+                }
+            } : {
+                contracts: {
+                    select: {
+                        id: true,
+                        serviceType: true,
+                        frequency: true,
+                        startDate: true,
+                        endDate: true,
                     }
                 }
             }

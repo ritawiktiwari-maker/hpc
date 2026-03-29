@@ -40,11 +40,12 @@ export async function PUT(
         }
 
         // Handle standard Edit
-        const { name, unit, supplierName, dateOfPurchase, remarks } = body
+        const { name, category, unit, supplierName, dateOfPurchase, remarks } = body
         const product = await prisma.product.update({
             where: { id },
             data: {
                 ...(name && { name }),
+                ...(category && { category }),
                 ...(unit && { unit }),
                 ...(supplierName !== undefined && { supplierName: supplierName || null }),
                 ...(dateOfPurchase !== undefined && { dateOfPurchase: dateOfPurchase ? new Date(dateOfPurchase) : null }),

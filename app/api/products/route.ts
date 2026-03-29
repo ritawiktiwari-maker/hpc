@@ -3,8 +3,16 @@ import { prisma } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url)
+        const countOnly = searchParams.get('countOnly')
+
+        if (countOnly === 'true') {
+            const count = await prisma.product.count()
+            return NextResponse.json({ count })
+        }
+
         const products = await prisma.product.findMany({
             orderBy: { name: 'asc' },
         })
@@ -17,12 +25,13 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { productId, name, quantityAvailable, unit, supplierName, dateOfPurchase, remarks } = body
+        const { productId, name, category, quantityAvailable, unit, supplierName, dateOfPurchase, remarks } = body
 
         const product = await prisma.product.create({
             data: {
                 productId,
                 name,
+                category: category || 'CHEMICAL',
                 quantityAvailable: parseFloat(quantityAvailable || 0),
                 quantityPurchased: parseFloat(quantityAvailable || 0),
                 unit,

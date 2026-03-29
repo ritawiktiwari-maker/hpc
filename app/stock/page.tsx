@@ -31,6 +31,7 @@ interface DBProduct {
   id: string
   productId: string
   name: string
+  category: string
   quantityAvailable: number
   quantityPurchased: number
   unit: string
@@ -66,7 +67,7 @@ export default function StockPage() {
   const [restockQuantity, setRestockQuantity] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
-    productId: "", name: "", unit: "litres" as ProductUnit,
+    productId: "", name: "", category: "CHEMICAL" as "CHEMICAL" | "MACHINE", unit: "litres" as ProductUnit,
     quantityAvailable: "", supplierName: "", dateOfPurchase: "", remarks: ""
   })
 
@@ -100,7 +101,7 @@ export default function StockPage() {
     setIsEditing(false)
     setSelectedProduct(null)
     const nextId = `PRD${String(products.length + 1).padStart(4, '0')}`
-    setFormData({ productId: nextId, name: "", unit: "litres", quantityAvailable: "", supplierName: "", dateOfPurchase: new Date().toISOString().split('T')[0], remarks: "" })
+    setFormData({ productId: nextId, name: "", category: "CHEMICAL", unit: "litres", quantityAvailable: "", supplierName: "", dateOfPurchase: new Date().toISOString().split('T')[0], remarks: "" })
     setFormOpen(true)
   }
 
@@ -110,6 +111,7 @@ export default function StockPage() {
     setFormData({
       productId: p.productId,
       name: p.name,
+      category: (p.category as "CHEMICAL" | "MACHINE") || "CHEMICAL",
       unit: (p.unit as ProductUnit) || "litres",
       quantityAvailable: String(p.quantityAvailable),
       supplierName: p.supplierName || "",
@@ -145,6 +147,7 @@ export default function StockPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             productId: formData.productId, name: formData.name,
+            category: formData.category,
             quantityAvailable: parseFloat(formData.quantityAvailable),
             unit: formData.unit, supplierName: formData.supplierName,
             dateOfPurchase: formData.dateOfPurchase, remarks: formData.remarks
@@ -274,6 +277,7 @@ export default function StockPage() {
                         <TableRow className="bg-muted/50">
                           <TableHead>Product ID</TableHead>
                           <TableHead>Product Name</TableHead>
+                          <TableHead className="hidden sm:table-cell">Type</TableHead>
                           <TableHead className="hidden sm:table-cell">Unit</TableHead>
                           <TableHead className="hidden md:table-cell">Purchase Date</TableHead>
                           <TableHead className="text-right">Purchased</TableHead>
@@ -294,6 +298,11 @@ export default function StockPage() {
                                   <p className="font-medium">{p.name}</p>
                                   {p.supplierName && <p className="text-xs text-muted-foreground">{p.supplierName}</p>}
                                 </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell">
+                                <Badge variant={p.category === 'MACHINE' ? 'default' : 'secondary'} className="text-[10px]">
+                                  {p.category === 'MACHINE' ? 'Machine' : 'Chemical'}
+                                </Badge>
                               </TableCell>
                               <TableCell className="hidden sm:table-cell">
                                 <Badge variant="outline" className="capitalize">{unit}</Badge>
@@ -400,6 +409,16 @@ export default function StockPage() {
               <Label>Product Name *</Label>
               <Input value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="Enter product name" />
             </div>
+            <div className="space-y-2">
+              <Label>Category *</Label>
+              <Select value={formData.category} onValueChange={(v: "CHEMICAL" | "MACHINE") => setFormData(p => ({ ...p, category: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CHEMICAL">Chemical</SelectItem>
+                  <SelectItem value="MACHINE">Machine / Equipment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Purchase Date</Label>
@@ -475,25 +494,7 @@ export default function StockPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Clear Stock Confirmation */}
-      <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="h-5 w-5" /> Clear All Stock Data
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This will <strong>permanently delete</strong> all stock transactions, employee stock allocations, return requests, and reset all product quantities to 0. This action <strong>cannot be undone</strong>.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearStock} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Yes, Clear All Data
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Clear Stock dialog removed per admin request */}
     </AdminLayout>
   )
 }

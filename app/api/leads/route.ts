@@ -6,7 +6,10 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
     try {
         const leads = await prisma.lead.findMany({
-            orderBy: { createdAt: 'desc' },
+            orderBy: [
+                { isViewed: 'asc' },  // Unviewed first
+                { createdAt: 'desc' }
+            ],
             include: { followedBy: true }
         })
         return NextResponse.json(leads)

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
     try {
         const today = startOfDay(new Date())
-        const twoDaysFromNow = endOfDay(addDays(today, 2))
+        const twoDaysFromNow = endOfDay(addDays(today, 3))
 
         // Fetch pending visits scheduled between today and 2 days from now
         const upcomingVisits = await prisma.visit.findMany({

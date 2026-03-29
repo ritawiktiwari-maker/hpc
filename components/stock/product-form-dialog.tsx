@@ -26,6 +26,7 @@ export function ProductFormDialog({ open, onOpenChange, product, existingProduct
   const [formData, setFormData] = useState({
     productId: "",
     productName: "",
+    category: "CHEMICAL" as "CHEMICAL" | "MACHINE",
     dateOfPurchase: "",
     quantityPurchased: 0,
     unit: "litres" as ProductUnit,
@@ -41,6 +42,7 @@ export function ProductFormDialog({ open, onOpenChange, product, existingProduct
         setFormData({
           productId: product.productId,
           productName: product.productName,
+          category: (product as any).category || "CHEMICAL",
           dateOfPurchase: product.dateOfPurchase,
           quantityPurchased: product.quantityPurchased,
           unit: product.unit || "litres",
@@ -51,6 +53,7 @@ export function ProductFormDialog({ open, onOpenChange, product, existingProduct
         setFormData({
           productId: generateProductId(existingProducts),
           productName: "",
+          category: "CHEMICAL",
           dateOfPurchase: new Date().toISOString().split("T")[0],
           quantityPurchased: 0,
           unit: "litres",
@@ -114,6 +117,22 @@ export function ProductFormDialog({ open, onOpenChange, product, existingProduct
               placeholder="Enter product name"
             />
             {errors.productName && <p className="text-xs text-destructive">{errors.productName}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Category *</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value: "CHEMICAL" | "MACHINE") => setFormData((prev) => ({ ...prev, category: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CHEMICAL">Chemical</SelectItem>
+                <SelectItem value="MACHINE">Machine / Equipment</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -3,8 +3,26 @@ import { prisma } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url)
+        const countOnly = searchParams.get('countOnly')
+        const employeeId = searchParams.get('employeeId')
+
+        if (countOnly === 'true') {
+            const count = await prisma.employee.count({ where: { isActive: true } })
+            return NextResponse.json({ count })
+        }
+
+        // Fetch single employee by employeeId (e.g., EMP001)
+        if (employeeId) {
+            const employee = await prisma.employee.findUnique({ where: { employeeId } })
+            if (!employee) {
+                return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
+            }
+            return NextResponse.json(employee)
+        }
+
         const employees = await prisma.employee.findMany({
             orderBy: { name: 'asc' }
         })

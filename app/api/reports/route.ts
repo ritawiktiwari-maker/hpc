@@ -24,48 +24,59 @@ export async function GET(request: Request) {
         // It does NOT have 'Job'. The old 'Job' type was likely from the localStorage era.
         // The equivalent of a "Completed Service" is a 'Visit' with status 'COMPLETED'.
 
-        const completedVisits = await prisma.visit.findMany({
-            where: {
-                status: 'COMPLETED',
-                completionDate: {
-                    gte: startDate,
-                    lte: endDate
-                }
-            },
-            include: {
-                contract: {
-                    include: {
-                        customer: true
+        // Run both queries in parallel
+        const [completedVisits, leads] = await Promise.all([
+            prisma.visit.findMany({
+                where: {
+                    status: 'COMPLETED',
+                    completionDate: {
+                        gte: startDate,
+                        lte: endDate
                     }
                 },
-                assignedEmployee: true,
-                productsUsed: {
-                    include: {
-                        product: true
+                include: {
+                    contract: {
+                        include: {
+                            customer: {
+                                select: { name: true, address: true, contactNumber: true }
+                            }
+                        }
+                    },
+                    assignedEmployee: {
+                        select: { name: true }
+                    },
+                    productsUsed: {
+                        include: {
+                            product: {
+                                select: { name: true, unit: true }
+                            }
+                        }
                     }
+                },
+                orderBy: {
+                    completionDate: 'desc'
                 }
-            },
-            orderBy: {
-                completionDate: 'desc'
-            }
-        })
-
-        // 2. Fetch Leads
-        const leads = await prisma.lead.findMany({
-            where: {
-                createdAt: {
-                    gte: startDate,
-                    lte: endDate
+            }),
+            prisma.lead.findMany({
+                where: {
+                    createdAt: {
+                        gte: startDate,
+                        lte: endDate
+                    }
+                },
+                include: {
+                    convertedCustomer: {
+                        select: { name: true }
+                    },
+                    followedBy: {
+                        select: { name: true }
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
                 }
-            },
-            include: {
-                convertedCustomer: true,
-                followedBy: true
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        })
+            })
+        ])
 
         const totalLeads = leads.length
         const convertedLeads = leads.filter(l => l.convertedCustomerId).length

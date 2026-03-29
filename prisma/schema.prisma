@@ -37,9 +37,13 @@ model Lead {
   id           String     @id @default(uuid())
   name         String
   mobile       String
+  email        String?
   address      String?
   source       String?    // Where they heard about us
+  serviceInterest String? // Service they enquired about
+  message      String?    // Enquiry message
   status       String     @default("NEW")
+  isViewed     Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -143,6 +147,7 @@ model Product {
   id                String   @id @default(uuid())
   productId         String   @unique // e.g., PRD0001
   name              String
+  category          String   @default("CHEMICAL") // MACHINE or CHEMICAL
   quantityAvailable Float
   quantityPurchased Float    @default(0)
   unit              String
@@ -209,4 +214,33 @@ model StockReturnItem {
   productId String
   product   Product            @relation(fields: [productId], references: [id])
   quantity  Float
+}
+
+// Website Content Management
+
+model Service {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  shortDesc   String   // Short description for cards
+  description String   // Full HTML/markdown description
+  icon        String?  // Lucide icon name
+  image       String?  // Image URL
+  features    String[] // Array of feature bullet points
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(uuid())
+  name      String
+  location  String?
+  rating    Int      @default(5) // 1-5
+  text      String
+  service   String?  // Which service they used
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

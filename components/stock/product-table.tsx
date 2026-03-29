@@ -41,6 +41,7 @@ export function ProductTable({ products, jobs, onEdit, onDelete, onRestock }: Pr
           <TableRow className="bg-muted/50">
             <TableHead>Product ID</TableHead>
             <TableHead>Product Name</TableHead>
+            <TableHead className="hidden sm:table-cell">Type</TableHead>
             <TableHead className="hidden sm:table-cell">Unit</TableHead>
             <TableHead className="hidden md:table-cell">Purchase Date</TableHead>
             <TableHead className="text-right">Purchased</TableHead>
@@ -64,6 +65,11 @@ export function ProductTable({ products, jobs, onEdit, onDelete, onRestock }: Pr
                     <p className="font-medium">{product.productName}</p>
                     {product.supplierName && <p className="text-xs text-muted-foreground">{product.supplierName}</p>}
                   </div>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <Badge variant={(product as any).category === 'MACHINE' ? 'default' : 'secondary'} className="text-[10px]">
+                    {(product as any).category === 'MACHINE' ? 'Machine' : 'Chemical'}
+                  </Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <Badge variant="outline" className="capitalize">

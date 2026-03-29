@@ -47,9 +47,12 @@ export default function EmployeeDashboard() {
     const fetchEmployeeData = async (employeeId: string) => {
         setLoading(true)
         try {
-            // 1. Fetch employee profile and stock
-            const stockRes = await fetch(`/api/employees/stock?employeeId=${employeeId}`)
-            const jobsRes = await fetch(`/api/jobs`) // In a real app, filter by employee in API
+            // Fetch all data in parallel with filtered endpoints
+            const [stockRes, jobsRes, empRes] = await Promise.all([
+                fetch(`/api/employees/stock?employeeId=${employeeId}`),
+                fetch(`/api/jobs?employeeId=${employeeId}`),
+                fetch(`/api/employees?employeeId=${employeeId}`),
+            ])
 
             if (stockRes.ok) {
                 const stock = await stockRes.json()
@@ -58,9 +61,7 @@ export default function EmployeeDashboard() {
 
             if (jobsRes.ok) {
                 const jobs = await jobsRes.json()
-                // Filter jobs for this employee
-                const filteredJobs = jobs.filter((j: any) => j.assignedEmployee?.employeeId === employeeId)
-                setMyJobs(filteredJobs.map((j: any) => ({
+                setMyJobs(jobs.map((j: any) => ({
                     id: j.id,
                     billNumber: j.billNumber || 'N/A',
                     customerName: j.customer?.name || 'Unknown',
@@ -75,12 +76,9 @@ export default function EmployeeDashboard() {
                 })))
             }
 
-            // Also need employee name for header
-            const empRes = await fetch(`/api/employees`)
             if (empRes.ok) {
-                const emps = await empRes.json()
-                const emp = emps.find((e: any) => e.employeeId === employeeId)
-                if (emp) setCurrentEmployee(emp)
+                const emp = await empRes.json()
+                if (emp && !emp.error) setCurrentEmployee(emp)
             }
 
         } catch (error) {

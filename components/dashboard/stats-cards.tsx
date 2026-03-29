@@ -50,16 +50,16 @@ export function StatsCards({ totalEmployees, totalProducts, totalJobs, lowStockC
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat) => (
+      {stats.map((stat, index) => (
         <Link key={stat.label} href={stat.href}>
-          <Card className="border-border/50 hover:shadow-md hover:border-primary/30 transition-all cursor-pointer">
+          <Card className="border-border/50 hover-lift cursor-pointer stagger-item animate-fade-in-up opacity-0" style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}>
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className={cn("p-3 rounded-xl", stat.bgColor)}>
+                <div className={cn("p-3 rounded-xl transition-transform duration-200 group-hover:scale-110", stat.bgColor)}>
                   <stat.icon className={cn("w-6 h-6", stat.color)} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-2xl font-bold animate-count-up">{stat.value}</p>
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
                 </div>
               </div>

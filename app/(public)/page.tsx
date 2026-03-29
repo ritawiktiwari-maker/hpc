@@ -1,0 +1,527 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { EnquiryForm } from "@/components/website/enquiry-form";
+import {
+  Phone,
+  ArrowRight,
+  Shield,
+  Leaf,
+  Clock,
+  BadgeCheck,
+  Target,
+  Cpu,
+  Star,
+  Users,
+  Sparkles,
+  Bug,
+  ChevronRight,
+  Mail,
+} from "lucide-react";
+
+/* ---------- Types ---------- */
+interface Service {
+  id: string;
+  slug: string;
+  name: string;
+  shortDesc: string;
+  icon?: string;
+  features: string[];
+}
+interface Testimonial {
+  id: string;
+  name: string;
+  location?: string;
+  rating: number;
+  text: string;
+  service?: string;
+}
+
+/* ---------- Icon Map ---------- */
+const iconMap: Record<string, React.ReactNode> = {
+  Bug: <Bug className="w-6 h-6" />,
+  Shield: <Shield className="w-6 h-6" />,
+  Target: <Target className="w-6 h-6" />,
+  Leaf: <Leaf className="w-6 h-6" />,
+  Sparkles: <Sparkles className="w-6 h-6" />,
+  Users: <Users className="w-6 h-6" />,
+};
+
+/* ---------- Animated Counter ---------- */
+function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const duration = 1500;
+          const step = Math.max(1, Math.floor(end / (duration / 16)));
+          let current = 0;
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= end) {
+              current = end;
+              clearInterval(timer);
+            }
+            setCount(current);
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end]);
+
+  return (
+    <div ref={ref} className="text-3xl md:text-4xl font-extrabold text-white">
+      {count}
+      {suffix}
+    </div>
+  );
+}
+
+/* ---------- Scroll Reveal ---------- */
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, visible };
+}
+
+function Section({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const { ref, visible } = useScrollReveal();
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ========== HOMEPAGE ========== */
+export default function HomePage() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) setServices(d);
+      })
+      .catch(() => {});
+    fetch("/api/testimonials")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) setTestimonials(d);
+      })
+      .catch(() => {});
+  }, []);
+
+  const whyChooseUs = [
+    {
+      icon: <BadgeCheck className="w-7 h-7" />,
+      title: "Certified Professionals",
+      desc: "Our technicians are trained and certified with years of experience in pest management.",
+    },
+    {
+      icon: <Leaf className="w-7 h-7" />,
+      title: "Eco-Friendly Solutions",
+      desc: "We use environmentally safe products that are effective yet harmless to your family and pets.",
+    },
+    {
+      icon: <Clock className="w-7 h-7" />,
+      title: "24/7 Support",
+      desc: "Round-the-clock customer support. We are always available when you need us most.",
+    },
+    {
+      icon: <Sparkles className="w-7 h-7" />,
+      title: "Affordable Pricing",
+      desc: "Competitive pricing with no hidden charges. Quality pest control within your budget.",
+    },
+    {
+      icon: <Target className="w-7 h-7" />,
+      title: "Guaranteed Results",
+      desc: "We guarantee pest-free results. If pests return within the warranty period, so do we.",
+    },
+    {
+      icon: <Cpu className="w-7 h-7" />,
+      title: "Modern Equipment",
+      desc: "State-of-the-art equipment and latest techniques for thorough pest elimination.",
+    },
+  ];
+
+  return (
+    <div className="page-enter">
+      {/* ==================== HERO ==================== */}
+      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-60" />
+        {/* Green accent glow */}
+        <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full bg-[#7CB342]/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
+          <div className="max-w-3xl">
+            <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-6 text-sm px-4 py-1.5 rounded-full">
+              <Shield className="w-3.5 h-3.5 mr-1.5" />
+              Trusted Pest Control in Ranchi
+            </Badge>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 animate-fade-in">
+              Protecting Your Home &amp;
+              <br />
+              Business from Pests
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342]">
+                Since 2019
+              </span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl animate-fade-in-up leading-relaxed">
+              Professional, eco-friendly pest control services in Ranchi,
+              Jharkhand. We eliminate termites, cockroaches, mosquitoes, rodents
+              and more with guaranteed results.
+            </p>
+
+            <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up">
+              <Link href="/contact">
+                <Button
+                  size="lg"
+                  className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 h-13 text-base shadow-xl shadow-blue-500/30 btn-press"
+                >
+                  Book Free Inspection
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <a href="tel:+917277234534">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full px-8 h-13 text-base border-white/30 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  Call Now
+                </Button>
+              </a>
+            </div>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { value: 700, suffix: "+", label: "Happy Customers" },
+              { value: 15, suffix: "+", label: "Services" },
+              { value: 5, suffix: "+", label: "Years Experience" },
+              { value: 100, suffix: "%", label: "Satisfaction" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center"
+              >
+                <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                <p className="text-gray-400 text-sm mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== SERVICES ==================== */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Section>
+            <div className="text-center mb-14">
+              <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-4 text-sm rounded-full">
+                What We Offer
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+                Our Professional Services
+              </h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                Comprehensive pest control solutions for residential and
+                commercial properties across Ranchi.
+              </p>
+            </div>
+          </Section>
+
+          {services.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, i) => (
+                <Section key={service.id}>
+                  <Card
+                    className={`p-6 border-0 shadow-md hover-lift cursor-pointer group bg-white rounded-2xl stagger-item overflow-hidden`}
+                    style={{ animationDelay: `${i * 80}ms` }}
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:from-[#42A5F5] group-hover:to-[#1E88E5] group-hover:text-white transition-all duration-300">
+                      {iconMap[service.icon || "Bug"] || (
+                        <Bug className="w-6 h-6" />
+                      )}
+                    </div>
+                    <h3 className="text-lg font-bold text-[#1a2332] mb-2 group-hover:text-[#42A5F5] transition-colors">
+                      {service.name}
+                    </h3>
+                    <p className="text-gray-500 text-sm mb-4 leading-relaxed">
+                      {service.shortDesc}
+                    </p>
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="inline-flex items-center text-[#42A5F5] text-sm font-semibold hover:gap-2 transition-all"
+                    >
+                      Learn More
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </Card>
+                </Section>
+              ))}
+            </div>
+          ) : (
+            <Section>
+              <div className="text-center py-12">
+                <Bug className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-400">
+                  Our services are being updated. Please call us for details.
+                </p>
+                <a href="tel:+917277234534">
+                  <Button className="mt-4 bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call +91-7277234534
+                  </Button>
+                </a>
+              </div>
+            </Section>
+          )}
+
+          <Section>
+            <div className="text-center mt-10">
+              <Link href="/services">
+                <Button
+                  variant="outline"
+                  className="rounded-full px-8 border-[#42A5F5] text-[#42A5F5] hover:bg-[#42A5F5] hover:text-white"
+                >
+                  View All Services
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </Section>
+        </div>
+      </section>
+
+      {/* ==================== WHY CHOOSE US ==================== */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Section>
+            <div className="text-center mb-14">
+              <Badge className="bg-green-50 text-[#7CB342] border-green-200 mb-4 text-sm rounded-full">
+                Why Us
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+                Why Choose HPC Pest Lifecare?
+              </h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                We are Ranchi&apos;s trusted pest control partner, delivering
+                excellence with every service.
+              </p>
+            </div>
+          </Section>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {whyChooseUs.map((item, i) => (
+              <Section key={item.title}>
+                <div
+                  className="group p-6 rounded-2xl border border-gray-100 hover:border-[#42A5F5]/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 stagger-item"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-[#1a2332] mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </Section>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== TESTIMONIALS ==================== */}
+      {testimonials.length > 0 && (
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Section>
+              <div className="text-center mb-14">
+                <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-4 text-sm rounded-full">
+                  <Star className="w-3.5 h-3.5 mr-1.5" />
+                  Reviews
+                </Badge>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+                  What Our Customers Say
+                </h2>
+                <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                  Hear from our satisfied customers across Ranchi and Jharkhand.
+                </p>
+              </div>
+            </Section>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <Section key={t.id}>
+                  <Card
+                    className="p-6 border-0 shadow-md rounded-2xl bg-white stagger-item"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <div className="flex gap-1 mb-3">
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star
+                          key={si}
+                          className={`w-4 h-4 ${
+                            si < t.rating
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4 italic">
+                      &ldquo;{t.text}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#42A5F5] to-[#7CB342] flex items-center justify-center text-white font-bold text-sm">
+                        {t.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#1a2332] text-sm">
+                          {t.name}
+                        </p>
+                        {t.location && (
+                          <p className="text-gray-400 text-xs">{t.location}</p>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                </Section>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ==================== CTA SECTION ==================== */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#42A5F5]/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#7CB342]/10 blur-[100px]" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <Section>
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6">
+                  Ready to Get Rid of Pests?
+                </h2>
+                <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                  Don&apos;t let pests take over your home or business. Contact
+                  us today for a free inspection and customized treatment plan.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <a
+                    href="tel:+917277234534"
+                    className="flex items-center gap-3 text-white hover:text-[#42A5F5] transition-colors"
+                  >
+                    <span className="w-10 h-10 rounded-full bg-[#7CB342] flex items-center justify-center shrink-0">
+                      <Phone className="w-5 h-5" />
+                    </span>
+                    <span>
+                      <span className="block text-sm text-gray-400">
+                        Call us anytime
+                      </span>
+                      <span className="font-semibold">
+                        +91-7277234534 / +91-9523591904
+                      </span>
+                    </span>
+                  </a>
+                  <a
+                    href="mailto:hpcplranchi@gmail.com"
+                    className="flex items-center gap-3 text-white hover:text-[#42A5F5] transition-colors"
+                  >
+                    <span className="w-10 h-10 rounded-full bg-[#42A5F5] flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </span>
+                    <span>
+                      <span className="block text-sm text-gray-400">
+                        Email us
+                      </span>
+                      <span className="font-semibold">
+                        hpcplranchi@gmail.com
+                      </span>
+                    </span>
+                  </a>
+                </div>
+                <Link href="/contact">
+                  <Button
+                    size="lg"
+                    className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 shadow-xl shadow-blue-500/30 btn-press"
+                  >
+                    Book Free Inspection
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </Section>
+
+            <Section>
+              <Card className="p-6 sm:p-8 rounded-2xl border-0 shadow-2xl bg-white">
+                <h3 className="text-xl font-bold text-[#1a2332] mb-1">
+                  Quick Enquiry
+                </h3>
+                <p className="text-gray-400 text-sm mb-6">
+                  Fill out the form and we will get back to you within 24 hours.
+                </p>
+                <EnquiryForm compact />
+              </Card>
+            </Section>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
