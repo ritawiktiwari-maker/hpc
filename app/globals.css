@@ -253,3 +253,176 @@
 .page-enter {
   animation: fade-in-up 0.4s ease-out;
 }
+
+/* ===== HERO Section - Bugs & Insects Theme ===== */
+
+/* Animated gradient background simulating video */
+.hero-bg-animation {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(124, 179, 66, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(66, 165, 245, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(220, 38, 38, 0.04) 0%, transparent 40%);
+  animation: hero-bg-shift 8s ease-in-out infinite alternate;
+}
+
+@keyframes hero-bg-shift {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%;
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 30% 20%, 70% 30%, 40% 70%;
+    opacity: 1;
+  }
+  100% {
+    background-position: 10% 40%, 90% 10%, 60% 90%;
+    opacity: 0.7;
+  }
+}
+
+/* Crawling bug animations */
+.hero-bug {
+  position: absolute;
+  font-size: 20px;
+  opacity: 0.08;
+  filter: grayscale(1) brightness(2);
+}
+
+.hero-bug-1 {
+  top: 15%; left: -30px;
+  animation: crawl-right 18s linear infinite;
+  animation-delay: 0s;
+}
+.hero-bug-2 {
+  top: 40%; right: -30px;
+  animation: crawl-left 22s linear infinite;
+  animation-delay: 3s;
+  font-size: 16px;
+}
+.hero-bug-3 {
+  top: 70%; left: -30px;
+  animation: crawl-right 15s linear infinite;
+  animation-delay: 6s;
+  font-size: 12px;
+}
+.hero-bug-4 {
+  top: 25%; left: -30px;
+  animation: crawl-right 20s linear infinite;
+  animation-delay: 8s;
+  font-size: 18px;
+}
+.hero-bug-5 {
+  top: 85%; right: -30px;
+  animation: crawl-left 25s linear infinite;
+  animation-delay: 2s;
+  font-size: 22px;
+}
+.hero-bug-6 {
+  top: 55%; left: -30px;
+  animation: crawl-right 16s linear infinite;
+  animation-delay: 10s;
+  font-size: 10px;
+}
+.hero-bug-7 {
+  bottom: 10%; right: -30px;
+  animation: crawl-left 19s linear infinite;
+  animation-delay: 5s;
+  font-size: 14px;
+}
+.hero-bug-8 {
+  top: 5%; left: -30px;
+  animation: crawl-right 24s linear infinite;
+  animation-delay: 12s;
+  font-size: 16px;
+}
+
+@keyframes crawl-right {
+  0% { transform: translateX(-30px) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.08; }
+  95% { opacity: 0.08; }
+  100% { transform: translateX(calc(100vw + 30px)) rotate(10deg); opacity: 0; }
+}
+
+@keyframes crawl-left {
+  0% { transform: translateX(30px) rotate(0deg) scaleX(-1); opacity: 0; }
+  5% { opacity: 0.08; }
+  95% { opacity: 0.08; }
+  100% { transform: translateX(calc(-100vw - 30px)) rotate(-10deg) scaleX(-1); opacity: 0; }
+}
+
+/* Floating dust/spore particles */
+.hero-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(124, 179, 66, 0.3);
+  border-radius: 50%;
+}
+
+.hero-particle-1 {
+  top: 20%; left: 10%;
+  animation: float-particle 6s ease-in-out infinite;
+}
+.hero-particle-2 {
+  top: 60%; left: 70%;
+  animation: float-particle 8s ease-in-out infinite;
+  animation-delay: 1s;
+  width: 4px; height: 4px;
+  background: rgba(66, 165, 245, 0.25);
+}
+.hero-particle-3 {
+  top: 40%; left: 40%;
+  animation: float-particle 7s ease-in-out infinite;
+  animation-delay: 2s;
+  width: 2px; height: 2px;
+}
+.hero-particle-4 {
+  top: 80%; left: 25%;
+  animation: float-particle 9s ease-in-out infinite;
+  animation-delay: 3s;
+  width: 5px; height: 5px;
+  background: rgba(124, 179, 66, 0.2);
+}
+.hero-particle-5 {
+  top: 30%; left: 85%;
+  animation: float-particle 5s ease-in-out infinite;
+  animation-delay: 4s;
+}
+.hero-particle-6 {
+  top: 70%; left: 55%;
+  animation: float-particle 10s ease-in-out infinite;
+  animation-delay: 5s;
+  width: 3px; height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+@keyframes float-particle {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  25% { transform: translate(15px, -20px) scale(1.2); opacity: 0.6; }
+  50% { transform: translate(-10px, -35px) scale(0.8); opacity: 0.4; }
+  75% { transform: translate(20px, -15px) scale(1.1); opacity: 0.5; }
+}
+
+/* Hex grid overlay */
+.hero-hex-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%237CB342' fill-opacity='1'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  animation: hex-scroll 30s linear infinite;
+}
+
+@keyframes hex-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 28px 49px; }
+}
+
+/* Glow pulse animations */
+.hero-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite alternate;
+}
+.hero-glow-pulse-alt {
+  animation: glow-pulse 5s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes glow-pulse {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.15); }
+}

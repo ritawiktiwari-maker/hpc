@@ -189,11 +189,36 @@ export default function HomePage() {
       {/* ==================== HERO ==================== */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-60" />
-        {/* Green accent glow */}
-        <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full bg-[#7CB342]/10 blur-[120px]" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12]" />
+        {/* Animated CSS Video-like Background */}
+        <div className="absolute inset-0 hero-bg-animation" />
+        {/* Crawling bugs silhouettes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hero-bug hero-bug-1">🐛</div>
+          <div className="hero-bug hero-bug-2">🪲</div>
+          <div className="hero-bug hero-bug-3">🐜</div>
+          <div className="hero-bug hero-bug-4">🦟</div>
+          <div className="hero-bug hero-bug-5">🪳</div>
+          <div className="hero-bug hero-bug-6">🐜</div>
+          <div className="hero-bug hero-bug-7">🦗</div>
+          <div className="hero-bug hero-bug-8">🪲</div>
+        </div>
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hero-particle hero-particle-1" />
+          <div className="hero-particle hero-particle-2" />
+          <div className="hero-particle hero-particle-3" />
+          <div className="hero-particle hero-particle-4" />
+          <div className="hero-particle hero-particle-5" />
+          <div className="hero-particle hero-particle-6" />
+        </div>
+        {/* Hex grid overlay */}
+        <div className="absolute inset-0 hero-hex-grid opacity-[0.04]" />
+        {/* Green accent glow - animated pulse */}
+        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7CB342]/12 blur-[150px] hero-glow-pulse" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-[#42A5F5]/10 blur-[120px] hero-glow-pulse-alt" />
+        {/* Red danger glow for pest theme */}
+        <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-red-500/5 blur-[100px] hero-glow-pulse" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="max-w-3xl">
@@ -231,8 +256,7 @@ export default function HomePage() {
               <a href="tel:+917277234534">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="rounded-full px-8 h-13 text-base border-white/30 text-white hover:bg-white/10 hover:text-white"
+                  className="rounded-full px-8 h-13 text-base bg-[#7CB342] hover:bg-[#689F38] text-white shadow-xl shadow-green-500/30 btn-press"
                 >
                   <Phone className="w-5 h-5 mr-2" />
                   Call Now

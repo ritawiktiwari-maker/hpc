@@ -95,13 +95,16 @@ export function Navbar() {
             <div className="hidden md:flex items-center gap-3">
               <a
                 href="tel:+917277234534"
-                className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
-                  scrolled ? "text-[#1a2332]" : "text-white"
+                className={`flex items-center gap-2 text-sm font-semibold transition-all duration-300 rounded-full px-4 py-2 ${
+                  scrolled
+                    ? "bg-[#7CB342]/10 text-[#7CB342] hover:bg-[#7CB342]/20"
+                    : "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
                 }`}
               >
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#7CB342] text-white">
-                  <Phone className="w-4 h-4" />
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#7CB342] text-white animate-pulse">
+                  <Phone className="w-3.5 h-3.5" />
                 </span>
+                <span>Call Us</span>
                 <span className="hidden lg:inline">+91-7277234534</span>
               </a>
               <Link href="/contact">
