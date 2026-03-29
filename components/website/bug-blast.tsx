@@ -55,8 +55,8 @@ export function BugBlastEffect() {
   }, []);
 
   useEffect(() => {
-    const firstTimer = setTimeout(spawnBlast, 3000);
-    const interval = setInterval(spawnBlast, 4000 + Math.random() * 2000);
+    const firstTimer = setTimeout(spawnBlast, 2000);
+    const interval = setInterval(spawnBlast, 2000);
     return () => {
       clearTimeout(firstTimer);
       clearInterval(interval);
