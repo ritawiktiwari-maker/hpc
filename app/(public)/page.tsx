@@ -152,21 +152,19 @@ function Section({
 export default function HomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/services")
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d)) setServices(d);
-      })
-      .catch(() => {});
-    fetch("/api/testimonials")
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d)) setTestimonials(d);
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch("/api/services").then((r) => r.json()).catch(() => []),
+      fetch("/api/testimonials").then((r) => r.json()).catch(() => []),
+    ]).then(([s, t]) => {
+      if (Array.isArray(s)) setServices(s);
+      if (Array.isArray(t)) setTestimonials(t);
+      setLoading(false);
+    });
   }, []);
+
 
   const whyChooseUs = [
     {
@@ -321,7 +319,13 @@ export default function HomePage() {
             </div>
           </Section>
 
-          {services.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-52 rounded-2xl skeleton-loading" />
+              ))}
+            </div>
+          ) : services.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, i) => (
                 <Section
@@ -432,24 +436,30 @@ export default function HomePage() {
       </section>
 
       {/* ==================== TESTIMONIALS ==================== */}
-      {testimonials.length > 0 && (
-        <section className="py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Section direction="right">
-              <div className="text-center mb-14">
-                <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-4 text-sm rounded-full">
-                  <Star className="w-3.5 h-3.5 mr-1.5" />
-                  Reviews
-                </Badge>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
-                  What Our Customers Say
-                </h2>
-                <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-                  Hear from our satisfied customers across Ranchi and Jharkhand.
-                </p>
-              </div>
-            </Section>
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Section direction="right">
+            <div className="text-center mb-14">
+              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-4 text-sm rounded-full">
+                <Star className="w-3.5 h-3.5 mr-1.5" />
+                Reviews
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+                What Our Customers Say
+              </h2>
+              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                Hear from our satisfied customers across Ranchi and Jharkhand.
+              </p>
+            </div>
+          </Section>
 
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-48 rounded-2xl skeleton-loading" />
+              ))}
+            </div>
+          ) : testimonials.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {testimonials.map((t, i) => (
                 <Section
@@ -492,9 +502,9 @@ export default function HomePage() {
                 </Section>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : null}
+        </div>
+      </section>
 
       {/* ==================== CTA SECTION ==================== */}
       <section className="relative py-20 overflow-hidden">
