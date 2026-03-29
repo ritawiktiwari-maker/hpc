@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/customers", label: "Customers", icon: Users },
   { href: "/employees", label: "Employees", icon: Users },
   { href: "/stock", label: "Stock", icon: Package },

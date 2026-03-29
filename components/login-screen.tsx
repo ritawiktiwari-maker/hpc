@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "./auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ const HPC_LOGO_URL = "/images/logo-20hpc.png"
 
 export function LoginScreen() {
   const { login, settings } = useAuth()
+  const router = useRouter()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -27,7 +29,9 @@ export function LoginScreen() {
 
     setTimeout(() => {
       const result = login(username, password)
-      if (!result.success) {
+      if (result.success) {
+        router.push("/admin/dashboard")
+      } else {
         setError(result.error || "Login failed")
       }
       setIsLoading(false)
