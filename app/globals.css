@@ -508,7 +508,7 @@
 
 /* ===== Bug Blast Effect ===== */
 
-.bug-blast-container {
+.bug-blast-wrap {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -516,194 +516,82 @@
   overflow: hidden;
 }
 
-/* Bug SVG - adaptive color: white on dark sections, dark on light sections */
-.bug-blast-svg {
-  color: rgba(255, 255, 255, 0.5);
-  fill: currentColor;
-  stroke: currentColor;
-}
-
-/* When the page is mostly light (default), use dark bugs */
-@media (prefers-color-scheme: light) {
-  .bug-blast-svg { color: rgba(30, 30, 30, 0.35); }
-}
-
-/* Detect background via section context - light bg pages get dark bugs */
-.bg-gray-50 ~ .bug-blast-container .bug-blast-svg,
-.bg-white ~ .bug-blast-container .bug-blast-svg {
-  color: rgba(30, 30, 30, 0.35);
-}
-
-/* Force: on light sections dark bug, on dark sections white bug
-   Since bugs are fixed overlay, we alternate based on scroll position
-   using a simple rule: dark bugs by default (most page is light) */
-.bug-blast-svg {
-  color: rgba(40, 40, 40, 0.3);
-  filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
-}
-
-/* The bug element */
-.bug-blast-bug {
+/* The bug container - crawls in then blasts */
+.bb-bug {
   position: absolute;
-  opacity: 0;
-  animation: bug-crawl-blast var(--blast-duration, 5.5s) ease-in-out forwards;
-  will-change: transform, opacity;
+  font-size: 28px;
+  line-height: 1;
+  animation: bb-crawl var(--bd, 5.5s) ease-in-out forwards;
 }
 
-/* ---- Entry positions: corners (deep ~280px travel) ---- */
-.bug-blast-bug.from-top-left     { top: -30px; left: -30px;   --tx: 280px; --ty: 280px;  --rot: 45deg; }
-.bug-blast-bug.from-top-right    { top: -30px; right: -30px;  --tx: -280px; --ty: 280px; --rot: 135deg; }
-.bug-blast-bug.from-bottom-left  { bottom: -30px; left: -30px; --tx: 280px; --ty: -280px; --rot: -45deg; }
-.bug-blast-bug.from-bottom-right { bottom: -30px; right: -30px; --tx: -280px; --ty: -280px; --rot: -135deg; }
+/* Corners */
+.bb-bug.from-top-left     { top: -40px; left: -40px;   --tx: 250px; --ty: 250px; }
+.bb-bug.from-top-right    { top: -40px; right: -40px;  --tx: -250px; --ty: 250px; }
+.bb-bug.from-bottom-left  { bottom: -40px; left: -40px; --tx: 250px; --ty: -250px; }
+.bb-bug.from-bottom-right { bottom: -40px; right: -40px; --tx: -250px; --ty: -250px; }
+/* Sides */
+.bb-bug.from-left   { left: -40px;   --tx: 280px; --ty: 0px; }
+.bb-bug.from-right  { right: -40px;  --tx: -280px; --ty: 0px; }
+.bb-bug.from-top    { top: -40px;    --tx: 0px; --ty: 280px; }
+.bb-bug.from-bottom { bottom: -40px; --tx: 0px; --ty: -280px; }
 
-/* ---- Entry positions: sides (deep ~300px travel) ---- */
-.bug-blast-bug.from-left   { left: -30px;   --tx: 300px; --ty: 0px; --rot: 90deg; }
-.bug-blast-bug.from-right  { right: -30px;  --tx: -300px; --ty: 0px; --rot: -90deg; }
-.bug-blast-bug.from-top    { top: -30px;    --tx: 0px; --ty: 300px; --rot: 180deg; }
-.bug-blast-bug.from-bottom { bottom: -30px; --tx: 0px; --ty: -300px; --rot: 0deg; }
-
-/* Bug crawls in, stays visible 3-4s, then blasts */
-@keyframes bug-crawl-blast {
-  /* Enter */
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(0deg) scale(0.5);
-  }
-  5% {
-    opacity: 0.35;
-    transform: translate(calc(var(--tx) * 0.1), calc(var(--ty) * 0.1)) rotate(calc(var(--rot) * 0.1)) scale(0.65);
-  }
-  20% {
-    opacity: 0.4;
-    transform: translate(calc(var(--tx) * 0.4), calc(var(--ty) * 0.4)) rotate(calc(var(--rot) * 0.4)) scale(0.8);
-  }
-  /* Arrives at destination - visible and crawling slowly */
-  40% {
-    opacity: 0.45;
-    transform: translate(calc(var(--tx) * 0.85), calc(var(--ty) * 0.85)) rotate(calc(var(--rot) * 0.8)) scale(0.95);
-  }
-  /* Stays visible - wiggles slightly */
-  50% {
-    opacity: 0.45;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1);
-  }
-  55% {
-    opacity: 0.45;
-    transform: translate(var(--tx), var(--ty)) rotate(calc(var(--rot) + 5deg)) scale(1.02);
-  }
-  60% {
-    opacity: 0.45;
-    transform: translate(var(--tx), var(--ty)) rotate(calc(var(--rot) - 3deg)) scale(0.98);
-  }
-  /* Still visible */
-  68% {
-    opacity: 0.45;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1);
-  }
-  /* Freeze moment before blast */
-  72% {
-    opacity: 0.55;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1.15);
-  }
-  /* BLAST! */
-  78% {
-    opacity: 0.7;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1.8);
-    filter: drop-shadow(0 0 8px rgba(255,100,0,0.5)) brightness(1.5);
-  }
-  85% {
-    opacity: 0;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.2);
-    filter: drop-shadow(0 0 20px rgba(255,80,0,0.6)) brightness(2);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0);
-  }
+@keyframes bb-crawl {
+  0%   { opacity: 0; transform: translate(0,0) scale(0.5); }
+  6%   { opacity: 0.7; transform: translate(calc(var(--tx)*0.1), calc(var(--ty)*0.1)) scale(0.7); }
+  25%  { opacity: 0.8; transform: translate(calc(var(--tx)*0.5), calc(var(--ty)*0.5)) scale(0.9); }
+  45%  { opacity: 0.85; transform: translate(calc(var(--tx)*0.9), calc(var(--ty)*0.9)) scale(1); }
+  /* Stay visible and wiggle */
+  55%  { opacity: 0.85; transform: translate(var(--tx), var(--ty)) rotate(8deg) scale(1.02); }
+  62%  { opacity: 0.85; transform: translate(var(--tx), var(--ty)) rotate(-5deg) scale(0.98); }
+  70%  { opacity: 0.85; transform: translate(var(--tx), var(--ty)) rotate(0deg) scale(1); }
+  /* BLAST */
+  76%  { opacity: 1; transform: translate(var(--tx), var(--ty)) scale(1.6); filter: brightness(1.5); }
+  82%  { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.1); filter: brightness(3); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
 }
 
-/* ---- Blast ring ---- */
-.bug-blast-ring {
+/* The emoji inside */
+.bb-emoji { display: block; }
+
+/* Blast ring */
+.bb-ring {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
   border-radius: 50%;
+  border: 2px solid rgba(255,120,0,0.6);
   opacity: 0;
-  pointer-events: none;
-  animation: blast-ring var(--blast-duration, 5.5s) ease-out forwards;
+  transform: translate(-50%,-50%);
+  animation: bb-ring var(--bd, 5.5s) ease-out forwards;
 }
 
-/* Ring positions match bug positions */
-.bug-blast-ring.from-top-left     { top: 0; left: 0; --rx: 280px; --ry: 280px; }
-.bug-blast-ring.from-top-right    { top: 0; right: 0; --rx: -280px; --ry: 280px; }
-.bug-blast-ring.from-bottom-left  { bottom: 0; left: 0; --rx: 280px; --ry: -280px; }
-.bug-blast-ring.from-bottom-right { bottom: 0; right: 0; --rx: -280px; --ry: -280px; }
-.bug-blast-ring.from-left   { left: 0; --rx: 300px; --ry: 0px; }
-.bug-blast-ring.from-right  { right: 0; --rx: -300px; --ry: 0px; }
-.bug-blast-ring.from-top    { top: 0; --rx: 0px; --ry: 300px; }
-.bug-blast-ring.from-bottom { bottom: 0; --rx: 0px; --ry: -300px; }
-
-@keyframes blast-ring {
-  0%, 74% {
-    opacity: 0;
-    width: 6px; height: 6px;
-    border: 2px solid transparent;
-    transform: translate(var(--rx, 0), var(--ry, 0));
-  }
-  78% {
-    opacity: 0.5;
-    width: 12px; height: 12px;
-    border: 2px solid rgba(255, 120, 0, 0.5);
-    transform: translate(var(--rx, 0), var(--ry, 0));
-  }
-  90% {
-    opacity: 0.15;
-    width: 70px; height: 70px;
-    border: 1px solid rgba(124, 179, 66, 0.25);
-    transform: translate(calc(var(--rx, 0) - 30px), calc(var(--ry, 0) - 30px));
-  }
-  100% {
-    opacity: 0;
-    width: 90px; height: 90px;
-    border: 1px solid transparent;
-    transform: translate(calc(var(--rx, 0) - 40px), calc(var(--ry, 0) - 40px));
-  }
+@keyframes bb-ring {
+  0%, 74%  { opacity: 0; width: 0; height: 0; }
+  76%      { opacity: 0.7; width: 10px; height: 10px; }
+  90%      { opacity: 0.2; width: 80px; height: 80px; border-color: rgba(124,179,66,0.3); }
+  100%     { opacity: 0; width: 100px; height: 100px; }
 }
 
-/* ---- Debris particles ---- */
-.bug-blast-particle {
+/* Pop particles */
+.bb-pop {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  top: 50%; left: 50%;
+  width: 5px; height: 5px;
   border-radius: 50%;
-  background: rgba(124, 179, 66, 0.6);
+  background: #7CB342;
   opacity: 0;
-  pointer-events: none;
-  animation: blast-particle var(--blast-duration, 5.5s) ease-out forwards;
+  animation: bb-pop var(--bd, 5.5s) ease-out forwards;
 }
+.bb-pop-1 { --px: -35px; --py: -40px; background: #FF9800; }
+.bb-pop-2 { --px: 40px;  --py: -30px; background: #42A5F5; }
+.bb-pop-3 { --px: -40px; --py: 35px;  background: #7CB342; }
+.bb-pop-4 { --px: 35px;  --py: 40px;  background: #FF5722; }
+.bb-pop-5 { --px: 0px;   --py: -45px; background: #4FC3F7; }
+.bb-pop-6 { --px: 0px;   --py: 45px;  background: #8BC34A; }
 
-/* Particle positions match bug */
-.bug-blast-particle.from-top-left     { top: 0; left: 0; --bx: 280px; --by: 280px; }
-.bug-blast-particle.from-top-right    { top: 0; right: 0; --bx: -280px; --by: 280px; }
-.bug-blast-particle.from-bottom-left  { bottom: 0; left: 0; --bx: 280px; --by: -280px; }
-.bug-blast-particle.from-bottom-right { bottom: 0; right: 0; --bx: -280px; --by: -280px; }
-.bug-blast-particle.from-left   { left: 0; --bx: 300px; --by: 0px; }
-.bug-blast-particle.from-right  { right: 0; --bx: -300px; --by: 0px; }
-.bug-blast-particle.from-top    { top: 0; --bx: 0px; --by: 300px; }
-.bug-blast-particle.from-bottom { bottom: 0; --bx: 0px; --by: -300px; }
-
-@keyframes blast-particle {
-  0%, 76% {
-    opacity: 0;
-    transform: translate(var(--bx, 0), var(--by, 0)) scale(1);
-  }
-  78% {
-    opacity: 0.7;
-    transform: translate(var(--bx, 0), var(--by, 0)) scale(1.5);
-  }
-  92% {
-    opacity: 0;
-    transform: translate(calc(var(--bx, 0) + var(--px, 30px)), calc(var(--by, 0) + var(--py, -20px))) scale(0.3);
-  }
-  100% { opacity: 0; }
+@keyframes bb-pop {
+  0%, 75%  { opacity: 0; transform: translate(-50%,-50%) scale(1); }
+  78%      { opacity: 0.9; transform: translate(-50%,-50%) scale(1.5); }
+  95%      { opacity: 0; transform: translate(calc(-50% + var(--px, 30px)), calc(-50% + var(--py, -30px))) scale(0.2); }
+  100%     { opacity: 0; }
 }
