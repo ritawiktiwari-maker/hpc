@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 const entries = [
   "from-top-left",
@@ -23,7 +24,7 @@ interface Blast {
   pos: number;
 }
 
-export function BugBlastEffect() {
+function BugBlastInner() {
   const [blasts, setBlasts] = useState<Blast[]>([]);
   const nextId = useRef(0);
 
@@ -69,4 +70,18 @@ export function BugBlastEffect() {
       })}
     </div>
   );
+}
+
+export function BugBlastEffect() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  // Render via portal directly on document.body so it's completely
+  // outside the page layout tree — no reflows on the main content
+  return createPortal(<BugBlastInner />, document.body);
 }
