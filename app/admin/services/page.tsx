@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useAuth } from "@/components/auth-provider"
 import { LoginScreen } from "@/components/login-screen"
 import { AdminLayout } from "@/components/admin-layout"
@@ -18,7 +18,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Plus, Pencil, Trash2, GripVertical, Globe, ExternalLink } from "lucide-react"
+import { Plus, Pencil, Trash2, GripVertical, Globe, ExternalLink, Upload, X } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -29,6 +29,7 @@ interface Service {
   shortDesc: string
   description: string
   icon: string | null
+  image: string | null
   features: string[]
   isActive: boolean
   sortOrder: number
@@ -42,8 +43,9 @@ export default function AdminServicesPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [selected, setSelected] = useState<Service | null>(null)
   const [formData, setFormData] = useState({
-    name: "", slug: "", shortDesc: "", description: "", icon: "", features: "", isActive: true, sortOrder: 0
+    name: "", slug: "", shortDesc: "", description: "", icon: "", image: "", features: "", isActive: true, sortOrder: 0
   })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchServices = useCallback(async () => {
     try {
@@ -58,7 +60,7 @@ export default function AdminServicesPage() {
 
   const handleAdd = () => {
     setSelected(null)
-    setFormData({ name: "", slug: "", shortDesc: "", description: "", icon: "", features: "", isActive: true, sortOrder: services.length })
+    setFormData({ name: "", slug: "", shortDesc: "", description: "", icon: "", image: "", features: "", isActive: true, sortOrder: services.length })
     setFormOpen(true)
   }
 
@@ -66,9 +68,19 @@ export default function AdminServicesPage() {
     setSelected(s)
     setFormData({
       name: s.name, slug: s.slug, shortDesc: s.shortDesc, description: s.description,
-      icon: s.icon || "", features: s.features.join("\n"), isActive: s.isActive, sortOrder: s.sortOrder
+      icon: s.icon || "", image: s.image || "", features: s.features.join("\n"), isActive: s.isActive, sortOrder: s.sortOrder
     })
     setFormOpen(true)
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image"); return }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return }
+    const reader = new FileReader()
+    reader.onload = () => setFormData(p => ({ ...p, image: reader.result as string }))
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async () => {
@@ -79,6 +91,7 @@ export default function AdminServicesPage() {
       ...formData,
       slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       features: formData.features.split("\n").map(f => f.trim()).filter(Boolean),
+      image: formData.image || null,
     }
     try {
       const url = selected ? `/api/services/${selected.id}` : '/api/services'
@@ -146,9 +159,15 @@ export default function AdminServicesPage() {
             services.map((s, idx) => (
               <Card key={s.id} className={`transition-opacity ${!s.isActive ? 'opacity-50' : ''} animate-fade-in`} style={{ animationDelay: `${idx * 50}ms` }}>
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className="text-2xl w-10 text-center text-muted-foreground">
-                    {idx + 1}
-                  </div>
+                  {s.image ? (
+                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                      <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="text-2xl w-10 text-center text-muted-foreground">
+                      {idx + 1}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold">{s.name}</h3>
@@ -209,6 +228,30 @@ export default function AdminServicesPage() {
             <div className="space-y-2">
               <Label>Full Description</Label>
               <Textarea value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} rows={4} placeholder="Detailed description for the service page..." />
+            </div>
+            <div className="space-y-2">
+              <Label>Service Image</Label>
+              {formData.image ? (
+                <div className="relative rounded-xl overflow-hidden border bg-gray-50">
+                  <img src={formData.image} alt="Preview" className="w-full h-32 object-cover" />
+                  <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6 rounded-full"
+                    onClick={() => setFormData(p => ({ ...p, image: "" }))}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">Click to upload (max 5MB)</p>
+                </div>
+              )}
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+              {formData.image && (
+                <Button variant="outline" size="sm" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="h-3 w-3 mr-1" /> Replace
+                </Button>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Features (one per line)</Label>

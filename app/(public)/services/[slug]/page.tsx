@@ -25,6 +25,7 @@ interface Service {
   shortDesc: string;
   description: string;
   icon?: string;
+  image?: string | null;
   features: string[];
 }
 
@@ -187,6 +188,18 @@ export default function ServiceDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
             {/* Main Content */}
             <div className="lg:col-span-2">
+              {/* Service image from admin */}
+              {service.image && (
+                <RevealDiv className="mb-8">
+                  <div className="rounded-2xl overflow-hidden shadow-md">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="w-full h-48 sm:h-64 lg:h-72 object-cover"
+                    />
+                  </div>
+                </RevealDiv>
+              )}
               <RevealDiv>
                 <div className="prose prose-gray max-w-none">
                   <h2 className="text-2xl font-bold text-[#1a2332] mb-4">

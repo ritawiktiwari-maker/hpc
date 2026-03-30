@@ -21,6 +21,7 @@ import {
   Globe,
   Star,
   Wrench,
+  ImageIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -43,6 +44,7 @@ const navItems = [
   { href: "/admin/reports", label: "Reports", icon: ClipboardList },
   { href: "/sales", label: "Sales & Leads", icon: TrendingUp },
   { href: "/admin/services", label: "Website Services", icon: Wrench },
+  { href: "/admin/site-images", label: "Website Images", icon: ImageIcon },
   { href: "/admin/testimonials", label: "Testimonials", icon: Star },
 ]
 

@@ -18,7 +18,8 @@
       "Bash(cd:*)",
       "Bash(start:*)",
       "Read(//d//**)",
-      "Bash(grep -r \"BugBlastEffect\\\\|bug-blast\\\\|hero-section\" '/d/admin-panel-requirements \\(2\\)' --include=*.tsx --include=*.ts --include=*.css)"
+      "Bash(grep -r \"BugBlastEffect\\\\|bug-blast\\\\|hero-section\" '/d/admin-panel-requirements \\(2\\)' --include=*.tsx --include=*.ts --include=*.css)",
+      "Bash(wc -l \"D:\\\\admin-panel-requirements \\(2\\)\"/prisma/dev.db)"
     ]
   }
 }

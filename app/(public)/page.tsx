@@ -40,6 +40,15 @@ interface Testimonial {
   text: string;
   service?: string;
 }
+interface SiteImage {
+  id: string;
+  key: string;
+  title: string;
+  alt: string | null;
+  section: string;
+  imageData: string;
+  sortOrder: number;
+}
 
 /* ---------- Icon Map ---------- */
 const iconMap: Record<string, React.ReactNode> = {
@@ -152,18 +161,25 @@ function Section({
 export default function HomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [siteImages, setSiteImages] = useState<SiteImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/services").then((r) => r.json()).catch(() => []),
       fetch("/api/testimonials").then((r) => r.json()).catch(() => []),
-    ]).then(([s, t]) => {
+      fetch("/api/site-images").then((r) => r.json()).catch(() => []),
+    ]).then(([s, t, imgs]) => {
       if (Array.isArray(s)) setServices(s);
       if (Array.isArray(t)) setTestimonials(t);
+      if (Array.isArray(imgs)) setSiteImages(imgs);
       setLoading(false);
     });
   }, []);
+
+  const heroImages = siteImages.filter((i) => i.section === "HERO");
+  const galleryImages = siteImages.filter((i) => i.section === "GALLERY");
+  const aboutImages = siteImages.filter((i) => i.section === "ABOUT");
 
 
   const whyChooseUs = [
@@ -203,8 +219,18 @@ export default function HomePage() {
     <div>
       {/* ==================== HERO ==================== */}
       <section className="hero-section relative flex items-center overflow-hidden">
+        {/* Dynamic hero background image from admin */}
+        {heroImages.length > 0 && (
+          <div className="absolute inset-0">
+            <img
+              src={heroImages[0].imageData}
+              alt={heroImages[0].alt || ""}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         {/* Background - GPU composited layer */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12] will-change-auto" />
+        <div className={`absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12] will-change-auto ${heroImages.length > 0 ? "opacity-80" : ""}`} />
         {/* Animated CSS Video-like Background */}
         <div className="absolute inset-0 hero-bg-animation will-change-[opacity]" />
         {/* Crawling bugs silhouettes - hidden on small screens for performance */}
@@ -505,6 +531,48 @@ export default function HomePage() {
           ) : null}
         </div>
       </section>
+
+      {/* ==================== GALLERY ==================== */}
+      {galleryImages.length > 0 && (
+        <section className="py-12 sm:py-16 lg:py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Section direction="up">
+              <div className="text-center mb-8 sm:mb-12 lg:mb-14">
+                <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-3 sm:mb-4 text-sm rounded-full">
+                  Our Work
+                </Badge>
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1a2332] mb-3 sm:mb-4">
+                  See Our Work in Action
+                </h2>
+                <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
+                  Real results from our professional pest control treatments across Jharkhand.
+                </p>
+              </div>
+            </Section>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {galleryImages.map((img, i) => (
+                <Section
+                  key={img.id}
+                  direction={i % 2 === 0 ? "scale" : "up"}
+                  delay={i * 80}
+                >
+                  <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square bg-gray-100">
+                    <img
+                      src={img.imageData}
+                      alt={img.alt || img.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
+                      <p className="text-white text-sm font-medium">{img.title}</p>
+                    </div>
+                  </div>
+                </Section>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ==================== CTA SECTION ==================== */}
       <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">

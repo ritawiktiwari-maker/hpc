@@ -62,7 +62,24 @@ function RevealDiv({
   );
 }
 
+interface SiteImage {
+  id: string;
+  key: string;
+  title: string;
+  alt: string | null;
+  section: string;
+  imageData: string;
+}
+
 export default function AboutPage() {
+  const [aboutImages, setAboutImages] = useState<SiteImage[]>([]);
+
+  useEffect(() => {
+    fetch("/api/site-images?section=ABOUT")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setAboutImages(d); })
+      .catch(() => {});
+  }, []);
   const stats = [
     {
       icon: <Users className="w-6 h-6" />,
@@ -175,6 +192,16 @@ export default function AboutPage() {
 
             <RevealDiv delay={200}>
               <div className="relative">
+                {/* Dynamic about image from admin */}
+                {aboutImages.length > 0 && (
+                  <div className="rounded-2xl overflow-hidden mb-6 shadow-lg">
+                    <img
+                      src={aboutImages[0].imageData}
+                      alt={aboutImages[0].alt || aboutImages[0].title}
+                      className="w-full h-48 sm:h-64 object-cover"
+                    />
+                  </div>
+                )}
                 <div className="bg-gradient-to-br from-[#42A5F5]/5 to-[#7CB342]/5 rounded-3xl p-8 border border-gray-100">
                   <div className="grid grid-cols-2 gap-6">
                     {stats.map((stat, i) => (

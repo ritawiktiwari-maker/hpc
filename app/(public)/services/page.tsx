@@ -24,6 +24,7 @@ interface Service {
   shortDesc: string;
   description: string;
   icon?: string;
+  image?: string | null;
   features: string[];
 }
 
@@ -130,7 +131,17 @@ export default function ServicesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service, i) => (
                 <RevealDiv key={service.id} delay={i * 80}>
-                  <Card className="p-6 border-0 shadow-md hover-lift rounded-2xl bg-white h-full flex flex-col group">
+                  <Card className="border-0 shadow-md hover-lift rounded-2xl bg-white h-full flex flex-col group overflow-hidden">
+                    {service.image ? (
+                      <div className="h-40 overflow-hidden">
+                        <img
+                          src={service.image}
+                          alt={service.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      </div>
+                    ) : null}
+                    <div className={`flex-1 flex flex-col p-6 ${service.image ? "pt-4" : ""}`}>
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:from-[#42A5F5] group-hover:to-[#1E88E5] group-hover:text-white transition-all duration-300">
                       {iconMap[service.icon || "Bug"] || (
                         <Bug className="w-7 h-7" />
@@ -177,6 +188,7 @@ export default function ServicesPage() {
                           Get Quote
                         </Button>
                       </Link>
+                    </div>
                     </div>
                   </Card>
                 </RevealDiv>
