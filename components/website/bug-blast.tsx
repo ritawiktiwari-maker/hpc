@@ -9,7 +9,7 @@ const entries = [
 ] as const;
 
 /* CSS-only bug silhouettes using box-shadow art */
-const bugTypes = ["bb-ant", "bb-spider", "bb-beetle", "bb-roach", "bb-mosquito", "bb-snake"]; /* bb-spider = bee */
+const bugTypes = ["bb-ant", "bb-spider", "bb-fly", "bb-roach", "bb-mosquito"]; /* bb-spider = bee, bb-fly = fly */
 
 interface Blast {
   id: number;
