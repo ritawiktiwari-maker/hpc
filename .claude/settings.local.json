@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find \"D:/admin-panel-requirements \\(2\\)\" -type f -name \"route.ts\")",
+      "Bash(find \"D:/admin-panel-requirements \\(2\\)\" -type f -name \"page.tsx\")",
+      "Bash(find \"D:/admin-panel-requirements \\(2\\)/components\" -type f -name \"*.tsx\")",
+      "Bash(node -e \":*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx next:*)",
+      "WebFetch(domain:hpcpltd.in)",
+      "Bash(find:*)",
+      "Bash(mkdir -p \"D:/admin-panel-requirements \\(2\\)/app/api/leads/[id]/view\")",
+      "Bash(mkdir -p \"D:/admin-panel-requirements \\(2\\)/app/\\(public\\)/services/[slug]\")",
+      "Bash(cat:*)",
+      "Bash(npx vercel:*)",
+      "Bash(cd:*)",
+      "Bash(start:*)",
+      "Read(//d//**)",
+      "Bash(grep -r \"BugBlastEffect\\\\|bug-blast\\\\|hero-section\" '/d/admin-panel-requirements \\(2\\)' --include=*.tsx --include=*.ts --include=*.css)"
+    ]
+  }
+}

@@ -82,7 +82,7 @@ function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string })
   }, [end]);
 
   return (
-    <div ref={ref} className="text-3xl md:text-4xl font-extrabold text-white">
+    <div ref={ref} className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
       {count}
       {suffix}
     </div>
@@ -207,8 +207,8 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#0d1a0f] via-[#1a2332] to-[#0f1d12] will-change-auto" />
         {/* Animated CSS Video-like Background */}
         <div className="absolute inset-0 hero-bg-animation will-change-[opacity]" />
-        {/* Crawling bugs silhouettes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform">
+        {/* Crawling bugs silhouettes - hidden on small screens for performance */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform hidden sm:block">
           <div className="hero-bug hero-bug-1">🐛</div>
           <div className="hero-bug hero-bug-2">🪲</div>
           <div className="hero-bug hero-bug-3">🐜</div>
@@ -218,8 +218,8 @@ export default function HomePage() {
           <div className="hero-bug hero-bug-7">🦗</div>
           <div className="hero-bug hero-bug-8">🪲</div>
         </div>
-        {/* Floating particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform">
+        {/* Floating particles - hidden on small screens */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform hidden sm:block">
           <div className="hero-particle hero-particle-1" />
           <div className="hero-particle hero-particle-2" />
           <div className="hero-particle hero-particle-3" />
@@ -229,21 +229,21 @@ export default function HomePage() {
         </div>
         {/* Hex grid overlay */}
         <div className="absolute inset-0 hero-hex-grid opacity-[0.04]" />
-        {/* Accent glows - static, no animation to avoid repaints */}
-        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full bg-[#7CB342]/10 blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-[#42A5F5]/8 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/3 w-64 h-64 rounded-full bg-red-500/5 blur-[100px]" />
+        {/* Accent glows - responsive sizes */}
+        <div className="absolute top-1/4 right-0 w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] lg:w-[500px] lg:h-[500px] rounded-full bg-[#7CB342]/10 blur-[100px] sm:blur-[150px]" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 rounded-full bg-[#42A5F5]/8 blur-[80px] sm:blur-[120px]" />
+        <div className="absolute top-1/2 left-1/3 w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full bg-red-500/5 blur-[60px] sm:blur-[100px]" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6 sm:pt-24 sm:pb-8 lg:pt-16 lg:pb-6 w-full flex flex-col justify-center min-h-0">
           <div className="max-w-3xl">
             <div className="hero-fade hero-fade-1">
-              <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-6 text-sm px-4 py-1.5 rounded-full">
-                <Shield className="w-3.5 h-3.5 mr-1.5" />
+              <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-3 sm:mb-4 lg:mb-5 text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
+                <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
                 Trusted Pest Control in Ranchi
               </Badge>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6 hero-fade hero-fade-2">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-3 sm:mb-4 lg:mb-5 hero-fade hero-fade-2">
               Protecting Your Home &amp;
               <br />
               Business from Pests
@@ -253,28 +253,28 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-xl leading-relaxed hero-fade hero-fade-3">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-4 sm:mb-6 lg:mb-6 max-w-xl leading-relaxed hero-fade hero-fade-3">
               Professional, eco-friendly pest control services in Ranchi,
               Jharkhand. We eliminate termites, cockroaches, mosquitoes, rodents
               and more with guaranteed results.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-16 hero-fade hero-fade-4">
+            <div className="flex flex-row flex-wrap gap-2 sm:gap-3 lg:gap-4 mb-6 sm:mb-8 lg:mb-10 hero-fade hero-fade-4">
               <Link href="/contact">
                 <Button
                   size="lg"
-                  className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 h-13 text-base shadow-xl shadow-blue-500/30 btn-press"
+                  className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-5 sm:px-8 h-10 sm:h-12 lg:h-13 text-sm sm:text-base shadow-xl shadow-blue-500/30 btn-press"
                 >
                   Book Free Inspection
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
                 </Button>
               </Link>
               <a href="tel:+917277234534">
                 <Button
                   size="lg"
-                  className="rounded-full px-8 h-13 text-base bg-[#7CB342] hover:bg-[#689F38] text-white shadow-xl shadow-green-500/30 btn-press"
+                  className="rounded-full px-5 sm:px-8 h-10 sm:h-12 lg:h-13 text-sm sm:text-base bg-[#7CB342] hover:bg-[#689F38] text-white shadow-xl shadow-green-500/30 btn-press"
                 >
-                  <Phone className="w-5 h-5 mr-2" />
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                   Call Now
                 </Button>
               </a>
@@ -282,7 +282,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             {[
               { value: 700, suffix: "+", label: "Happy Customers" },
               { value: 15, suffix: "+", label: "Services" },
@@ -291,10 +291,10 @@ export default function HomePage() {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center hero-fade hero-fade-${5 + i}`}
+                className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 lg:p-5 text-center hero-fade hero-fade-${5 + i}`}
               >
                 <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                <p className="text-gray-400 text-sm mt-1">{stat.label}</p>
+                <p className="text-gray-400 text-xs sm:text-sm mt-0.5 sm:mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -302,17 +302,17 @@ export default function HomePage() {
       </section>
 
       {/* ==================== SERVICES ==================== */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Section direction="down">
-            <div className="text-center mb-14">
-              <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-4 text-sm rounded-full">
+            <div className="text-center mb-8 sm:mb-12 lg:mb-14">
+              <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-3 sm:mb-4 text-sm rounded-full">
                 What We Offer
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1a2332] mb-3 sm:mb-4">
                 Our Professional Services
               </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+              <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
                 Comprehensive pest control solutions for residential and
                 commercial properties across Ranchi.
               </p>
@@ -392,17 +392,17 @@ export default function HomePage() {
       </section>
 
       {/* ==================== WHY CHOOSE US ==================== */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Section direction="left">
-            <div className="text-center mb-14">
-              <Badge className="bg-green-50 text-[#7CB342] border-green-200 mb-4 text-sm rounded-full">
+            <div className="text-center mb-8 sm:mb-12 lg:mb-14">
+              <Badge className="bg-green-50 text-[#7CB342] border-green-200 mb-3 sm:mb-4 text-sm rounded-full">
                 Why Us
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1a2332] mb-3 sm:mb-4">
                 Why Choose Hygienic Pest Control?
               </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+              <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
                 We are Ranchi&apos;s trusted pest control partner, delivering
                 excellence with every service.
               </p>
@@ -436,18 +436,18 @@ export default function HomePage() {
       </section>
 
       {/* ==================== TESTIMONIALS ==================== */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Section direction="right">
-            <div className="text-center mb-14">
-              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-4 text-sm rounded-full">
+            <div className="text-center mb-8 sm:mb-12 lg:mb-14">
+              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 mb-3 sm:mb-4 text-sm rounded-full">
                 <Star className="w-3.5 h-3.5 mr-1.5" />
                 Reviews
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1a2332] mb-3 sm:mb-4">
                 What Our Customers Say
               </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+              <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
                 Hear from our satisfied customers across Ranchi and Jharkhand.
               </p>
             </div>
@@ -507,19 +507,19 @@ export default function HomePage() {
       </section>
 
       {/* ==================== CTA SECTION ==================== */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#42A5F5]/10 blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#7CB342]/10 blur-[100px]" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
             <Section direction="left">
               <div>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-4 sm:mb-6">
                   Ready to Get Rid of Pests?
                 </h2>
-                <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                <p className="text-gray-300 text-base sm:text-lg mb-6 sm:mb-8 leading-relaxed">
                   Don&apos;t let pests take over your home or business. Contact
                   us today for a free inspection and customized treatment plan.
                 </p>

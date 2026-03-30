@@ -115,22 +115,35 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden p-2 rounded-lg transition-colors ${
-                scrolled
-                  ? "text-[#1a2332] hover:bg-gray-100"
-                  : "text-white hover:bg-white/10"
-              }`}
-              aria-label="Toggle menu"
-            >
-              {mobileOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
+            {/* Mobile Right Actions */}
+            <div className="flex md:hidden items-center gap-2">
+              <a
+                href="tel:+917277234534"
+                className={`p-2 rounded-lg transition-colors ${
+                  scrolled
+                    ? "text-[#7CB342] hover:bg-green-50"
+                    : "text-green-300 hover:bg-white/10"
+                }`}
+                aria-label="Call us"
+              >
+                <Phone className="w-5 h-5" />
+              </a>
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className={`p-2 rounded-lg transition-colors ${
+                  scrolled
+                    ? "text-[#1a2332] hover:bg-gray-100"
+                    : "text-white hover:bg-white/10"
+                }`}
+                aria-label="Toggle menu"
+              >
+                {mobileOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </nav>

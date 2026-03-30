@@ -154,7 +154,7 @@ export default function ServiceDetailPage({
   return (
     <div>
       {/* Hero */}
-      <section className="relative pt-32 pb-16 overflow-hidden">
+      <section className="relative pt-24 pb-10 sm:pt-32 sm:pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-1/2 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -182,9 +182,9 @@ export default function ServiceDetailPage({
       </section>
 
       {/* Content */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
             {/* Main Content */}
             <div className="lg:col-span-2">
               <RevealDiv>
@@ -254,7 +254,7 @@ export default function ServiceDetailPage({
 
       {/* Related Services */}
       {relatedServices.length > 0 && (
-        <section className="py-16 bg-gray-50">
+        <section className="py-10 sm:py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <RevealDiv>
               <h2 className="text-2xl font-bold text-[#1a2332] mb-8 text-center">

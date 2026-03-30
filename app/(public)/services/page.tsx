@@ -95,7 +95,7 @@ export default function ServicesPage() {
   return (
     <div>
       {/* Hero Banner */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-1/2 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
         <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#7CB342]/10 blur-[80px]" />
@@ -115,7 +115,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -204,7 +204,7 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-white">
+      <section className="py-12 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <RevealDiv>
             <h2 className="text-3xl font-extrabold text-[#1a2332] mb-4">

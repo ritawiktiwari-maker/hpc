@@ -112,7 +112,7 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-[#7CB342]/10 blur-[100px]" />
         <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#42A5F5]/10 blur-[80px]" />
@@ -132,9 +132,9 @@ export default function AboutPage() {
       </section>
 
       {/* Our Story */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-center">
             <RevealDiv>
               <div>
                 <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-4 text-sm rounded-full">
@@ -204,9 +204,9 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <RevealDiv>
               <div className="bg-white rounded-2xl p-8 shadow-md h-full border border-gray-100">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5] to-[#1E88E5] flex items-center justify-center text-white mb-5">
@@ -247,7 +247,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealDiv>
             <div className="text-center mb-14">
@@ -283,11 +283,11 @@ export default function AboutPage() {
       </section>
 
       {/* Why Ranchi Trusts HPC */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealDiv>
-            <div className="text-center mb-14">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
+            <div className="text-center mb-10 sm:mb-14">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1a2332] mb-4">
                 Why Ranchi Trusts Hygienic Pest Control
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-lg">
@@ -324,7 +324,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

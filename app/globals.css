@@ -322,16 +322,32 @@
   animation: fade-in-up 0.4s ease-out;
 }
 
-/* ===== Hero Section - fixed height, no vh shift ===== */
+/* ===== Hero Section - exactly one screen ===== */
 .hero-section {
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: -webkit-fill-available;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  display: flex;
+  align-items: center;
   contain: layout style;
 }
 
-@supports (min-height: 100svh) {
-  .hero-section { min-height: 100svh; }
+@supports (height: 100dvh) {
+  .hero-section {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+
+/* On mobile, use dvh to avoid address-bar resize jumps */
+@media (max-width: 640px) {
+  .hero-section {
+    height: 100dvh;
+    height: -webkit-fill-available;
+    max-height: 100dvh;
+    max-height: -webkit-fill-available;
+  }
 }
 
 /* ===== Hero Content Fade-in (opacity only, no layout shift) ===== */
@@ -379,6 +395,13 @@
   font-size: 20px;
   opacity: 0.08;
   filter: grayscale(1) brightness(2);
+}
+
+@media (max-width: 640px) {
+  .hero-bug {
+    font-size: 14px;
+    opacity: 0.05;
+  }
 }
 
 .hero-bug-1 {
@@ -560,6 +583,23 @@
   height: 24px;
   position: relative;
   opacity: 0.4;
+}
+
+@media (max-width: 640px) {
+  .bb-bug { font-size: 20px; }
+  .bb-shape { width: 18px; height: 18px; }
+  .bb-bug.from-top-left,
+  .bb-bug.from-top-right,
+  .bb-bug.from-bottom-left,
+  .bb-bug.from-bottom-right { --tx: 150px; --ty: 150px; }
+  .bb-bug.from-top-right,
+  .bb-bug.from-bottom-right { --tx: -150px; }
+  .bb-bug.from-bottom-left,
+  .bb-bug.from-bottom-right { --ty: -150px; }
+  .bb-bug.from-left { --tx: 180px; }
+  .bb-bug.from-right { --tx: -180px; }
+  .bb-bug.from-top { --ty: 180px; }
+  .bb-bug.from-bottom { --ty: -180px; }
 }
 
 /* Ant */

@@ -96,7 +96,7 @@ export default function ContactPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
         <div className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
         <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#7CB342]/10 blur-[80px]" />
@@ -116,14 +116,14 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Cards */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-8 sm:py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 -mt-16 relative z-10">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 -mt-10 sm:-mt-16 relative z-10">
             {contactCards.map((card, i) => (
               <RevealDiv key={card.title} delay={i * 100}>
-                <Card className="p-5 border-0 shadow-lg rounded-2xl bg-white text-center h-full">
+                <Card className="p-3 sm:p-5 border-0 shadow-lg rounded-xl sm:rounded-2xl bg-white text-center h-full">
                   <div
-                    className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white mx-auto mb-4`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white mx-auto mb-2 sm:mb-4 [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-6 sm:[&>svg]:h-6`}
                   >
                     {card.icon}
                   </div>
@@ -151,9 +151,9 @@ export default function ContactPage() {
       </section>
 
       {/* Form & Map */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-10 sm:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10">
             {/* Form */}
             <div className="lg:col-span-3">
               <RevealDiv>
