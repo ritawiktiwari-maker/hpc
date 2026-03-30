@@ -239,8 +239,7 @@ export default function ServiceDetailPage({
                   </Link>
                   <a href="tel:+917277234534" className="block">
                     <Button
-                      variant="outline"
-                      className="w-full border-white/30 text-white hover:bg-white/10 rounded-xl h-12"
+                      className="w-full rounded-xl h-12 bg-white/15 text-white border border-white/30 hover:bg-white/25 font-semibold btn-press"
                     >
                       <Phone className="w-4 h-4 mr-2" />
                       Call Now
