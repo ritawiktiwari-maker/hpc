@@ -239,7 +239,7 @@ export default function HomePage() {
             <div className="hero-fade hero-fade-1">
               <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-3 sm:mb-4 lg:mb-5 text-xs sm:text-sm px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
                 <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
-                Trusted Pest Control in Ranchi
+                Trusted Pest Control in Jharkhand
               </Badge>
             </div>
 
@@ -254,7 +254,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-4 sm:mb-6 lg:mb-6 max-w-xl leading-relaxed hero-fade hero-fade-3">
-              Professional, eco-friendly pest control services in Ranchi,
+              Professional, eco-friendly pest control services in
               Jharkhand. We eliminate termites, cockroaches, mosquitoes, rodents
               and more with guaranteed results.
             </p>
@@ -314,7 +314,7 @@ export default function HomePage() {
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
                 Comprehensive pest control solutions for residential and
-                commercial properties across Ranchi.
+                commercial properties across Jharkhand.
               </p>
             </div>
           </Section>
@@ -403,7 +403,7 @@ export default function HomePage() {
                 Why Choose Hygienic Pest Control?
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
-                We are Ranchi&apos;s trusted pest control partner, delivering
+                We are Jharkhand&apos;s trusted pest control partner, delivering
                 excellence with every service.
               </p>
             </div>
@@ -448,7 +448,7 @@ export default function HomePage() {
                 What Our Customers Say
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
-                Hear from our satisfied customers across Ranchi and Jharkhand.
+                Hear from our satisfied customers across Jharkhand.
               </p>
             </div>
           </Section>

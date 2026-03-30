@@ -5,11 +5,11 @@ import { BugBlastEffect } from "@/components/website/bug-blast";
 
 export const metadata = {
   title: {
-    default: "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Ranchi",
+    default: "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Jharkhand",
     template: "%s | Hygienic Pest Control Pvt Ltd",
   },
   description:
-    "Professional pest control services in Ranchi, Jharkhand by Hygienic Pest Control Pvt Ltd. Termite treatment, mosquito control, rodent control and more. Call +91-7277234534.",
+    "Professional pest control services in Jharkhand by Hygienic Pest Control Pvt Ltd. Termite treatment, mosquito control, rodent control and more. Call +91-7277234534.",
   openGraph: {
     siteName: "Hygienic Pest Control Pvt Ltd",
     type: "website",

@@ -126,7 +126,7 @@ export default function AboutPage() {
           </h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
             Your trusted partner in professional pest control services in
-            Ranchi, Jharkhand since 2019.
+            Jharkhand since 2019.
           </p>
         </div>
       </section>
@@ -144,13 +144,13 @@ export default function AboutPage() {
                   From a Small Beginning to
                   <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342]">
-                    Ranchi&apos;s Trusted Name
+                    Jharkhand&apos;s Trusted Name
                   </span>
                 </h2>
                 <div className="space-y-4 text-gray-600 leading-relaxed">
                   <p>
                     Hygienic Pest Control Pvt Ltd was founded in 2019 with a simple
-                    yet powerful mission: to provide Ranchi and Jharkhand with
+                    yet powerful mission: to provide Jharkhand with
                     world-class pest control services that are effective,
                     affordable, and environmentally responsible.
                   </p>
@@ -217,7 +217,7 @@ export default function AboutPage() {
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
                   To provide the most effective, safe, and affordable pest
-                  control solutions in Ranchi and across Jharkhand. We are
+                  control solutions across Jharkhand. We are
                   committed to protecting the health and property of our
                   customers through innovative pest management practices while
                   being responsible stewards of the environment.
@@ -282,17 +282,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Why Ranchi Trusts HPC */}
+      {/* Why Jharkhand Trusts HPC */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealDiv>
             <div className="text-center mb-10 sm:mb-14">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1a2332] mb-4">
-                Why Ranchi Trusts Hygienic Pest Control
+                Why Jharkhand Trusts Hygienic Pest Control
               </h2>
               <p className="text-gray-500 max-w-2xl mx-auto text-lg">
                 We have earned the trust of hundreds of families and businesses
-                in Ranchi through consistent quality and dedication.
+                in Jharkhand through consistent quality and dedication.
               </p>
             </div>
           </RevealDiv>

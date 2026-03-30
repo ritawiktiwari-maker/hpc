@@ -51,7 +51,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Professional pest control services in Ranchi, Jharkhand.
+              Professional pest control services in Jharkhand.
               Protecting homes and businesses since 2019 with eco-friendly and
               effective solutions.
             </p>
@@ -158,7 +158,7 @@ export function Footer() {
               rights reserved.
             </p>
             <p>
-              Serving Ranchi, Jharkhand with professional pest control since
+              Serving Jharkhand with professional pest control since
               2019.
             </p>
           </div>

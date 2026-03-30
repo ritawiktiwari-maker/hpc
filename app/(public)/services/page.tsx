@@ -109,7 +109,7 @@ export default function ServicesPage() {
           </h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
             Comprehensive pest management solutions for homes, offices, and
-            commercial spaces in Ranchi and across Jharkhand.
+            commercial spaces across Jharkhand.
           </p>
         </div>
       </section>
