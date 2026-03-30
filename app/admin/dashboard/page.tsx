@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Clock, Calendar, AlertTriangle, Users, Package, ArrowRight } from "lucide-react"
+import { Clock, Calendar, AlertTriangle, Users, Package, ArrowRight, CheckCircle2, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { format, parseISO } from "date-fns"
 
@@ -39,8 +39,25 @@ export default function DashboardPage() {
     if (isLoggedIn) {
       setData(getData())
       fetchDashboardData()
+      // Auto-refresh running orders every 15 seconds so completed jobs disappear
+      const interval = setInterval(() => {
+        fetchRunningOrders()
+      }, 15000)
+      return () => clearInterval(interval)
     }
   }, [isLoggedIn])
+
+  const fetchRunningOrders = async () => {
+    try {
+      const res = await fetch("/api/jobs/pending")
+      if (res.ok) {
+        const orders = await res.json()
+        setRunningOrders(orders.filter((order: any) => order.employeeName !== 'Unassigned'))
+      }
+    } catch (error) {
+      console.error("Failed to refresh running orders:", error)
+    }
+  }
 
   const fetchDashboardData = async () => {
     try {
@@ -144,7 +161,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Running Orders - spans 2 cols */}
-          <RunningOrders orders={runningOrders} loading={loadingOrders} />
+          <RunningOrders orders={runningOrders} loading={loadingOrders} onRefresh={fetchRunningOrders} />
 
           {/* Upcoming Services with Quick Assign */}
           <UpcomingServicesCard jobs={upcomingJobs} employees={employees} loading={loadingUpcoming} />
@@ -164,14 +181,39 @@ export default function DashboardPage() {
   )
 }
 
-function RunningOrders({ orders, loading }: { orders: any[], loading: boolean }) {
+function RunningOrders({ orders, loading, onRefresh }: { orders: any[], loading: boolean, onRefresh: () => void }) {
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    await onRefresh()
+    setTimeout(() => setRefreshing(false), 600)
+  }
+
   return (
     <Card className="col-span-1 md:col-span-2 lg:col-span-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-amber-500" />
-          Running Orders (Pending)
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-amber-500" />
+            Currently Running Jobs
+            {orders.length > 0 && (
+              <Badge className="bg-amber-100 text-amber-700 border-amber-200 ml-1 text-xs">
+                {orders.length} active
+              </Badge>
+            )}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            className="h-8 w-8 p-0"
+            title="Refresh running jobs"
+          >
+            <RefreshCw className={`h-4 w-4 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+        <CardDescription>Live view of pending jobs assigned to employees &middot; auto-refreshes every 15s</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -181,44 +223,61 @@ function RunningOrders({ orders, loading }: { orders: any[], loading: boolean })
             <div className="h-10 bg-muted rounded" />
           </div>
         ) : orders.length === 0 ? (
-          <p className="text-center py-6 text-muted-foreground">No running orders at the moment.</p>
+          <div className="text-center py-10">
+            <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-3" />
+            <p className="text-muted-foreground font-medium">All clear! No running jobs at the moment.</p>
+            <p className="text-xs text-muted-foreground mt-1">New jobs will appear here automatically once assigned.</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.slice(0, 5).map((order, idx) => (
-                  <TableRow key={order.id} className="table-row-hover stagger-item animate-fade-in opacity-0" style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'forwards' }}>
-                    <TableCell className="font-medium">
-                      {order.customerName}
-                      <div className="text-xs text-muted-foreground">{order.customerContact}</div>
-                    </TableCell>
-                    <TableCell className="text-sm">{order.serviceType}</TableCell>
-                    <TableCell className="text-sm">{order.employeeName}</TableCell>
-                    <TableCell className="text-sm">
-                      {new Date(order.scheduledDate).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200 uppercase text-[10px]">
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            {orders.length > 5 && (
+          <div className="space-y-3">
+            {orders.map((order, idx) => (
+              <div
+                key={order.id}
+                className="flex items-center gap-4 p-3 rounded-lg border bg-muted/30 hover:bg-muted/60 transition-colors stagger-item animate-fade-in opacity-0"
+                style={{ animationDelay: `${idx * 50}ms`, animationFillMode: 'forwards' }}
+              >
+                {/* Employee Avatar */}
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                    {order.employeeName.charAt(0)}
+                  </div>
+                </div>
+
+                {/* Job Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm truncate">{order.customerName}</span>
+                    <Badge variant="outline" className="text-[10px] shrink-0">{order.serviceType}</Badge>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {order.employeeName}
+                    </span>
+                    {order.customerContact && (
+                      <span>{order.customerContact}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Date & Status */}
+                <div className="flex-shrink-0 text-right">
+                  <div className="text-xs text-muted-foreground">
+                    {order.scheduledDate
+                      ? format(parseISO(order.scheduledDate), "dd MMM yyyy")
+                      : "No date"}
+                  </div>
+                  <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200 uppercase text-[10px] mt-1">
+                    In Progress
+                  </Badge>
+                </div>
+              </div>
+            ))}
+
+            {orders.length > 10 && (
               <div className="text-center pt-2">
                 <Link href="/jobs">
-                  <Button variant="link" size="sm">View all {orders.length} orders</Button>
+                  <Button variant="link" size="sm">View all {orders.length} jobs &rarr;</Button>
                 </Link>
               </div>
             )}

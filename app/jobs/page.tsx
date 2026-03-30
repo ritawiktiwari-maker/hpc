@@ -12,9 +12,14 @@ import { getData, saveData, assignJob } from "@/lib/data-store"
 import { ClipboardList, History } from "lucide-react"
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSearchParams } from "next/navigation"
 
 export default function JobsPage() {
   const { isLoggedIn } = useAuth()
+  const searchParams = useSearchParams()
+  const preselectedCustomerId = searchParams.get("customerId") || ""
+  const defaultTab = searchParams.get("tab") || "assign"
+
   const [data, setData] = useState<AppData | null>(null)
   const [dbCustomers, setDbCustomers] = useState<Customer[]>([])
   const [dbEmployees, setDbEmployees] = useState<any[]>([])
@@ -114,7 +119,7 @@ export default function JobsPage() {
           <p className="text-muted-foreground">Assign jobs and track product distribution</p>
         </div>
 
-        <Tabs defaultValue="assign" className="space-y-4">
+        <Tabs defaultValue={defaultTab} className="space-y-4">
           <TabsList>
             <TabsTrigger value="assign" className="gap-2">
               <ClipboardList className="h-4 w-4" />
@@ -159,6 +164,7 @@ export default function JobsPage() {
                 customers={dbCustomers}
                 existingJobs={dbJobs}
                 onSubmit={handleJobSubmit}
+                preselectedCustomerId={preselectedCustomerId}
               />
             )}
           </TabsContent>

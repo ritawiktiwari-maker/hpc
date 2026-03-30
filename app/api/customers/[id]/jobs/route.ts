@@ -37,9 +37,8 @@ export async function GET(
             employeeId: visit.assignedEmployee?.id || '',
             employeeName: visit.assignedEmployee?.name || 'Unassigned',
             jobDate: visit.scheduledDate.toISOString().split('T')[0],
-            productsAssigned: [], // Assuming no pre-assignment info for imported visits
-            productsUsed: visit.productsUsed.map(pu => ({
-                productId: pu.product.id,
+            productsAssigned: visit.productsUsed.map(pu => ({
+                productId: pu.product.productId || pu.product.id,
                 productName: pu.product.name,
                 quantityGiven: pu.quantity,
                 unit: pu.product.unit

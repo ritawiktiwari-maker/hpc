@@ -141,6 +141,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -578,27 +581,30 @@
   bottom: 2px; left: 6px;
 }
 
-/* Spider */
+/* Bee */
 .bb-spider { background: transparent; }
 .bb-spider::before {
   content: '';
   position: absolute;
-  width: 14px; height: 14px;
-  background: currentColor;
-  border-radius: 50%;
-  top: 5px; left: 5px;
+  width: 14px; height: 18px;
+  background: repeating-linear-gradient(
+    0deg,
+    #e6a800 0px, #e6a800 4px,
+    #222 4px, #222 7px
+  );
+  border-radius: 50% 50% 45% 45%;
+  top: 4px; left: 5px;
 }
 .bb-spider::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(45deg, currentColor 1px, transparent 1px),
-    linear-gradient(-45deg, currentColor 1px, transparent 1px),
-    linear-gradient(90deg, currentColor 1px, transparent 1px),
-    linear-gradient(0deg, currentColor 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-position: center;
+  width: 22px; height: 10px;
+  border-top: 1.5px solid currentColor;
+  background: transparent;
+  border-radius: 50%;
+  top: 6px; left: 1px;
+  opacity: 0.4;
+  box-shadow: 0 -3px 0 0 rgba(255,255,255,0.15);
 }
 
 /* Beetle */

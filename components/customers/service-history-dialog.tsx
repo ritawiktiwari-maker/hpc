@@ -16,9 +16,11 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { formatQuantityWithUnit } from "@/lib/types"
 import type { Customer, Job } from "@/lib/types"
-import { Calendar, Receipt, User, Clock } from "lucide-react"
+import { Calendar, Receipt, User, Clock, ClipboardList, Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface ServiceHistoryDialogProps {
     open: boolean
@@ -33,6 +35,8 @@ export function ServiceHistoryDialog({
     customer,
     jobs,
 }: ServiceHistoryDialogProps) {
+    const router = useRouter()
+
     if (!customer) return null
 
     // Sort jobs by date descending (newest first)
@@ -40,17 +44,49 @@ export function ServiceHistoryDialog({
         (a, b) => new Date(b.jobDate).getTime() - new Date(a.jobDate).getTime()
     )
 
+    const pendingCount = sortedJobs.filter(j => j.status === "pending" || j.status === "PENDING").length
+    const completedCount = sortedJobs.filter(j => j.status === "completed" || j.status === "COMPLETED").length
+
+    const handleAssignJob = () => {
+        onOpenChange(false)
+        router.push(`/jobs?customerId=${customer.id}&tab=assign`)
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
-                        Service History: {customer.name}
-                    </DialogTitle>
-                    <DialogDescription>
-                        View all services and transactions for this customer.
-                    </DialogDescription>
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <DialogTitle className="flex items-center gap-2">
+                                <User className="h-5 w-5" />
+                                Service History: {customer.name}
+                            </DialogTitle>
+                            <DialogDescription className="mt-1">
+                                {sortedJobs.length > 0 ? (
+                                    <span className="flex items-center gap-3">
+                                        <span>{sortedJobs.length} total services</span>
+                                        {pendingCount > 0 && (
+                                            <Badge variant="outline" className="text-amber-600 bg-amber-50 border-amber-200 text-[10px]">
+                                                {pendingCount} pending
+                                            </Badge>
+                                        )}
+                                        {completedCount > 0 && (
+                                            <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200 text-[10px]">
+                                                {completedCount} completed
+                                            </Badge>
+                                        )}
+                                    </span>
+                                ) : (
+                                    "No service history yet."
+                                )}
+                            </DialogDescription>
+                        </div>
+                        <Button size="sm" onClick={handleAssignJob} className="shrink-0 gap-1.5">
+                            <Plus className="h-3.5 w-3.5" />
+                            Assign Job
+                        </Button>
+                    </div>
                 </DialogHeader>
 
                 <div className="flex-1 overflow-auto mt-4 border rounded-md">

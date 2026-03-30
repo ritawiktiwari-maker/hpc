@@ -10,20 +10,23 @@ export async function GET(request: Request) {
 
         const customers = await prisma.customer.findMany({
             orderBy: { createdAt: 'desc' },
-            include: includeContracts === 'true' ? {
+            include: {
                 contracts: {
                     include: {
-                        visits: true
+                        visits: {
+                            orderBy: { scheduledDate: 'asc' },
+                            select: {
+                                id: true,
+                                scheduledDate: true,
+                                status: true,
+                                assignedEmployeeId: true,
+                            }
+                        }
                     }
-                }
-            } : {
-                contracts: {
+                },
+                _count: {
                     select: {
-                        id: true,
-                        serviceType: true,
-                        frequency: true,
-                        startDate: true,
-                        endDate: true,
+                        visits: { where: { status: 'PENDING' } }
                     }
                 }
             }

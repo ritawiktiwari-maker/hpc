@@ -22,6 +22,7 @@ interface JobAssignmentFormProps {
   products: Product[]
   customers: Customer[]
   existingJobs: Job[]
+  preselectedCustomerId?: string
   onSubmit: (
     billNumber: string,
     customerId: string,
@@ -46,7 +47,7 @@ interface ProductAssignmentRow {
   unit: ProductUnit
 }
 
-export function JobAssignmentForm({ employees, products, customers, existingJobs, onSubmit }: JobAssignmentFormProps) {
+export function JobAssignmentForm({ employees, products, customers, existingJobs, preselectedCustomerId, onSubmit }: JobAssignmentFormProps) {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("")
   const [selectedCustomerId, setSelectedCustomerId] = useState("")
   const [jobDate, setJobDate] = useState(new Date().toISOString().split("T")[0])
@@ -66,6 +67,16 @@ export function JobAssignmentForm({ employees, products, customers, existingJobs
 
   const selectedEmployee = employees.find((e) => e.employeeId === selectedEmployeeId)
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId)
+
+  // Auto-select customer if navigated from customers page
+  useEffect(() => {
+    if (preselectedCustomerId && customers.length > 0 && !selectedCustomerId) {
+      const customer = customers.find(c => c.id === preselectedCustomerId)
+      if (customer) {
+        setSelectedCustomerId(customer.id)
+      }
+    }
+  }, [preselectedCustomerId, customers])
 
   useEffect(() => {
     if (selectedCustomer) {

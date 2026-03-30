@@ -11,6 +11,7 @@ export async function GET() {
                 status: 'PENDING'
             },
             include: {
+                customer: true,
                 contract: {
                     include: {
                         customer: true
@@ -26,11 +27,12 @@ export async function GET() {
         // Map to a common job format for frontend
         const formattedJobs = pendingJobs.map(visit => ({
             id: visit.id,
-            billNumber: visit.contract ? visit.contract.id.split('-')[0].toUpperCase() : 'DIRECT', // Using part of contract ID as bill number if not direct
-            customerName: visit.contract?.customer.name || 'Direct Visit',
-            customerContact: visit.contract?.customer.contactNumber || '',
+            billNumber: visit.billNumber || (visit.contract ? visit.contract.id.split('-')[0].toUpperCase() : 'DIRECT'),
+            customerName: visit.customer?.name || visit.contract?.customer.name || 'Direct Visit',
+            customerContact: visit.customer?.contactNumber || visit.contract?.customer.contactNumber || '',
             employeeName: visit.assignedEmployee?.name || 'Unassigned',
-            serviceType: visit.serviceType || visit.contract?.serviceType || 'Direct Visit',
+            employeeId: visit.assignedEmployee?.employeeId || '',
+            serviceType: visit.serviceType || visit.contract?.serviceType || 'General Service',
             scheduledDate: visit.scheduledDate,
             status: visit.status
         }))

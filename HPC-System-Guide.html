@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hygienic Pest Control - Complete System Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --blue: #42A5F5;
+    --green: #7CB342;
+    --navy: #1a2332;
+    --dark: #111827;
+    --gray: #6B7280;
+    --light: #F9FAFB;
+    --border: #E5E7EB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--dark);
+    line-height: 1.7;
+    font-size: 11pt;
+    background: #fff;
+  }
+
+  @media print {
+    body { font-size: 10pt; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4; }
+    .cover { height: 100vh; }
+  }
+
+  /* ===== COVER PAGE ===== */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--navy) 0%, #0d1a0f 40%, #1a2332 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(66,165,245,0.15), transparent 70%);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,179,66,0.15), transparent 70%);
+  }
+  .cover-logo {
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; color: white;
+    margin-bottom: 30px;
+    box-shadow: 0 20px 60px rgba(66,165,245,0.3);
+  }
+  .cover h1 {
+    font-size: 36pt;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .cover h1 span { color: var(--green); }
+  .cover .subtitle {
+    font-size: 16pt;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 40px;
+  }
+  .cover-meta {
+    margin-top: 30px;
+    padding: 20px 40px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    display: inline-block;
+    font-size: 10pt;
+    color: rgba(255,255,255,0.6);
+  }
+  .cover-meta strong { color: rgba(255,255,255,0.9); }
+  .cover-badges {
+    display: flex; gap: 12px; margin-top: 24px;
+  }
+  .cover-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 9pt;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .cover-badge.blue { background: rgba(66,165,245,0.2); color: var(--blue); }
+  .cover-badge.green { background: rgba(124,179,66,0.2); color: var(--green); }
+
+  /* ===== TABLE OF CONTENTS ===== */
+  .toc {
+    padding: 60px 50px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .toc h2 {
+    font-size: 22pt;
+    color: var(--navy);
+    margin-bottom: 30px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--blue);
+  }
+  .toc-section {
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .toc-section a {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 500;
+    font-size: 11pt;
+  }
+  .toc-section a:hover { color: var(--blue); }
+  .toc-section .num {
+    display: inline-block;
+    width: 28px; height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    text-align: center;
+    line-height: 28px;
+    font-size: 9pt;
+    font-weight: 700;
+    margin-right: 12px;
+  }
+  .toc-section .num.green { background: var(--green); }
+  .toc-section .page { color: var(--gray); font-size: 10pt; }
+  .toc-group {
+    margin-top: 20px;
+    margin-bottom: 6px;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gray);
+  }
+
+  /* ===== CONTENT SECTIONS ===== */
+  .content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 50px;
+  }
+
+  .section {
+    margin-bottom: 50px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-num {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: white;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14pt; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 18pt;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .section-header .tag {
+    font-size: 8pt;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag-website { background: #E3F2FD; color: #1565C0; }
+  .tag-crm { background: #E8F5E9; color: #2E7D32; }
+
+  h3 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 24px 0 10px;
+  }
+  h4 {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #374151;
+    margin: 16px 0 8px;
+  }
+
+  p { margin-bottom: 10px; color: #374151; }
+
+  /* Feature lists */
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+    margin: 12px 0 20px;
+  }
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 10pt;
+    color: #374151;
+  }
+  .feature .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+
+  /* Info cards */
+  .card {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 14px 0;
+  }
+  .card.blue { border-left: 4px solid var(--blue); background: #F0F7FF; }
+  .card.green { border-left: 4px solid var(--green); background: #F1F8E9; }
+  .card.orange { border-left: 4px solid #FF9800; background: #FFF8E1; }
+  .card-title {
+    font-size: 10pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .card p { font-size: 10pt; margin-bottom: 4px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 20px;
+    font-size: 9.5pt;
+  }
+  th {
+    background: var(--navy);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9pt;
+  }
+  th:first-child { border-radius: 8px 0 0 0; }
+  th:last-child { border-radius: 0 8px 0 0; }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: #374151;
+  }
+  tr:nth-child(even) td { background: var(--light); }
+  tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+
+  /* Flow diagrams */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    background: linear-gradient(135deg, var(--blue), #1E88E5);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 9pt;
+    font-weight: 600;
+    text-align: center;
+    min-width: 100px;
+  }
+  .flow-step.green { background: linear-gradient(135deg, var(--green), #558B2F); }
+  .flow-step.orange { background: linear-gradient(135deg, #FF9800, #E65100); }
+  .flow-step.navy { background: linear-gradient(135deg, var(--navy), #0d1a0f); }
+  .flow-arrow {
+    font-size: 16pt;
+    color: var(--gray);
+    padding: 0 6px;
+    font-weight: 300;
+  }
+
+  /* Numbered steps */
+  .steps { margin: 12px 0 20px; counter-reset: step; }
+  .step {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+    align-items: flex-start;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    counter-increment: step;
+    width: 28px; height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9pt; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-num::before { content: counter(step); }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; color: var(--navy); font-size: 10.5pt; }
+  .step-desc { font-size: 10pt; color: var(--gray); margin-top: 2px; }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .badge-blue { background: #E3F2FD; color: #1565C0; }
+  .badge-green { background: #E8F5E9; color: #2E7D32; }
+  .badge-orange { background: #FFF3E0; color: #E65100; }
+  .badge-red { background: #FFEBEE; color: #C62828; }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* Footer */
+  .doc-footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray);
+    font-size: 9pt;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 12px 0;
+  }
+
+  ul { margin: 8px 0 14px 20px; }
+  li { margin-bottom: 4px; font-size: 10pt; color: #374151; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER PAGE ============ -->
+<div class="cover">
+  <div class="cover-logo">H</div>
+  <h1>Hygienic Pest Control <span>Pvt Ltd</span></h1>
+  <div class="subtitle">Complete System &amp; User Guide</div>
+  <p style="color: rgba(255,255,255,0.5); max-width: 500px; font-size: 10pt;">
+    Comprehensive documentation covering the public website, CRM admin panel,
+    employee portal, and all system workflows.
+  </p>
+  <div class="cover-badges">
+    <span class="cover-badge blue">Website</span>
+    <span class="cover-badge green">CRM Admin Panel</span>
+    <span class="cover-badge blue">Employee Portal</span>
+  </div>
+  <div class="cover-meta">
+    <strong>Version:</strong> 1.0 &nbsp;&bull;&nbsp;
+    <strong>Date:</strong> March 2026 &nbsp;&bull;&nbsp;
+    <strong>Ranchi, Jharkhand</strong>
+  </div>
+</div>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<div class="page-break"></div>
+<div class="toc">
+  <h2>Table of Contents</h2>
+
+  <div class="toc-group">Part A &mdash; Public Website</div>
+  <div class="toc-section"><a href="#s1"><span class="num">1</span>System Overview</a></div>
+  <div class="toc-section"><a href="#s2"><span class="num">2</span>Website Pages &amp; Features</a></div>
+  <div class="toc-section"><a href="#s3"><span class="num">3</span>Website Navigation &amp; Contact Flow</a></div>
+
+  <div class="toc-group">Part B &mdash; CRM Admin Panel</div>
+  <div class="toc-section"><a href="#s4"><span class="num green">4</span>Admin Login &amp; Dashboard</a></div>
+  <div class="toc-section"><a href="#s5"><span class="num green">5</span>Customer Management</a></div>
+  <div class="toc-section"><a href="#s6"><span class="num green">6</span>Employee Management</a></div>
+  <div class="toc-section"><a href="#s7"><span class="num green">7</span>Stock &amp; Inventory Management</a></div>
+  <div class="toc-section"><a href="#s8"><span class="num green">8</span>Job Assignment &amp; Tracking</a></div>
+  <div class="toc-section"><a href="#s9"><span class="num green">9</span>Sales &amp; Lead Management</a></div>
+  <div class="toc-section"><a href="#s10"><span class="num green">10</span>Reports &amp; Analytics</a></div>
+  <div class="toc-section"><a href="#s11"><span class="num green">11</span>Website Content Management</a></div>
+
+  <div class="toc-group">Part C &mdash; Employee Portal</div>
+  <div class="toc-section"><a href="#s12"><span class="num">12</span>Employee Portal &amp; Workflows</a></div>
+
+  <div class="toc-group">Part D &mdash; System Flows</div>
+  <div class="toc-section"><a href="#s13"><span class="num green">13</span>End-to-End Business Flows</a></div>
+  <div class="toc-section"><a href="#s14"><span class="num green">14</span>Database Schema Reference</a></div>
+</div>
+
+<!-- ============ CONTENT ============ -->
+<div class="page-break"></div>
+<div class="content">
+
+  <!-- ====== SECTION 1 ====== -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div><h2>System Overview</h2></div>
+    </div>
+
+    <p>The Hygienic Pest Control system is a full-stack platform consisting of three interconnected modules:</p>
+
+    <div class="two-col">
+      <div class="card blue">
+        <div class="card-title">Public Website</div>
+        <p>Customer-facing site showcasing services, company info, testimonials, and contact forms. Designed to generate leads and build trust.</p>
+      </div>
+      <div class="card green">
+        <div class="card-title">CRM Admin Panel</div>
+        <p>Internal management system for customers, employees, inventory, job assignments, leads, reports, and website content.</p>
+      </div>
+    </div>
+    <div class="card orange">
+      <div class="card-title">Employee Portal</div>
+      <p>Dedicated portal for field staff to view assigned jobs, manage stock-in-hand, complete services, and request stock returns.</p>
+    </div>
+
+    <h3>Tech Stack</h3>
+    <table>
+      <tr><th>Layer</th><th>Technology</th></tr>
+      <tr><td>Framework</td><td>Next.js 16 (App Router) + React 19 + TypeScript</td></tr>
+      <tr><td>Database</td><td>PostgreSQL with Prisma ORM</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS v4 + Radix UI components</td></tr>
+      <tr><td>Icons</td><td>Lucide React</td></tr>
+      <tr><td>Charts</td><td>Recharts</td></tr>
+      <tr><td>Notifications</td><td>Sonner toast library</td></tr>
+      <tr><td>Export</td><td>xlsx (Excel import/export)</td></tr>
+    </table>
+
+    <h3>Brand Identity</h3>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div><strong>Sky Blue (#42A5F5)</strong> &mdash; Primary CTAs, links</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Lime Green (#7CB342)</strong> &mdash; Secondary, call buttons</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Dark Navy (#1a2332)</strong> &mdash; Headers, dark sections</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Company:</strong> Hygienic Pest Control Pvt Ltd, Ranchi</div></div>
+    </div>
+  </div>
+
+  <!-- ====== SECTION 2 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div><h2>Website Pages &amp; Features</h2></div>
+      <span class="tag tag-website">Website</span>
+    </div>
+
+    <h3>2.1 Homepage ( / )</h3>
+    <p>The main landing page designed to capture attention and convert visitors into leads.</p>
+
+    <h4>Hero Section</h4>
+    <div class="card blue">
+      <p><strong>Full-screen animated hero</strong> with dark gradient background featuring:</p>
+      <p>&bull; 8 crawling bug emoji silhouettes with CSS animations (15-25s cycles)</p>
+      <p>&bull; 6 floating dust/spore particles</p>
+      <p>&bull; Hexagonal grid overlay with slow scroll</p>
+      <p>&bull; Accent glow effects (green, blue, red)</p>
+      <p>&bull; Staggered fade-in animations on all content</p>
+    </div>
+    <ul>
+      <li><strong>Badge:</strong> "Trusted Pest Control in Ranchi"</li>
+      <li><strong>Headline:</strong> "Protecting Your Home &amp; Business from Pests Since 2019"</li>
+      <li><strong>CTA Buttons:</strong> "Book Free Inspection" (blue) + "Call Now" (green, pulsing)</li>
+      <li><strong>Animated Stats Bar:</strong> 700+ Customers, 15+ Services, 5+ Years, 100% Satisfaction &mdash; counters animate on scroll</li>
+    </ul>
+
+    <h4>Services Section</h4>
+    <ul>
+      <li>Responsive grid (1&rarr;2&rarr;3 columns) of service cards</li>
+      <li>Each card: icon, name, description, "Learn More" link</li>
+      <li>Hover-lift effect with gradient icon transitions</li>
+      <li>Data fetched dynamically from the CRM database</li>
+      <li>"View All Services" CTA button</li>
+    </ul>
+
+    <h4>Why Choose Us Section</h4>
+    <p>Grid of 6 value propositions: Certified Professionals, Eco-Friendly Solutions, 24/7 Emergency Service, Advanced Technology, Guaranteed Results, Modern Equipment.</p>
+
+    <h4>Testimonials Section</h4>
+    <ul>
+      <li>Customer reviews fetched from CRM database</li>
+      <li>Star rating display (1-5 stars)</li>
+      <li>Customer avatar, name, and location</li>
+      <li>Scroll-reveal animations</li>
+    </ul>
+
+    <h4>CTA Section</h4>
+    <p>Dark section with contact details (phone, email) on the left and an inline <strong>Quick Enquiry Form</strong> on the right.</p>
+
+    <div class="divider"></div>
+
+    <h3>2.2 Services Page ( /services )</h3>
+    <ul>
+      <li>Dark hero banner with "Professional Solutions" badge</li>
+      <li>Full services grid with feature bullet points per card</li>
+      <li>Each card has "Learn More" and "Get Quote" buttons</li>
+      <li>"Get Quote" pre-selects the service on the contact page</li>
+      <li>Custom solution CTA at the bottom</li>
+    </ul>
+
+    <h3>2.3 Service Detail Page ( /services/[slug] )</h3>
+    <ul>
+      <li>Dynamic page loaded by service URL slug</li>
+      <li>Full description with HTML content support</li>
+      <li>"What's Included" feature grid with checkmarks</li>
+      <li>Sticky sidebar CTA card with "Get Free Quote" and "Call Now"</li>
+      <li>Related services section (up to 3 suggestions)</li>
+    </ul>
+
+    <h3>2.4 About Page ( /about )</h3>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div><strong>Our Story</strong> &mdash; Company history since 2019</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Stats Grid</strong> &mdash; 4 key metrics with icons</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Mission &amp; Vision</strong> &mdash; Side-by-side cards</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Our Values</strong> &mdash; 4 value cards with descriptions</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Trust Points</strong> &mdash; 8 items (licensed, certified, WHO-approved, etc.)</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>CTA Section</strong> &mdash; Book inspection / call buttons</div></div>
+    </div>
+
+    <h3>2.5 Contact Page ( /contact )</h3>
+    <ul>
+      <li><strong>4 Contact Cards:</strong> Phone, Email, Location, Working Hours &mdash; each with gradient icons</li>
+      <li><strong>Enquiry Form:</strong> Name (required), Mobile (required), Email, Address, Service dropdown, Message</li>
+      <li>Service dropdown auto-populated from CRM; pre-selectable via URL param</li>
+      <li>Success/error states with auto-dismiss</li>
+      <li>Map placeholder (ready for Google Maps embed)</li>
+    </ul>
+
+    <h3>2.6 Special Effects</h3>
+    <div class="card">
+      <div class="card-title">Bug Blast Effect (All Pages)</div>
+      <p>Animated bugs (ant, bee, beetle, cockroach, mosquito) crawl in from screen edges every 7 seconds, wiggle, then "blast" with an expanding ring and 6 colored particles. CSS-only shapes, rendered via React Portal. Does not block user interaction.</p>
+    </div>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div><strong>Scroll Reveal</strong> &mdash; Elements fade/slide in on scroll via IntersectionObserver</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Hero Animations</strong> &mdash; Crawling bugs, floating particles, gradient pulse, hex grid</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Button Press</strong> &mdash; Scale-down on click for tactile feel</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Counter Animation</strong> &mdash; Numbers count up from 0 when scrolled into view</div></div>
+    </div>
+  </div>
+
+  <!-- ====== SECTION 3 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div><h2>Website Navigation &amp; Contact Flow</h2></div>
+      <span class="tag tag-website">Website</span>
+    </div>
+
+    <h3>3.1 Navbar</h3>
+    <ul>
+      <li><strong>Desktop:</strong> Fixed top bar with logo, navigation links (Home, Services, About, Contact), "Call Us" green button, "Book Free Inspection" blue button</li>
+      <li><strong>Scroll Effect:</strong> Transparent at top &rarr; white background with shadow when scrolled</li>
+      <li><strong>Mobile:</strong> Hamburger menu &rarr; slide-in panel (80vw width) from right with full nav + CTA buttons. Body scroll locked when open.</li>
+    </ul>
+
+    <h3>3.2 Footer</h3>
+    <p>4-column layout: Company info + social links, Our Services (6 links), Quick Links (4 links), Contact Info (phones, emails, location). Copyright bar with dynamic year.</p>
+
+    <h3>3.3 Lead Generation Flow</h3>
+    <div class="flow">
+      <div class="flow-step">Visitor Lands on Site</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step green">Browses Services</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step orange">Fills Enquiry Form</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step navy">Lead Created in CRM</div>
+    </div>
+    <p>The enquiry form submits to <code>/api/enquiry</code>, which creates a new Lead record in the database with source "website". This lead appears in the Sales module for follow-up.</p>
+  </div>
+
+  <!-- ====== SECTION 4 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div><h2>Admin Login &amp; Dashboard</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>4.1 Admin Login</h3>
+    <p>Access the admin panel via the <code>/login</code> page. Enter admin username and password. Authentication uses localStorage-based session. All admin routes are protected.</p>
+
+    <h3>4.2 Dashboard Overview</h3>
+    <p>The dashboard is the command center, providing a real-time snapshot of business operations.</p>
+
+    <div class="card green">
+      <div class="card-title">Quick Stats Cards</div>
+      <p>&bull; <strong>Total Employees</strong> &mdash; Count of all registered staff</p>
+      <p>&bull; <strong>Products in Stock</strong> &mdash; Total inventory items</p>
+      <p>&bull; <strong>Total Jobs</strong> &mdash; All service assignments</p>
+      <p>&bull; <strong>Low Stock Items</strong> &mdash; Products with &le;10 units remaining</p>
+    </div>
+
+    <h4>Running Orders Table</h4>
+    <p>Shows the top 5 pending jobs with customer name, contact, service type, assigned employee, due date, and status badge.</p>
+
+    <h4>Upcoming Services (Next 3 Days)</h4>
+    <p>Lists services scheduled within 3 days. Unassigned services show a quick-assign employee button.</p>
+
+    <h4>Low Stock Alerts</h4>
+    <p>Products with stock &le;10 units, color-coded: <span class="badge badge-red">Out of Stock</span> <span class="badge badge-orange">Low Stock</span> <span class="badge badge-green">In Stock</span></p>
+
+    <h4>Employee Stock Overview</h4>
+    <p>Shows stock distribution per employee &mdash; which products are assigned to whom and in what quantity.</p>
+
+    <h3>4.3 Admin Settings</h3>
+    <p>Accessible from the settings icon. Configure:</p>
+    <ul>
+      <li>Company name &amp; admin panel name</li>
+      <li>Admin display name</li>
+      <li>Logo URL</li>
+      <li>Password change</li>
+    </ul>
+  </div>
+
+  <!-- ====== SECTION 5 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div><h2>Customer Management</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>How to Use</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Navigate to Customers</div>
+          <div class="step-desc">Click "Customers" in the sidebar to view the customer list.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Add a Customer</div>
+          <div class="step-desc">Click "Add Customer" button. Fill in Name, Address, Contact Number, Email, Service Type, and Frequency. Click Save.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Search &amp; Filter</div>
+          <div class="step-desc">Use the search bar to find customers by name or contact number.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Edit or Delete</div>
+          <div class="step-desc">Click the action menu on any customer row to edit details, view service history, toggle active status, or delete.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">View Service History</div>
+          <div class="step-desc">Click "Service History" to see all completed jobs for a customer, including dates, services, and employees involved.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Import / Export</div>
+          <div class="step-desc">Use "Export" to download customer data as Excel. Use "Import" to bulk-add customers from an Excel file.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Customer Fields</h3>
+    <table>
+      <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+      <tr><td>Name</td><td>Yes</td><td>Full name of the customer</td></tr>
+      <tr><td>Address</td><td>Yes</td><td>Service location address</td></tr>
+      <tr><td>Contact Number</td><td>Yes</td><td>Primary phone number</td></tr>
+      <tr><td>Email</td><td>No</td><td>Email address</td></tr>
+      <tr><td>Service Type</td><td>No</td><td>Primary pest control service needed</td></tr>
+      <tr><td>Frequency</td><td>No</td><td>Service frequency (Monthly, Quarterly, etc.)</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== SECTION 6 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div><h2>Employee Management</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>How to Use</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Navigate to Employees</div>
+          <div class="step-desc">Click "Employees" in the sidebar to view the staff list.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Add an Employee</div>
+          <div class="step-desc">Click "Add Employee". Fill in Employee ID (e.g., EMP001), full name, father's name, Aadhaar number, DOB, mobile, emergency contact, address, date of joining, and set a password.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Manage Status</div>
+          <div class="step-desc">Toggle employees between active/inactive. Inactive employees cannot be assigned jobs or log into the employee portal.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">View Employee Profile</div>
+          <div class="step-desc">Click on any employee to see their complete profile, including assigned stock and job history.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Employee Fields</h3>
+    <table>
+      <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+      <tr><td>Employee ID</td><td>Yes</td><td>Unique ID (e.g., EMP001)</td></tr>
+      <tr><td>Full Name</td><td>Yes</td><td>Employee's full name</td></tr>
+      <tr><td>Father's Name</td><td>No</td><td>For identification</td></tr>
+      <tr><td>Aadhaar Number</td><td>No</td><td>Government ID</td></tr>
+      <tr><td>Date of Birth</td><td>No</td><td>Employee DOB</td></tr>
+      <tr><td>Mobile Number</td><td>Yes</td><td>Primary contact</td></tr>
+      <tr><td>Emergency Contact</td><td>No</td><td>Emergency phone number</td></tr>
+      <tr><td>Address</td><td>No</td><td>Residential address</td></tr>
+      <tr><td>Date of Joining</td><td>No</td><td>Employment start date</td></tr>
+      <tr><td>Password</td><td>Yes</td><td>For employee portal login</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== SECTION 7 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div><h2>Stock &amp; Inventory Management</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>7.1 Current Stock Tab</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Add a Product</div>
+          <div class="step-desc">Click "Add Product". Enter product name, category (Chemical / Machine), unit (Litres, ML, KG, MG, Pieces), quantity, supplier name, purchase date, and remarks. A unique Product ID is auto-generated (PRD0001).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Monitor Stock Levels</div>
+          <div class="step-desc">View real-time quantities. Color-coded indicators: <span class="badge badge-green">In Stock</span> <span class="badge badge-orange">Low (&le;10)</span> <span class="badge badge-red">Out of Stock</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Restock</div>
+          <div class="step-desc">Click "Restock" on a product to add quantity. The new amount is added to the existing stock and a PURCHASE transaction is logged.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Export to Excel</div>
+          <div class="step-desc">Click "Export" to download the full inventory as an Excel spreadsheet.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>7.2 Stock History Tab</h3>
+    <p>A complete audit trail of all stock movements:</p>
+    <table>
+      <tr><th>Transaction Type</th><th>Description</th><th>Quantity</th></tr>
+      <tr><td><span class="badge badge-green">PURCHASE</span></td><td>New stock added to inventory</td><td>+ (increase)</td></tr>
+      <tr><td><span class="badge badge-blue">ASSIGN_TO_EMPLOYEE</span></td><td>Stock given to employee for a job</td><td>&minus; (decrease)</td></tr>
+      <tr><td><span class="badge badge-orange">RETURN_FROM_EMPLOYEE</span></td><td>Unused stock returned by employee</td><td>+ (increase)</td></tr>
+      <tr><td><span class="badge badge-red">USED_IN_VISIT</span></td><td>Stock consumed during a service</td><td>&minus; (decrease)</td></tr>
+    </table>
+
+    <h3>7.3 Stock Return Approvals</h3>
+    <p>Navigate to <strong>Stock Approvals</strong> in the sidebar. When employees request to return stock:</p>
+    <ul>
+      <li>View pending return requests with employee name, products, and quantities</li>
+      <li><strong>Approve:</strong> Stock returned to main inventory, employee stock reduced</li>
+      <li><strong>Reject:</strong> Stock remains with employee, request marked as rejected</li>
+    </ul>
+  </div>
+
+  <!-- ====== SECTION 8 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div><h2>Job Assignment &amp; Tracking</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>Creating a New Job Assignment</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Navigate to Jobs &rarr; New Assignment</div>
+          <div class="step-desc">Click "Jobs" in the sidebar, then select the "New Assignment" tab.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Fill in Job Details</div>
+          <div class="step-desc">Enter bill number, select a customer from the dropdown, choose an active employee, set the job date, select service type, and optionally set the next service date.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Assign Products</div>
+          <div class="step-desc">Select products from inventory and specify quantities. The system validates available stock. These products will be assigned to the employee's stock-in-hand.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Enter Bill Amount &amp; Remarks</div>
+          <div class="step-desc">Set the billing amount and add any special instructions or notes.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Submit Assignment</div>
+          <div class="step-desc">On submission: the job is created as PENDING, products are deducted from main stock and added to the employee's stock, and stock transactions are logged.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Job Lifecycle</h3>
+    <div class="flow">
+      <div class="flow-step">Assigned (PENDING)</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step orange">Employee Performs Service</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step green">Completed</div>
+    </div>
+
+    <h3>Job History Tab</h3>
+    <p>View all jobs with: bill number, customer name, employee, service type, date, status, products used, and remarks. Sorted chronologically.</p>
+
+    <div class="card blue">
+      <div class="card-title">Status Legend</div>
+      <p><span class="badge badge-orange">PENDING</span> &mdash; Job assigned, awaiting completion by employee</p>
+      <p><span class="badge badge-green">COMPLETED</span> &mdash; Service finished, products consumed and logged</p>
+    </div>
+  </div>
+
+  <!-- ====== SECTION 9 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div><h2>Sales &amp; Lead Management</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>Lead Statistics Dashboard</h3>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div><strong>Total Leads</strong> &mdash; Count of all inquiries</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Website Enquiries</strong> &mdash; From contact form (with unread count)</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Converted</strong> &mdash; Leads that became customers</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Pending</strong> &mdash; New, unprocessed leads</div></div>
+    </div>
+
+    <h3>Lead Lifecycle</h3>
+    <div class="flow">
+      <div class="flow-step">NEW</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step orange">VIEWED</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">CONTACTED</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step green">CONVERTED</div>
+    </div>
+
+    <h3>How to Process Leads</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Review New Leads</div>
+          <div class="step-desc">Navigate to Sales. New leads appear with a "NEW" badge. Click to view details &mdash; the status auto-updates to VIEWED.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Follow Up</div>
+          <div class="step-desc">Assign the lead to an employee for follow-up. Update status to CONTACTED after reaching out to the potential customer.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Convert to Customer</div>
+          <div class="step-desc">Click "Convert to Customer". A dialog pre-fills the customer form with lead info. Confirm to create a customer record and mark the lead as CONVERTED.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Lead Sources</h3>
+    <table>
+      <tr><th>Source</th><th>Description</th></tr>
+      <tr><td>Website</td><td>Submitted via the website contact/enquiry form</td></tr>
+      <tr><td>Direct Contact</td><td>Called or visited the office directly</td></tr>
+      <tr><td>Referral</td><td>Referred by an existing customer</td></tr>
+      <tr><td>Other</td><td>Any other lead source</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== SECTION 10 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div><h2>Reports &amp; Analytics</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>How to Generate Reports</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Navigate to Reports</div>
+          <div class="step-desc">Click "Reports" in the sidebar. Default view shows last 30 days of data.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Set Date Range</div>
+          <div class="step-desc">Use the date picker to select a custom start and end date. All report data updates based on the selected range.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Switch Report Tabs</div>
+          <div class="step-desc">Toggle between "Completed Services" and "Leads &amp; Conversion" tabs for different report views.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Available Reports</h3>
+    <div class="two-col">
+      <div class="card blue">
+        <div class="card-title">Completed Services Report</div>
+        <p>&bull; Total services completed in period</p>
+        <p>&bull; Service date, customer, address</p>
+        <p>&bull; Employee who performed service</p>
+        <p>&bull; Products used (itemized)</p>
+        <p>&bull; Bill amount per service</p>
+      </div>
+      <div class="card green">
+        <div class="card-title">Leads &amp; Conversion Report</div>
+        <p>&bull; Total leads in period</p>
+        <p>&bull; Converted leads count</p>
+        <p>&bull; Conversion rate percentage</p>
+        <p>&bull; Lead source effectiveness</p>
+        <p>&bull; Employee who handled each lead</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SECTION 11 ====== -->
+  <div class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <div><h2>Website Content Management</h2></div>
+      <span class="tag tag-crm">CRM</span>
+    </div>
+
+    <h3>11.1 Managing Services (Website)</h3>
+    <p>Navigate to <strong>Admin &rarr; Services</strong> to manage what appears on the public website.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Add a Service</div>
+          <div class="step-desc">Enter name, URL slug (auto-generated), short description (for cards), full HTML description, icon name (Lucide icon), and feature bullet points.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Publish / Unpublish</div>
+          <div class="step-desc">Toggle "Active" to show or hide a service from the website. Inactive services don't appear on public pages.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Set Sort Order</div>
+          <div class="step-desc">Change the sort order number to control the display order on the website.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>11.2 Managing Testimonials</h3>
+    <p>Navigate to <strong>Admin &rarr; Testimonials</strong> to manage customer reviews on the website.</p>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td>Customer Name</td><td>Name displayed on the website</td></tr>
+      <tr><td>Location</td><td>Customer's city/area</td></tr>
+      <tr><td>Rating</td><td>1-5 star rating</td></tr>
+      <tr><td>Review Text</td><td>The testimonial content</td></tr>
+      <tr><td>Service Used</td><td>Optional &mdash; links testimonial to a service</td></tr>
+      <tr><td>Active</td><td>Toggle to show/hide on website</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== SECTION 12 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <div><h2>Employee Portal &amp; Workflows</h2></div>
+      <span class="tag tag-crm">Employee</span>
+    </div>
+
+    <h3>12.1 Employee Login</h3>
+    <p>Employees access their portal at <code>/employee/login</code>. Login with Employee ID (e.g., EMP0001) and password set by admin.</p>
+
+    <h3>12.2 Employee Dashboard</h3>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div><strong>Pending Jobs Count</strong> &mdash; Jobs awaiting completion</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Completed Jobs Count</strong> &mdash; Finished services</div></div>
+      <div class="feature"><div class="dot"></div><div><strong>Stock in Hand</strong> &mdash; Products currently assigned</div></div>
+    </div>
+
+    <h3>12.3 Completing a Job</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">View Pending Jobs</div>
+          <div class="step-desc">The "Pending Jobs" tab shows all assigned jobs with customer name, bill number, service type, and assigned products list.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Click "Complete Job"</div>
+          <div class="step-desc">Opens a dialog where the employee enters the actual quantity of each product used during the service.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Confirm Completion</div>
+          <div class="step-desc">System updates: job status &rarr; COMPLETED, employee stock reduced by amount used, USED_IN_VISIT transaction logged, completion date recorded.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>12.4 Returning Unused Stock</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Click "Return Stock"</div>
+          <div class="step-desc">From the "My Stock in Hand" section, click the return button.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Select Products &amp; Quantities</div>
+          <div class="step-desc">Choose which products to return and enter the quantities.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div class="step-content">
+          <div class="step-title">Submit Return Request</div>
+          <div class="step-desc">Request goes to admin for approval. Status: PENDING &rarr; APPROVED / REJECTED.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title">Important Note</div>
+      <p>Employees can only see their own jobs and stock. They cannot access other employees' data, customer details, or admin functions.</p>
+    </div>
+  </div>
+
+  <!-- ====== SECTION 13 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s13">
+    <div class="section-header">
+      <div class="section-num">13</div>
+      <div><h2>End-to-End Business Flows</h2></div>
+    </div>
+
+    <h3>13.1 Website Lead &rarr; Customer &rarr; Service Completion</h3>
+    <div class="card">
+      <div class="flow" style="flex-wrap: wrap; gap: 4px;">
+        <div class="flow-step" style="font-size:8pt; min-width:80px;">Website Visitor</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step orange" style="font-size:8pt; min-width:80px;">Fills Enquiry</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step navy" style="font-size:8pt; min-width:80px;">Lead in CRM</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:8pt; min-width:80px;">Admin Reviews</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step green" style="font-size:8pt; min-width:80px;">Convert to Customer</div>
+      </div>
+      <br>
+      <div class="flow" style="flex-wrap: wrap; gap: 4px;">
+        <div class="flow-step green" style="font-size:8pt; min-width:80px;">Create Job</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step orange" style="font-size:8pt; min-width:80px;">Assign Employee + Stock</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step navy" style="font-size:8pt; min-width:80px;">Employee Performs Service</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:8pt; min-width:80px;">Job Completed</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step green" style="font-size:8pt; min-width:80px;">Report Generated</div>
+      </div>
+    </div>
+
+    <h3>13.2 Inventory Flow</h3>
+    <div class="card">
+      <div class="flow" style="flex-wrap: wrap; gap: 4px;">
+        <div class="flow-step green" style="font-size:8pt; min-width:80px;">Purchase Stock</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:8pt; min-width:80px;">Add to Inventory</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step orange" style="font-size:8pt; min-width:80px;">Assign to Employee</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step navy" style="font-size:8pt; min-width:80px;">Used in Service</div>
+      </div>
+      <br>
+      <p style="margin-top:8px; font-size:9pt;">
+        <strong>Unused stock path:</strong> Employee requests return &rarr; Admin approves &rarr; Stock added back to inventory
+      </p>
+    </div>
+
+    <h3>13.3 Stock Tracking at Every Stage</h3>
+    <table>
+      <tr><th>Stage</th><th>Stock Effect</th><th>Transaction Logged</th></tr>
+      <tr><td>Admin purchases product</td><td>Main stock increases</td><td>PURCHASE</td></tr>
+      <tr><td>Admin assigns job</td><td>Main stock decreases, employee stock increases</td><td>ASSIGN_TO_EMPLOYEE</td></tr>
+      <tr><td>Employee completes job</td><td>Employee stock decreases by amount used</td><td>USED_IN_VISIT</td></tr>
+      <tr><td>Employee returns stock</td><td>Employee stock decreases, main stock increases</td><td>RETURN_FROM_EMPLOYEE</td></tr>
+    </table>
+  </div>
+
+  <!-- ====== SECTION 14 ====== -->
+  <div class="page-break"></div>
+  <div class="section" id="s14">
+    <div class="section-header">
+      <div class="section-num">14</div>
+      <div><h2>Database Schema Reference</h2></div>
+    </div>
+
+    <h3>Core Data Models</h3>
+    <table>
+      <tr><th>Table</th><th>Purpose</th><th>Key Fields</th></tr>
+      <tr><td>Employee</td><td>Staff members</td><td>employeeId, name, mobileNumber, isActive, password</td></tr>
+      <tr><td>Customer</td><td>Service clients</td><td>name, address, contactNumber, serviceType, frequency</td></tr>
+      <tr><td>Lead</td><td>Potential customers</td><td>name, mobile, source, status, serviceInterest</td></tr>
+      <tr><td>Contract</td><td>Service agreements</td><td>customerId, serviceType, startDate, endDate, totalAmount</td></tr>
+      <tr><td>Visit (Job)</td><td>Service assignments</td><td>billNumber, customerId, assignedEmployeeId, status, billAmount</td></tr>
+      <tr><td>Product</td><td>Inventory items</td><td>productId, name, category, quantityAvailable, unit</td></tr>
+      <tr><td>EmployeeStock</td><td>Stock held by employees</td><td>employeeId, productId, quantity</td></tr>
+      <tr><td>StockTransaction</td><td>Inventory audit trail</td><td>productId, type, quantity, remarks</td></tr>
+      <tr><td>StockReturnRequest</td><td>Return requests</td><td>employeeId, status (PENDING/APPROVED/REJECTED)</td></tr>
+      <tr><td>StockReturnItem</td><td>Items in return request</td><td>requestId, productId, quantity</td></tr>
+      <tr><td>Service</td><td>Website services</td><td>slug, name, description, features, isActive, sortOrder</td></tr>
+      <tr><td>Testimonial</td><td>Customer reviews</td><td>name, rating, text, isActive</td></tr>
+    </table>
+
+    <h3>Key Relationships</h3>
+    <div class="features">
+      <div class="feature"><div class="dot"></div><div>Customer &rarr; has many Visits (Jobs)</div></div>
+      <div class="feature"><div class="dot"></div><div>Customer &rarr; has many Contracts</div></div>
+      <div class="feature"><div class="dot"></div><div>Employee &rarr; assigned many Visits</div></div>
+      <div class="feature"><div class="dot"></div><div>Employee &rarr; has EmployeeStock items</div></div>
+      <div class="feature"><div class="dot"></div><div>Lead &rarr; can convert to Customer</div></div>
+      <div class="feature"><div class="dot"></div><div>Lead &rarr; followed by Employee</div></div>
+      <div class="feature"><div class="dot"></div><div>Visit &rarr; uses Products (via VisitProductUsage)</div></div>
+      <div class="feature"><div class="dot"></div><div>Product &rarr; tracked via StockTransactions</div></div>
+    </div>
+
+    <h3>API Endpoints Summary</h3>
+    <table>
+      <tr><th>Module</th><th>Endpoints</th></tr>
+      <tr><td>Customers</td><td>GET/POST /api/customers, GET/PUT/DELETE /api/customers/[id], GET /api/customers/[id]/jobs</td></tr>
+      <tr><td>Employees</td><td>GET/POST /api/employees, GET/PUT/DELETE /api/employees/[id], POST /api/employees/login</td></tr>
+      <tr><td>Jobs</td><td>GET/POST /api/jobs, GET/PUT /api/jobs/[id], POST /api/jobs/[id]/complete</td></tr>
+      <tr><td>Products</td><td>GET/POST /api/products, GET/PUT/DELETE /api/products/[id]</td></tr>
+      <tr><td>Stock</td><td>GET /api/stock/transactions, POST/GET/PUT /api/stock/return-request</td></tr>
+      <tr><td>Leads</td><td>GET/POST /api/leads, GET/PUT/DELETE /api/leads/[id], POST /api/leads/[id]/convert</td></tr>
+      <tr><td>Reports</td><td>GET /api/reports?from=&amp;to=</td></tr>
+      <tr><td>Services</td><td>GET/POST /api/services, GET/PUT/DELETE /api/services/[id]</td></tr>
+      <tr><td>Testimonials</td><td>GET/POST /api/testimonials, GET/PUT/DELETE /api/testimonials/[id]</td></tr>
+      <tr><td>Enquiry</td><td>POST /api/enquiry</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="doc-footer">
+    <p><strong>Hygienic Pest Control Pvt Ltd</strong> &mdash; Complete System Guide v1.0</p>
+    <p>Ranchi, Jharkhand, India &bull; +91-7277234534 &bull; hpcplranchi@gmail.com</p>
+    <p style="margin-top: 8px; color: #9CA3AF;">This document is confidential and intended for internal use only.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
