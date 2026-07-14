@@ -22,10 +22,22 @@ import {
 } from "@/components/ui/alert-dialog"
 import {
   Plus, Pencil, Trash2, ImageIcon, Upload, Eye, EyeOff, ExternalLink, X,
+  Link2, Crop as CropIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 import Image from "next/image"
+import { ImageCropper } from "@/components/admin/image-cropper"
+import { persistImage } from "@/lib/upload-client"
+
+/** Suggested crop aspect per website section. */
+const sectionAspect: Record<string, string> = {
+  HERO: "16:9",
+  ABOUT: "4:3",
+  SERVICES: "4:3",
+  GALLERY: "1:1",
+  GENERAL: "16:9",
+}
 
 const SECTIONS = [
   { value: "HERO", label: "Hero Section" },
@@ -67,6 +79,9 @@ export default function AdminSiteImagesPage() {
   const [filterSection, setFilterSection] = useState<string>("ALL")
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [cropOpen, setCropOpen] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [urlInput, setUrlInput] = useState("")
 
   const [formData, setFormData] = useState({
     key: "",
@@ -109,9 +124,36 @@ export default function AdminSiteImagesPage() {
 
     const reader = new FileReader()
     reader.onload = () => {
-      setFormData((p) => ({ ...p, imageData: reader.result as string }))
+      // Open the cropper on the freshly-selected image
+      setCropSrc(reader.result as string)
+      setCropOpen(true)
     }
     reader.readAsDataURL(file)
+    // allow selecting the same file again later
+    e.target.value = ""
+  }
+
+  const handleApplyUrl = () => {
+    const url = urlInput.trim()
+    if (!/^https?:\/\/.+/i.test(url)) {
+      toast.error("Enter a valid image URL (https://...)")
+      return
+    }
+    setUrlInput("")
+    setCropSrc(url)
+    setCropOpen(true)
+  }
+
+  const handleCropConfirm = (dataUrl: string) => {
+    setFormData((p) => ({ ...p, imageData: dataUrl }))
+    setCropOpen(false)
+    setCropSrc(null)
+  }
+
+  const handleRecrop = () => {
+    if (!formData.imageData) return
+    setCropSrc(formData.imageData)
+    setCropOpen(true)
   }
 
   const handleAdd = () => {
@@ -149,8 +191,11 @@ export default function AdminSiteImagesPage() {
     }
 
     setSubmitting(true)
+    // Upload to Vercel Blob when configured; otherwise keep the inline image.
+    const hostedImage = await persistImage(formData.imageData)
     const payload = {
       ...formData,
+      imageData: hostedImage,
       key:
         formData.key ||
         formData.title
@@ -384,16 +429,46 @@ export default function AdminSiteImagesPage() {
                   </Button>
                 </div>
               ) : (
-                <div
-                  className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm font-medium">Click to upload image</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG, WebP up to 5MB
-                  </p>
-                </div>
+                <>
+                  <div
+                    className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm font-medium">Click to upload image</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG, WebP up to 5MB
+                    </p>
+                  </div>
+                  {/* or paste a URL (e.g. an Unsplash link) */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="h-px flex-1 bg-slate-200" />
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      or paste a link
+                    </span>
+                    <span className="h-px flex-1 bg-slate-200" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleApplyUrl()
+                          }
+                        }}
+                        placeholder="https://images.unsplash.com/..."
+                        className="pl-8"
+                      />
+                    </div>
+                    <Button type="button" variant="secondary" onClick={handleApplyUrl}>
+                      Add
+                    </Button>
+                  </div>
+                </>
               )}
               <input
                 ref={fileInputRef}
@@ -403,14 +478,22 @@ export default function AdminSiteImagesPage() {
                 onChange={handleFileSelect}
               />
               {formData.imageData && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="h-4 w-4 mr-2" /> Replace Image
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" /> Replace
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRecrop}
+                  >
+                    <CropIcon className="h-4 w-4 mr-2" /> Crop
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -536,6 +619,18 @@ export default function AdminSiteImagesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image cropper */}
+      <ImageCropper
+        open={cropOpen}
+        src={cropSrc}
+        defaultAspect={sectionAspect[formData.section] || "16:9"}
+        onConfirm={handleCropConfirm}
+        onCancel={() => {
+          setCropOpen(false)
+          setCropSrc(null)
+        }}
+      />
     </AdminLayout>
   )
 }

@@ -1,11 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Shield,
+  Reveal,
+  SectionHeading,
+  Eyebrow,
+  AnimatedCounter,
+} from "@/components/website/ui";
+import { siteConfig, companyStats } from "@/lib/site-config";
+import { fallbackImages } from "@/components/website/site-images";
+import {
   Target,
   Heart,
   Eye,
@@ -15,52 +21,13 @@ import {
   Clock,
   ArrowRight,
   Phone,
-  CheckCircle,
+  CheckCircle2,
   Building2,
   TrendingUp,
+  Shield,
+  Sparkles,
+  type LucideIcon,
 } from "lucide-react";
-
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, visible };
-}
-
-function RevealDiv({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, visible } = useScrollReveal();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
 
 interface SiteImage {
   id: string;
@@ -71,319 +38,300 @@ interface SiteImage {
   imageData: string;
 }
 
+/* Icons paired (in order) with companyStats for the Our Story stat panel. */
+const statIcons: LucideIcon[] = [Users, Shield, Clock, Award];
+
+const values = [
+  {
+    icon: Heart,
+    title: "Customer First",
+    desc: "Every decision we make starts with our customers. Your safety, comfort, and satisfaction are our top priorities.",
+  },
+  {
+    icon: Leaf,
+    title: "Eco-Friendly Approach",
+    desc: "We believe in protecting the environment while protecting your spaces. Our solutions are safe for families and pets.",
+  },
+  {
+    icon: Award,
+    title: "Excellence in Service",
+    desc: "We are committed to delivering the highest quality of pest control services with professionalism and integrity.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Continuous Improvement",
+    desc: "We continuously invest in training, technology, and research to stay ahead in pest management solutions.",
+  },
+];
+
+const trustPoints = [
+  "Licensed and government-registered pest control company",
+  "Trained and certified technicians with years of expertise",
+  "Use of WHO-approved, eco-friendly chemicals and products",
+  "Transparent pricing with no hidden costs",
+  "Comprehensive warranty on all treatments",
+  "Quick response time and flexible scheduling",
+  "Customized solutions for every property type",
+  "Dedicated post-service support and follow-ups",
+];
+
 export default function AboutPage() {
   const [aboutImages, setAboutImages] = useState<SiteImage[]>([]);
 
   useEffect(() => {
     fetch("/api/site-images?section=ABOUT")
       .then((r) => r.json())
-      .then((d) => { if (Array.isArray(d)) setAboutImages(d); })
+      .then((d) => {
+        if (Array.isArray(d)) setAboutImages(d);
+      })
       .catch(() => {});
   }, []);
-  const stats = [
-    {
-      icon: <Users className="w-6 h-6" />,
-      value: "700+",
-      label: "Happy Customers",
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      value: "15+",
-      label: "Services Offered",
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      value: "5+",
-      label: "Years of Experience",
-    },
-    {
-      icon: <Award className="w-6 h-6" />,
-      value: "100%",
-      label: "Satisfaction Rate",
-    },
-  ];
 
-  const values = [
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: "Customer First",
-      desc: "Every decision we make starts with our customers. Your safety, comfort, and satisfaction are our top priorities.",
-    },
-    {
-      icon: <Leaf className="w-6 h-6" />,
-      title: "Eco-Friendly Approach",
-      desc: "We believe in protecting the environment while protecting your spaces. Our solutions are safe for families and pets.",
-    },
-    {
-      icon: <Award className="w-6 h-6" />,
-      title: "Excellence in Service",
-      desc: "We are committed to delivering the highest quality of pest control services with professionalism and integrity.",
-    },
-    {
-      icon: <TrendingUp className="w-6 h-6" />,
-      title: "Continuous Improvement",
-      desc: "We continuously invest in training, technology, and research to stay ahead in pest management solutions.",
-    },
-  ];
+  const storyImage = aboutImages[0]?.imageData || fallbackImages.about;
+  const storyAlt =
+    aboutImages[0]?.alt ||
+    aboutImages[0]?.title ||
+    "Hygienic Pest Control team at work";
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
-        <div className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-[#7CB342]/10 blur-[100px]" />
-        <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#42A5F5]/10 blur-[80px]" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-4 text-sm rounded-full">
-            <Building2 className="w-3.5 h-3.5 mr-1.5" />
-            About Us
-          </Badge>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 animate-fade-in">
+    <div className="overflow-x-clip">
+      {/* ==================== HERO ==================== */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-dot-grid opacity-60" />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-brand/10 blur-[120px]" />
+        <div className="absolute -bottom-10 -left-20 h-72 w-72 rounded-full bg-green-bright/10 blur-[110px]" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-slate-50" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-14 sm:pt-20 sm:pb-16 text-center">
+          <div className="animate-fade-in-up">
+            <Eyebrow icon={Building2} tone="blue">
+              About Us
+            </Eyebrow>
+          </div>
+          <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink text-balance animate-fade-in-up delay-100">
             About Hygienic Pest Control
           </h1>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
-            Your trusted partner in professional pest control services in
-            Jharkhand since 2019.
+          <p className="mt-5 text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto animate-fade-in-up delay-200">
+            Your trusted partner in professional pest control services across{" "}
+            {siteConfig.region} since {siteConfig.since}.
           </p>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-center">
-            <RevealDiv>
-              <div>
-                <Badge className="bg-blue-50 text-[#42A5F5] border-blue-200 mb-4 text-sm rounded-full">
-                  Our Story
-                </Badge>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-6">
-                  From a Small Beginning to
-                  <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#7CB342]">
-                    Jharkhand&apos;s Trusted Name
-                  </span>
-                </h2>
-                <div className="space-y-4 text-gray-600 leading-relaxed">
-                  <p>
-                    Hygienic Pest Control Pvt Ltd was founded in 2019 with a simple
-                    yet powerful mission: to provide Jharkhand with
-                    world-class pest control services that are effective,
-                    affordable, and environmentally responsible.
-                  </p>
-                  <p>
-                    What started as a small team of passionate professionals has
-                    grown into one of the most trusted pest control companies in
-                    the region. We have served over 700 residential and
-                    commercial clients, handling everything from termite
-                    infestations to comprehensive integrated pest management
-                    programs.
-                  </p>
-                  <p>
-                    Our team is equipped with modern tools, eco-friendly
-                    products, and extensive training to tackle any pest challenge.
-                    We take pride in our track record of 100% customer
-                    satisfaction and our commitment to making homes and businesses
-                    pest-free.
-                  </p>
-                </div>
+      {/* ==================== OUR STORY ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Copy */}
+            <Reveal direction="left">
+              <Eyebrow icon={Sparkles} tone="blue" className="mb-4">
+                Our Story
+              </Eyebrow>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink text-balance leading-[1.15]">
+                From a Small Beginning to{" "}
+                <span className="text-gradient-brand">
+                  {siteConfig.region}&apos;s Trusted Name
+                </span>
+              </h2>
+              <div className="mt-6 space-y-4 text-slate-600 leading-relaxed">
+                <p>
+                  {siteConfig.legalName} was founded in {siteConfig.since} with a
+                  simple yet powerful mission: to provide {siteConfig.region} with
+                  world-class pest control services that are effective,
+                  affordable, and environmentally responsible.
+                </p>
+                <p>
+                  What started as a small team of passionate professionals has
+                  grown into one of the most trusted pest control companies in the
+                  region. We have served over 700 residential and commercial
+                  clients, handling everything from termite infestations to
+                  comprehensive integrated pest management programs.
+                </p>
+                <p>
+                  Our team is equipped with modern tools, eco-friendly products,
+                  and extensive training to tackle any pest challenge. We take
+                  pride in our track record of 100% customer satisfaction and our
+                  commitment to making homes and businesses pest-free.
+                </p>
               </div>
-            </RevealDiv>
+            </Reveal>
 
-            <RevealDiv delay={200}>
-              <div className="relative">
-                {/* Dynamic about image from admin */}
-                {aboutImages.length > 0 && (
-                  <div className="rounded-2xl overflow-hidden mb-6 shadow-lg">
-                    <img
-                      src={aboutImages[0].imageData}
-                      alt={aboutImages[0].alt || aboutImages[0].title}
-                      className="w-full h-48 sm:h-64 object-cover"
-                    />
-                  </div>
-                )}
-                <div className="bg-gradient-to-br from-[#42A5F5]/5 to-[#7CB342]/5 rounded-3xl p-8 border border-gray-100">
-                  <div className="grid grid-cols-2 gap-6">
-                    {stats.map((stat, i) => (
-                      <div
-                        key={stat.label}
-                        className="text-center stagger-item"
-                        style={{ animationDelay: `${i * 100}ms` }}
-                      >
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mx-auto mb-3">
-                          {stat.icon}
-                        </div>
-                        <div className="text-2xl font-extrabold text-[#1a2332]">
-                          {stat.value}
-                        </div>
-                        <div className="text-sm text-gray-500">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Decorative element */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full bg-[#7CB342]/10 blur-xl" />
-                <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-[#42A5F5]/10 blur-xl" />
+            {/* Visual + stats */}
+            <Reveal direction="right" delay={120}>
+              <div className="relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-slate-200 aspect-[16/10] bg-slate-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={storyImage}
+                  alt={storyAlt}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/20 via-transparent to-transparent" />
               </div>
-            </RevealDiv>
+
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                {companyStats.map((stat, i) => {
+                  const Icon = statIcons[i] ?? Users;
+                  return (
+                    <div
+                      key={stat.label}
+                      className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm"
+                    >
+                      <div className="mx-auto mb-3 w-12 h-12 rounded-2xl bg-gradient-to-br from-brand/10 to-green-bright/15 grid place-items-center text-brand">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <AnimatedCounter
+                        end={stat.value}
+                        suffix={stat.suffix}
+                        className="block text-2xl sm:text-3xl font-extrabold text-ink"
+                      />
+                      <p className="mt-1 text-sm text-slate-500">{stat.label}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ==================== MISSION & VISION ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Our Purpose"
+            eyebrowIcon={Target}
+            title="Mission & Vision"
+            subtitle="What guides every treatment we perform and every promise we keep."
+            className="mb-12 sm:mb-14"
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            <RevealDiv>
-              <div className="bg-white rounded-2xl p-8 shadow-md h-full border border-gray-100">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5] to-[#1E88E5] flex items-center justify-center text-white mb-5">
+            <Reveal direction="up">
+              <div className="h-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/10 to-green-bright/15 grid place-items-center text-brand mb-5">
                   <Target className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#1a2332] mb-4">
-                  Our Mission
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  To provide the most effective, safe, and affordable pest
-                  control solutions across Jharkhand. We are
-                  committed to protecting the health and property of our
-                  customers through innovative pest management practices while
-                  being responsible stewards of the environment.
+                <h3 className="text-2xl font-bold text-ink mb-4">Our Mission</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  To provide the most effective, safe, and affordable pest control
+                  solutions across {siteConfig.region}. We are committed to
+                  protecting the health and property of our customers through
+                  innovative pest management practices while being responsible
+                  stewards of the environment.
                 </p>
               </div>
-            </RevealDiv>
+            </Reveal>
 
-            <RevealDiv delay={150}>
-              <div className="bg-white rounded-2xl p-8 shadow-md h-full border border-gray-100">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7CB342] to-[#558B2F] flex items-center justify-center text-white mb-5">
+            <Reveal direction="up" delay={120}>
+              <div className="h-full rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/10 to-green-bright/15 grid place-items-center text-green-dark mb-5">
                   <Eye className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#1a2332] mb-4">
-                  Our Vision
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  To be the leading pest control company in Jharkhand, recognized
-                  for our excellence in service, innovation in pest management
-                  solutions, and our unwavering commitment to customer
+                <h3 className="text-2xl font-bold text-ink mb-4">Our Vision</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  To be the leading pest control company in {siteConfig.region},
+                  recognized for our excellence in service, innovation in pest
+                  management solutions, and our unwavering commitment to customer
                   satisfaction and environmental sustainability. We envision a
                   pest-free community where homes and businesses thrive.
                 </p>
               </div>
-            </RevealDiv>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <RevealDiv>
-            <div className="text-center mb-14">
-              <Badge className="bg-green-50 text-[#7CB342] border-green-200 mb-4 text-sm rounded-full">
-                Our Values
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a2332] mb-4">
-                What Drives Us Every Day
-              </h2>
-            </div>
-          </RevealDiv>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {/* ==================== OUR VALUES ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Our Values"
+            eyebrowTone="green"
+            title="What Drives Us Every Day"
+            subtitle="The principles behind every service call, treatment, and follow-up."
+            className="mb-12 sm:mb-14"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
             {values.map((v, i) => (
-              <RevealDiv key={v.title} delay={i * 100}>
-                <div className="flex items-start gap-5 p-6 rounded-2xl border border-gray-100 hover:border-[#42A5F5]/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] shrink-0">
-                    {v.icon}
+              <Reveal key={v.title} direction="up" delay={(i % 2) * 90}>
+                <div className="group h-full flex items-start gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:border-brand/30 hover:shadow-md">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand/10 to-green-bright/15 grid place-items-center text-brand shrink-0 transition-transform group-hover:scale-110">
+                    <v.icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-[#1a2332] mb-2">
-                      {v.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <h3 className="text-lg font-bold text-ink mb-2">{v.title}</h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">
                       {v.desc}
                     </p>
                   </div>
                 </div>
-              </RevealDiv>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why Jharkhand Trusts HPC */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <RevealDiv>
-            <div className="text-center mb-10 sm:mb-14">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1a2332] mb-4">
-                Why Jharkhand Trusts Hygienic Pest Control
-              </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-                We have earned the trust of hundreds of families and businesses
-                in Jharkhand through consistent quality and dedication.
-              </p>
-            </div>
-          </RevealDiv>
-
-          <RevealDiv>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-              {[
-                "Licensed and government-registered pest control company",
-                "Trained and certified technicians with years of expertise",
-                "Use of WHO-approved, eco-friendly chemicals and products",
-                "Transparent pricing with no hidden costs",
-                "Comprehensive warranty on all treatments",
-                "Quick response time and flexible scheduling",
-                "Customized solutions for every property type",
-                "Dedicated post-service support and follow-ups",
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 p-3 rounded-xl stagger-item"
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  <CheckCircle className="w-5 h-5 text-[#7CB342] shrink-0 mt-0.5" />
-                  <span className="text-gray-700 text-sm">{item}</span>
+      {/* ==================== WHY JHARKHAND TRUSTS HPC ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Trusted Locally"
+            eyebrowIcon={Shield}
+            eyebrowTone="green"
+            title={`Why ${siteConfig.region} Trusts Hygienic Pest Control`}
+            subtitle={`We have earned the trust of hundreds of families and businesses in ${siteConfig.region} through consistent quality and dedication.`}
+            className="mb-12 sm:mb-14"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 max-w-4xl mx-auto">
+            {trustPoints.map((item, i) => (
+              <Reveal key={item} direction="up" delay={(i % 2) * 80}>
+                <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <CheckCircle2 className="w-5 h-5 text-green-dark shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-600 leading-relaxed">
+                    {item}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </RevealDiv>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <RevealDiv>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+      {/* ==================== CTA ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white border-t border-slate-200">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <Reveal direction="up">
+            <Eyebrow icon={Sparkles} tone="green" className="mb-4">
+              Get Started
+            </Eyebrow>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink text-balance">
               Ready to Make Your Space Pest-Free?
             </h2>
-            <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="mt-4 text-slate-500 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
               Get in touch with our team for a free consultation and inspection.
               We are just a call away.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href="/contact">
                 <Button
                   size="lg"
-                  className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 shadow-xl shadow-blue-500/30 btn-press"
+                  className="h-12 rounded-full px-6 bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press text-base"
                 >
                   Book Free Inspection
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </Link>
-              <a href="tel:+917277234534">
+              <a href={`tel:${siteConfig.telPrimary}`}>
                 <Button
                   size="lg"
-                  className="rounded-full px-8 bg-white/15 text-white border border-white/30 hover:bg-white/25 btn-press"
+                  variant="outline"
+                  className="h-12 rounded-full px-6 border-green-bright/40 text-green-dark hover:bg-green-bright/10 btn-press text-base"
                 >
-                  <Phone className="w-5 h-5 mr-2" />
-                  +91-7277234534
+                  <Phone className="w-5 h-5" />
+                  {siteConfig.phones[0]}
                 </Button>
               </a>
             </div>
-          </RevealDiv>
+          </Reveal>
         </div>
       </section>
     </div>

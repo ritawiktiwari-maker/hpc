@@ -1,11 +1,11 @@
 import "@/app/globals.css";
 import { Navbar } from "@/components/website/navbar";
 import { Footer } from "@/components/website/footer";
-import { BugBlastEffect } from "@/components/website/bug-blast";
 
 export const metadata = {
   title: {
-    default: "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Jharkhand",
+    default:
+      "Hygienic Pest Control Pvt Ltd | Professional Pest Control in Jharkhand",
     template: "%s | Hygienic Pest Control Pvt Ltd",
   },
   description:
@@ -23,11 +23,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col" style={{ scrollBehavior: "smooth" }}>
+    <div className="min-h-screen flex flex-col bg-white text-foreground">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
-      <BugBlastEffect />
     </div>
   );
 }

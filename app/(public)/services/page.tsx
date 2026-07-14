@@ -1,20 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-  Bug,
+  Reveal,
+  SectionHeading,
+  Eyebrow,
+  ServiceIcon,
+} from "@/components/website/ui";
+import { siteConfig } from "@/lib/site-config";
+import { serviceFallbackImage } from "@/components/website/site-images";
+import {
   Shield,
-  Target,
-  Leaf,
   Sparkles,
-  Users,
   Phone,
-  CheckCircle,
   ArrowRight,
+  CheckCircle2,
+  Bug,
 } from "lucide-react";
 
 interface Service {
@@ -26,57 +29,6 @@ interface Service {
   icon?: string;
   image?: string | null;
   features: string[];
-}
-
-const iconMap: Record<string, React.ReactNode> = {
-  Bug: <Bug className="w-7 h-7" />,
-  Shield: <Shield className="w-7 h-7" />,
-  Target: <Target className="w-7 h-7" />,
-  Leaf: <Leaf className="w-7 h-7" />,
-  Sparkles: <Sparkles className="w-7 h-7" />,
-  Users: <Users className="w-7 h-7" />,
-};
-
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, visible };
-}
-
-function RevealDiv({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, visible } = useScrollReveal();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
 }
 
 export default function ServicesPage() {
@@ -94,120 +46,122 @@ export default function ServicesPage() {
   }, []);
 
   return (
-    <div>
-      {/* Hero Banner */}
-      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
-        <div className="absolute top-1/2 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
-        <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#7CB342]/10 blur-[80px]" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge className="bg-[#7CB342]/20 text-[#7CB342] border-[#7CB342]/30 mb-4 text-sm rounded-full">
-            <Shield className="w-3.5 h-3.5 mr-1.5" />
-            Professional Solutions
-          </Badge>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 animate-fade-in">
-            Our Services
-          </h1>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
-            Comprehensive pest management solutions for homes, offices, and
-            commercial spaces across Jharkhand.
-          </p>
+    <div className="overflow-x-clip">
+      {/* ==================== HERO ==================== */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-dot-grid opacity-60" />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-brand/10 blur-[120px]" />
+        <div className="absolute -bottom-10 -left-20 h-72 w-72 rounded-full bg-green-bright/10 blur-[110px]" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-slate-50" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-14 sm:pt-20 sm:pb-16 text-center">
+          <Reveal direction="down">
+            <Eyebrow icon={Shield} tone="green" className="mb-5">
+              Professional Solutions
+            </Eyebrow>
+          </Reveal>
+          <Reveal direction="up" delay={60}>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink text-balance">
+              Our Services
+            </h1>
+          </Reveal>
+          <Reveal direction="up" delay={120}>
+            <p className="mt-5 mx-auto max-w-2xl text-slate-500 text-lg leading-relaxed text-pretty">
+              Comprehensive pest management for homes, offices, and commercial
+              spaces across {siteConfig.region}. Eco-friendly treatments,
+              guaranteed results, and support whenever you need it.
+            </p>
+          </Reveal>
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ==================== SERVICES GRID ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-72 rounded-2xl skeleton-loading"
-                />
+                <div key={i} className="h-96 rounded-2xl skeleton-loading" />
               ))}
             </div>
           ) : services.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, i) => (
-                <RevealDiv key={service.id} delay={i * 80}>
-                  <Card className="border-0 shadow-md hover-lift rounded-2xl bg-white h-full flex flex-col group overflow-hidden">
-                    {service.image ? (
-                      <div className="h-40 overflow-hidden">
-                        <img
-                          src={service.image}
-                          alt={service.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
+                <Reveal key={service.id} direction="up" delay={(i % 3) * 90}>
+                  <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover-lift">
+                    {/* Image */}
+                    <div className="relative h-44 overflow-hidden bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={service.image || serviceFallbackImage(service.slug)}
+                        alt={service.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink/20 via-transparent to-transparent" />
+                    </div>
+
+                    {/* Body */}
+                    <div className="flex flex-1 flex-col p-6">
+                      <div className="mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand/10 to-green-bright/15 text-brand transition-colors group-hover:from-brand group-hover:to-brand-dark group-hover:text-white">
+                        <ServiceIcon name={service.icon} className="h-6 w-6" />
                       </div>
-                    ) : null}
-                    <div className={`flex-1 flex flex-col p-6 ${service.image ? "pt-4" : ""}`}>
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#42A5F5]/10 to-[#7CB342]/10 flex items-center justify-center text-[#42A5F5] mb-4 group-hover:from-[#42A5F5] group-hover:to-[#1E88E5] group-hover:text-white transition-all duration-300">
-                      {iconMap[service.icon || "Bug"] || (
-                        <Bug className="w-7 h-7" />
+                      <h3 className="mb-2 text-lg font-bold text-ink transition-colors group-hover:text-brand">
+                        {service.name}
+                      </h3>
+                      <p className="mb-4 text-sm leading-relaxed text-slate-500 line-clamp-3">
+                        {service.shortDesc}
+                      </p>
+
+                      {service.features.length > 0 && (
+                        <ul className="mb-6 space-y-2">
+                          {service.features.slice(0, 4).map((f, fi) => (
+                            <li
+                              key={fi}
+                              className="flex items-start gap-2 text-sm text-slate-600"
+                            >
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-dark" />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </div>
-                    <h3 className="text-xl font-bold text-[#1a2332] mb-2 group-hover:text-[#42A5F5] transition-colors">
-                      {service.name}
-                    </h3>
-                    <p className="text-gray-500 text-sm mb-4 leading-relaxed flex-1">
-                      {service.shortDesc}
-                    </p>
 
-                    {service.features.length > 0 && (
-                      <ul className="space-y-1.5 mb-5">
-                        {service.features.slice(0, 4).map((f, fi) => (
-                          <li
-                            key={fi}
-                            className="flex items-start gap-2 text-sm text-gray-600"
+                      <div className="mt-auto flex gap-3 border-t border-slate-100 pt-5">
+                        <Link href={`/services/${service.slug}`} className="flex-1">
+                          <Button
+                            variant="outline"
+                            className="w-full rounded-full border-brand text-brand hover:bg-brand hover:text-white"
                           >
-                            <CheckCircle className="w-4 h-4 text-[#7CB342] shrink-0 mt-0.5" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    <div className="flex gap-3 mt-auto pt-4 border-t border-gray-100">
-                      <Link
-                        href={`/services/${service.slug}`}
-                        className="flex-1"
-                      >
-                        <Button
-                          variant="outline"
-                          className="w-full rounded-xl border-[#42A5F5] text-[#42A5F5] hover:bg-[#42A5F5] hover:text-white"
+                            Learn More
+                          </Button>
+                        </Link>
+                        <Link
+                          href={`/contact?service=${service.slug}`}
+                          className="flex-1"
                         >
-                          Learn More
-                        </Button>
-                      </Link>
-                      <Link
-                        href={`/contact?service=${service.slug}`}
-                        className="flex-1"
-                      >
-                        <Button className="w-full rounded-xl bg-[#42A5F5] hover:bg-[#1E88E5] text-white btn-press">
-                          Get Quote
-                        </Button>
-                      </Link>
+                          <Button className="w-full rounded-full bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press">
+                            Get Quote
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                    </div>
-                  </Card>
-                </RevealDiv>
+                  </div>
+                </Reveal>
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <Bug className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-[#1a2332] mb-2">
+            <div className="text-center py-12">
+              <Bug className="mx-auto mb-4 h-12 w-12 text-slate-300" />
+              <h3 className="mb-2 text-xl font-bold text-ink">
                 Services Coming Soon
               </h3>
-              <p className="text-gray-500 mb-6">
-                Our service catalog is being updated. Please contact us directly
-                for assistance.
+              <p className="mb-6 text-slate-400">
+                Our service catalog is being updated. Please call us for details.
               </p>
-              <a href="tel:+917277234534">
-                <Button className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 btn-press">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call +91-7277234534
+              <a href={`tel:${siteConfig.telPrimary}`}>
+                <Button className="h-12 rounded-full px-6 bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press">
+                  <Phone className="h-4 w-4" />
+                  Call {siteConfig.phones[0]}
                 </Button>
               </a>
             </div>
@@ -215,39 +169,49 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-12 sm:py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <RevealDiv>
-            <h2 className="text-3xl font-extrabold text-[#1a2332] mb-4">
+      {/* ==================== CTA ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <Reveal direction="up">
+            <Eyebrow icon={Sparkles} tone="green" className="mb-4">
+              Get Started
+            </Eyebrow>
+          </Reveal>
+          <Reveal direction="up" delay={60}>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-ink text-balance">
               Need a Custom Solution?
             </h2>
-            <p className="text-gray-500 text-lg mb-8 max-w-2xl mx-auto">
-              Every pest problem is unique. Contact us for a free inspection and
-              a customized treatment plan tailored to your needs.
+          </Reveal>
+          <Reveal direction="up" delay={120}>
+            <p className="mt-4 mx-auto max-w-2xl text-slate-500 text-base sm:text-lg leading-relaxed text-pretty">
+              Every pest problem is unique. Contact us for a free inspection and a
+              customized treatment plan tailored to your property across{" "}
+              {siteConfig.region}.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+          </Reveal>
+          <Reveal direction="up" delay={180}>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href="/contact">
                 <Button
                   size="lg"
-                  className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-8 shadow-lg shadow-blue-500/25 btn-press"
+                  className="h-12 rounded-full px-6 bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press text-base"
                 >
                   Book Free Inspection
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <a href="tel:+917277234534">
+              <a href={`tel:${siteConfig.telPrimary}`}>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="rounded-full px-8 border-[#1a2332] text-[#1a2332] hover:bg-[#1a2332] hover:text-white"
+                  className="h-12 rounded-full px-6 border-green-bright/40 text-green-dark hover:bg-green-bright/10 btn-press text-base"
                 >
-                  <Phone className="w-5 h-5 mr-2" />
-                  +91-7277234534
+                  <Phone className="h-5 w-5" />
+                  {siteConfig.phones[0]}
                 </Button>
               </a>
             </div>
-          </RevealDiv>
+          </Reveal>
         </div>
       </section>
     </div>

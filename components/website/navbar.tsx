@@ -3,161 +3,138 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Phone, Menu, X, ChevronRight } from "lucide-react";
-
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+import { Phone, Menu, X, ChevronRight, ArrowRight } from "lucide-react";
+import { siteConfig, navLinks } from "@/lib/site-config";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 12);
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
 
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <header
+        className={cn(
+          "sticky top-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100"
-            : "bg-transparent"
-        }`}
+            ? "bg-white/90 backdrop-blur-md shadow-[0_1px_0_0_rgba(15,23,42,0.06),0_8px_24px_-16px_rgba(15,23,42,0.25)] border-b border-slate-200/70"
+            : "bg-white/70 backdrop-blur-sm border-b border-transparent"
+        )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
               <Image
                 src="/images/logo-20hpc.png"
                 alt="Hygienic Pest Control"
                 width={44}
                 height={44}
-                className="rounded-lg"
+                className="rounded-lg h-10 w-10 sm:h-11 sm:w-11 transition-transform group-hover:scale-105"
+                priority
               />
-              <div className="hidden sm:block">
-                <span
-                  className={`text-lg font-bold leading-tight transition-colors duration-300 ${
-                    scrolled ? "text-[#1a2332]" : "text-white"
-                  }`}
-                >
-                  Hygienic Pest Control
+              <div className="leading-tight">
+                <span className="block text-[15px] sm:text-lg font-extrabold text-ink tracking-tight">
+                  {siteConfig.name}
                 </span>
-                <span
-                  className={`block text-[10px] font-medium tracking-wider uppercase transition-colors duration-300 ${
-                    scrolled ? "text-[#7CB342]" : "text-green-300"
-                  }`}
-                >
-                  Professional Pest Control
+                <span className="block text-[9px] sm:text-[10px] font-semibold tracking-[0.14em] uppercase text-green-dark">
+                  {siteConfig.tagline}
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 ${
-                    scrolled
-                      ? "text-[#1a2332] hover:text-[#42A5F5] hover:bg-blue-50"
-                      : "text-white/90 hover:text-white"
-                  }`}
+                  className={cn(
+                    "relative px-3.5 py-2 rounded-lg text-sm font-medium transition-colors",
+                    isActive(link.href)
+                      ? "text-brand"
+                      : "text-slate-600 hover:text-brand hover:bg-brand/5"
+                  )}
                 >
                   {link.label}
+                  {isActive(link.href) && (
+                    <span className="absolute inset-x-3.5 -bottom-px h-0.5 rounded-full bg-brand" />
+                  )}
                 </Link>
               ))}
-            </div>
+            </nav>
 
-            {/* Desktop Right Actions */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Desktop actions */}
+            <div className="hidden md:flex items-center gap-2.5">
               <a
-                href="tel:+917277234534"
-                className={`flex items-center gap-2 text-sm font-semibold transition-all duration-300 rounded-full px-4 py-2 ${
-                  scrolled
-                    ? "bg-[#7CB342]/10 text-[#7CB342] hover:bg-[#7CB342]/20"
-                    : "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
-                }`}
+                href={`tel:${siteConfig.telPrimary}`}
+                className="flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold text-green-dark bg-green-bright/10 hover:bg-green-bright/20 transition-colors"
               >
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#7CB342] text-white animate-pulse">
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-green-bright text-white">
                   <Phone className="w-3.5 h-3.5" />
                 </span>
-                <span>Call Us</span>
-                <span className="hidden lg:inline">+91-7277234534</span>
+                <span className="hidden lg:inline">{siteConfig.phones[0]}</span>
+                <span className="lg:hidden">Call</span>
               </a>
               <Link href="/contact">
-                <Button className="bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-full px-5 shadow-lg shadow-blue-500/25 btn-press">
-                  Book Free Inspection
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                <Button className="rounded-full px-5 h-10 bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press">
+                  Free Inspection
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
 
-            {/* Mobile Right Actions */}
-            <div className="flex md:hidden items-center gap-2">
+            {/* Mobile actions */}
+            <div className="flex md:hidden items-center gap-1">
               <a
-                href="tel:+917277234534"
-                className={`p-2 rounded-lg transition-colors ${
-                  scrolled
-                    ? "text-[#7CB342] hover:bg-green-50"
-                    : "text-green-300 hover:bg-white/10"
-                }`}
+                href={`tel:${siteConfig.telPrimary}`}
+                className="p-2.5 rounded-lg text-green-dark hover:bg-green-bright/10 transition-colors"
                 aria-label="Call us"
               >
                 <Phone className="w-5 h-5" />
               </a>
               <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className={`p-2 rounded-lg transition-colors ${
-                  scrolled
-                    ? "text-[#1a2332] hover:bg-gray-100"
-                    : "text-white hover:bg-white/10"
-                }`}
-                aria-label="Toggle menu"
+                onClick={() => setMobileOpen(true)}
+                className="p-2.5 rounded-lg text-ink hover:bg-slate-100 transition-colors"
+                aria-label="Open menu"
               >
-                {mobileOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                <Menu className="w-6 h-6" />
               </button>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-[60] md:hidden">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute top-0 right-0 w-80 max-w-[85vw] h-full bg-white shadow-2xl animate-slide-in-left">
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="flex items-center gap-2">
+          <div className="absolute top-0 right-0 w-80 max-w-[86vw] h-full bg-white shadow-2xl animate-slide-in-left flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
                 <Image
                   src="/images/logo-20hpc.png"
                   alt="HPC"
@@ -165,41 +142,50 @@ export function Navbar() {
                   height={36}
                   className="rounded-lg"
                 />
-                <span className="font-bold text-[#1a2332]">
-                  Hygienic Pest Control
+                <span className="font-extrabold text-ink text-[15px] leading-tight">
+                  {siteConfig.name}
                 </span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-lg hover:bg-gray-100"
+                className="p-2 rounded-lg hover:bg-slate-100 text-slate-500"
+                aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-4 space-y-1">
+
+            <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-between px-4 py-3 rounded-xl text-[#1a2332] font-medium hover:bg-blue-50 hover:text-[#42A5F5] transition-colors"
+                  className={cn(
+                    "flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-colors",
+                    isActive(link.href)
+                      ? "bg-brand/10 text-brand"
+                      : "text-slate-700 hover:bg-slate-50 hover:text-brand"
+                  )}
                 >
                   {link.label}
                   <ChevronRight className="w-4 h-4 opacity-40" />
                 </Link>
               ))}
-            </div>
-            <div className="p-4 space-y-3 border-t">
+            </nav>
+
+            <div className="p-4 space-y-3 border-t border-slate-100">
               <a
-                href="tel:+917277234534"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-green-50 text-green-700 font-medium"
+                href={`tel:${siteConfig.telPrimary}`}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-green-bright/10 text-green-dark font-semibold"
               >
                 <Phone className="w-5 h-5" />
-                +91-7277234534
+                {siteConfig.phones[0]}
               </a>
               <Link href="/contact" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-xl h-12 shadow-lg">
+                <Button className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 text-base">
                   Book Free Inspection
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>

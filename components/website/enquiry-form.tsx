@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Send, CheckCircle, Loader2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2 } from "lucide-react";
 
 interface Service {
   id: string;
@@ -23,6 +23,10 @@ interface EnquiryFormProps {
   preselectedService?: string;
   compact?: boolean;
 }
+
+const fieldClass =
+  "h-11 rounded-xl border-slate-200 bg-white focus-visible:border-brand focus-visible:ring-brand/25";
+const labelClass = "block text-sm font-medium text-slate-700 mb-1.5";
 
 export function EnquiryForm({
   preselectedService,
@@ -80,7 +84,7 @@ export function EnquiryForm({
         serviceInterest: "",
         message: "",
       });
-      setTimeout(() => setSuccess(false), 5000);
+      setTimeout(() => setSuccess(false), 6000);
     } catch {
       setError("Something went wrong. Please try again or call us directly.");
     } finally {
@@ -91,14 +95,14 @@ export function EnquiryForm({
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center animate-fade-in-up">
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-          <CheckCircle className="w-8 h-8 text-green-600" />
+        <div className="w-16 h-16 rounded-full bg-green-bright/15 flex items-center justify-center mb-4">
+          <CheckCircle2 className="w-8 h-8 text-green-dark" />
         </div>
-        <h3 className="text-xl font-bold text-[#1a2332] mb-2">
+        <h3 className="text-xl font-bold text-ink mb-2">
           Thank You for Your Enquiry!
         </h3>
-        <p className="text-gray-500 max-w-sm">
-          We have received your request. Our team will contact you shortly.
+        <p className="text-slate-500 max-w-sm">
+          We&apos;ve received your request. Our team will contact you shortly.
         </p>
       </div>
     );
@@ -110,52 +114,50 @@ export function EnquiryForm({
         className={`grid gap-4 ${compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"}`}
       >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className={labelClass}>
             Name <span className="text-red-500">*</span>
           </label>
           <Input
             placeholder="Your full name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="h-11 rounded-xl border-gray-200 focus:border-[#42A5F5] focus:ring-[#42A5F5]"
+            className={fieldClass}
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className={labelClass}>
             Mobile <span className="text-red-500">*</span>
           </label>
           <Input
+            type="tel"
+            inputMode="tel"
             placeholder="Your mobile number"
             value={form.mobile}
             onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-            className="h-11 rounded-xl border-gray-200 focus:border-[#42A5F5] focus:ring-[#42A5F5]"
+            className={fieldClass}
             required
           />
         </div>
         {!compact && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email
-              </label>
+              <label className={labelClass}>Email</label>
               <Input
                 type="email"
                 placeholder="Your email (optional)"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="h-11 rounded-xl border-gray-200 focus:border-[#42A5F5] focus:ring-[#42A5F5]"
+                className={fieldClass}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Address
-              </label>
+              <label className={labelClass}>Address</label>
               <Input
                 placeholder="Your address (optional)"
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className="h-11 rounded-xl border-gray-200 focus:border-[#42A5F5] focus:ring-[#42A5F5]"
+                className={fieldClass}
               />
             </div>
           </>
@@ -163,14 +165,12 @@ export function EnquiryForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          Service Interest
-        </label>
+        <label className={labelClass}>Service Interest</label>
         <Select
           value={form.serviceInterest}
           onValueChange={(val) => setForm({ ...form, serviceInterest: val })}
         >
-          <SelectTrigger className="h-11 rounded-xl border-gray-200">
+          <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white w-full">
             <SelectValue placeholder="Select a service" />
           </SelectTrigger>
           <SelectContent>
@@ -188,20 +188,18 @@ export function EnquiryForm({
 
       {!compact && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Message
-          </label>
+          <label className={labelClass}>Message</label>
           <Textarea
             placeholder="Describe your pest problem..."
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
-            className="rounded-xl border-gray-200 focus:border-[#42A5F5] focus:ring-[#42A5F5] min-h-[100px]"
+            className="rounded-xl border-slate-200 bg-white focus-visible:border-brand focus-visible:ring-brand/25 min-h-[110px]"
           />
         </div>
       )}
 
       {error && (
-        <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-lg">
+        <p className="text-red-600 text-sm bg-red-50 border border-red-100 px-4 py-2.5 rounded-xl">
           {error}
         </p>
       )}
@@ -209,20 +207,25 @@ export function EnquiryForm({
       <Button
         type="submit"
         disabled={loading}
-        className="w-full h-12 bg-[#42A5F5] hover:bg-[#1E88E5] text-white rounded-xl text-base font-semibold shadow-lg shadow-blue-500/25 btn-press"
+        className="w-full h-12 bg-brand hover:bg-brand-dark text-white rounded-xl text-base font-semibold shadow-lg shadow-brand/25 btn-press"
       >
         {loading ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            <Loader2 className="w-5 h-5 animate-spin" />
             Submitting...
           </>
         ) : (
           <>
-            <Send className="w-5 h-5 mr-2" />
+            <Send className="w-5 h-5" />
             Submit Enquiry
           </>
         )}
       </Button>
+
+      <p className="text-center text-xs text-slate-400">
+        We respect your privacy. Your details are only used to contact you about
+        your enquiry.
+      </p>
     </form>
   );
 }

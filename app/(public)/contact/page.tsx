@@ -1,54 +1,27 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/website/enquiry-form";
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
+import { Reveal, Eyebrow } from "@/components/website/ui";
+import { siteConfig } from "@/lib/site-config";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  MessageCircle,
+  ArrowRight,
+} from "lucide-react";
 
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, visible };
-}
-
-function RevealDiv({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, visible } = useScrollReveal();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      } ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
+/* ---------- Contact info cards (built from siteConfig) ---------- */
+const tileTones: Record<string, string> = {
+  green: "bg-gradient-to-br from-green-bright/15 to-green-bright/5 text-green-dark",
+  blue: "bg-gradient-to-br from-brand/10 to-brand/5 text-brand",
+  amber: "bg-gradient-to-br from-amber-500/15 to-amber-500/5 text-amber-600",
+  violet: "bg-gradient-to-br from-violet-500/15 to-violet-500/5 text-violet-600",
+};
 
 function ContactFormSection() {
   const searchParams = useSearchParams();
@@ -60,108 +33,125 @@ function ContactFormSection() {
 export default function ContactPage() {
   const contactCards = [
     {
-      icon: <Phone className="w-6 h-6" />,
+      icon: Phone,
       title: "Phone",
-      lines: ["+91-7277234534", "+91-9523591904"],
-      action: { label: "Call Now", href: "tel:+917277234534" },
-      color: "from-[#7CB342] to-[#558B2F]",
-      bgColor: "bg-green-50",
+      tone: "green" as const,
+      items: siteConfig.phones.map((p) => ({
+        label: p,
+        href: `tel:${p.replace(/[^+\d]/g, "")}`,
+      })),
     },
     {
-      icon: <Mail className="w-6 h-6" />,
+      icon: Mail,
       title: "Email",
-      lines: ["hpcplranchi@gmail.com", "info@hpcpltd.in"],
-      action: { label: "Send Email", href: "mailto:hpcplranchi@gmail.com" },
-      color: "from-[#42A5F5] to-[#1E88E5]",
-      bgColor: "bg-blue-50",
+      tone: "blue" as const,
+      items: siteConfig.emails.map((e) => ({
+        label: e,
+        href: `mailto:${e}`,
+      })),
     },
     {
-      icon: <MapPin className="w-6 h-6" />,
+      icon: MapPin,
       title: "Location",
-      lines: ["Ranchi, Jharkhand", "India"],
-      action: null,
-      color: "from-[#FF7043] to-[#E64A19]",
-      bgColor: "bg-orange-50",
+      tone: "amber" as const,
+      items: [
+        { label: `${siteConfig.city}, ${siteConfig.region}`, href: undefined },
+        { label: "India", href: undefined },
+      ],
     },
     {
-      icon: <Clock className="w-6 h-6" />,
+      icon: Clock,
       title: "Working Hours",
-      lines: ["Mon - Sat: 9AM - 7PM", "Sunday: On Call"],
-      action: null,
-      color: "from-[#AB47BC] to-[#7B1FA2]",
-      bgColor: "bg-purple-50",
+      tone: "violet" as const,
+      items: siteConfig.hours.map((h) => ({
+        label: `${h.days}: ${h.time}`,
+        href: undefined,
+      })),
     },
   ];
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2332] via-[#1e3a5f] to-[#1a2332]" />
-        <div className="absolute top-1/3 right-0 w-80 h-80 rounded-full bg-[#42A5F5]/10 blur-[100px]" />
-        <div className="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-[#7CB342]/10 blur-[80px]" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Badge className="bg-[#42A5F5]/20 text-[#42A5F5] border-[#42A5F5]/30 mb-4 text-sm rounded-full">
-            <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
-            Get In Touch
-          </Badge>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 animate-fade-in">
+    <div className="overflow-x-clip">
+      {/* ==================== HERO ==================== */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-dot-grid opacity-60" />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-brand/10 blur-[120px]" />
+        <div className="absolute -bottom-10 -left-20 h-72 w-72 rounded-full bg-green-bright/10 blur-[110px]" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-slate-50" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-14 sm:pt-20 sm:pb-16 text-center">
+          <div className="animate-fade-in-up">
+            <Eyebrow icon={MessageCircle} tone="blue">
+              Get In Touch
+            </Eyebrow>
+          </div>
+          <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-ink text-balance animate-fade-in-up delay-100">
             Contact Us
           </h1>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto animate-fade-in-up">
-            Have a pest problem? Reach out to us for a free inspection and
-            expert advice. We are here to help!
+          <p className="mt-5 text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
+            Have a pest problem? Reach out for a free inspection and expert
+            advice from our team across {siteConfig.region}. We&apos;re here to
+            help!
           </p>
         </div>
       </section>
 
-      {/* Contact Cards */}
-      <section className="py-8 sm:py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 -mt-10 sm:-mt-16 relative z-10">
+      {/* ==================== CONTACT INFO CARDS ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {contactCards.map((card, i) => (
-              <RevealDiv key={card.title} delay={i * 100}>
-                <Card className="p-3 sm:p-5 border-0 shadow-lg rounded-xl sm:rounded-2xl bg-white text-center h-full">
+              <Reveal key={card.title} direction="up" delay={(i % 4) * 90}>
+                <div className="h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-center hover-lift">
                   <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white mx-auto mb-2 sm:mb-4 [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-6 sm:[&>svg]:h-6`}
+                    className={`mx-auto w-14 h-14 rounded-2xl grid place-items-center mb-5 ${
+                      tileTones[card.tone]
+                    }`}
                   >
-                    {card.icon}
+                    <card.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-bold text-[#1a2332] mb-2">
+                  <h3 className="text-lg font-bold text-ink mb-2">
                     {card.title}
                   </h3>
-                  {card.lines.map((line, li) => (
-                    <p key={li} className="text-gray-500 text-sm">
-                      {line}
-                    </p>
-                  ))}
-                  {card.action && (
-                    <a
-                      href={card.action.href}
-                      className="inline-block mt-3 text-sm font-semibold text-[#42A5F5] hover:underline"
-                    >
-                      {card.action.label}
-                    </a>
-                  )}
-                </Card>
-              </RevealDiv>
+                  <div className="space-y-1">
+                    {card.items.map((item) =>
+                      item.href ? (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          className="block text-sm text-slate-600 hover:text-brand transition-colors break-words"
+                        >
+                          {item.label}
+                        </a>
+                      ) : (
+                        <p
+                          key={item.label}
+                          className="text-sm text-slate-500 break-words"
+                        >
+                          {item.label}
+                        </p>
+                      )
+                    )}
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Form & Map */}
-      <section className="py-10 sm:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-10">
-            {/* Form */}
+      {/* ==================== FORM + MAP ==================== */}
+      <section className="py-16 sm:py-20 lg:py-24 bg-white border-t border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
+            {/* Enquiry form */}
             <div className="lg:col-span-3">
-              <RevealDiv>
-                <Card className="p-6 sm:p-8 border-0 shadow-lg rounded-2xl bg-white">
-                  <h2 className="text-2xl font-bold text-[#1a2332] mb-1">
+              <Reveal direction="up">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+                  <h2 className="text-2xl font-bold text-ink">
                     Send Us an Enquiry
                   </h2>
-                  <p className="text-gray-400 text-sm mb-6">
+                  <p className="mt-1 text-sm text-slate-400 mb-6">
                     Fill out the form below and our team will get back to you
                     within 24 hours.
                   </p>
@@ -176,38 +166,43 @@ export default function ContactPage() {
                   >
                     <ContactFormSection />
                   </Suspense>
-                </Card>
-              </RevealDiv>
+                </div>
+              </Reveal>
             </div>
 
-            {/* Map Placeholder */}
+            {/* Location map */}
             <div className="lg:col-span-2">
-              <RevealDiv delay={200}>
-                <Card className="border-0 shadow-lg rounded-2xl bg-white overflow-hidden h-full min-h-[400px] flex flex-col">
-                  <div className="p-5 border-b border-gray-100">
-                    <h3 className="font-bold text-[#1a2332] flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#42A5F5]" />
+              <Reveal direction="up" delay={120} className="h-full">
+                <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="p-5 border-b border-slate-100">
+                    <h3 className="flex items-center gap-2 text-lg font-bold text-ink">
+                      <MapPin className="w-5 h-5 text-brand" />
                       Our Location
                     </h3>
-                    <p className="text-sm text-gray-400">
-                      Ranchi, Jharkhand, India
+                    <p className="mt-1 text-sm text-slate-400">
+                      {siteConfig.address}
                     </p>
                   </div>
-                  <div className="flex-1 bg-gray-100 flex items-center justify-center p-8">
-                    <div className="text-center">
-                      <div className="w-16 h-16 rounded-full bg-[#42A5F5]/10 flex items-center justify-center mx-auto mb-4">
-                        <MapPin className="w-8 h-8 text-[#42A5F5]" />
-                      </div>
-                      <p className="text-gray-500 text-sm font-medium mb-1">
-                        Ranchi, Jharkhand
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Google Maps will be embedded here
-                      </p>
-                    </div>
+                  <div className="flex-1 min-h-[320px] bg-slate-100">
+                    <iframe
+                      src="https://www.google.com/maps?q=Ranchi%2C%20Jharkhand&output=embed"
+                      className="w-full h-full min-h-[320px] border-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Our location"
+                    />
                   </div>
-                </Card>
-              </RevealDiv>
+                  <div className="p-5 border-t border-slate-100">
+                    <a href={`tel:${siteConfig.telPrimary}`} className="block">
+                      <Button className="w-full h-12 rounded-full px-6 bg-brand hover:bg-brand-dark text-white shadow-lg shadow-brand/25 btn-press">
+                        <Phone className="w-5 h-5" />
+                        Call {siteConfig.phones[0]}
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </Reveal>
             </div>
           </div>
         </div>

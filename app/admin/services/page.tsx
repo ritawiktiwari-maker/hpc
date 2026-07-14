@@ -18,9 +18,11 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Plus, Pencil, Trash2, GripVertical, Globe, ExternalLink, Upload, X } from "lucide-react"
+import { Plus, Pencil, Trash2, GripVertical, Globe, ExternalLink, Upload, X, Link2, Crop as CropIcon } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+import { ImageCropper } from "@/components/admin/image-cropper"
+import { persistImage } from "@/lib/upload-client"
 
 interface Service {
   id: string
@@ -46,6 +48,10 @@ export default function AdminServicesPage() {
     name: "", slug: "", shortDesc: "", description: "", icon: "", image: "", features: "", isActive: true, sortOrder: 0
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [cropOpen, setCropOpen] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [urlInput, setUrlInput] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
   const fetchServices = useCallback(async () => {
     try {
@@ -79,19 +85,45 @@ export default function AdminServicesPage() {
     if (!file.type.startsWith("image/")) { toast.error("Please select an image"); return }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return }
     const reader = new FileReader()
-    reader.onload = () => setFormData(p => ({ ...p, image: reader.result as string }))
+    reader.onload = () => {
+      setCropSrc(reader.result as string)
+      setCropOpen(true)
+    }
     reader.readAsDataURL(file)
+    e.target.value = ""
+  }
+
+  const handleApplyUrl = () => {
+    const url = urlInput.trim()
+    if (!/^https?:\/\/.+/i.test(url)) { toast.error("Enter a valid image URL (https://...)"); return }
+    setUrlInput("")
+    setCropSrc(url)
+    setCropOpen(true)
+  }
+
+  const handleCropConfirm = (dataUrl: string) => {
+    setFormData(p => ({ ...p, image: dataUrl }))
+    setCropOpen(false)
+    setCropSrc(null)
+  }
+
+  const handleRecrop = () => {
+    if (!formData.image) return
+    setCropSrc(formData.image)
+    setCropOpen(true)
   }
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.shortDesc) {
       toast.error("Name and short description are required"); return
     }
+    setSubmitting(true)
+    const hostedImage = formData.image ? await persistImage(formData.image) : ""
     const payload = {
       ...formData,
       slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       features: formData.features.split("\n").map(f => f.trim()).filter(Boolean),
-      image: formData.image || null,
+      image: hostedImage || null,
     }
     try {
       const url = selected ? `/api/services/${selected.id}` : '/api/services'
@@ -104,7 +136,7 @@ export default function AdminServicesPage() {
       toast.success(selected ? "Service updated" : "Service created")
       setFormOpen(false)
       fetchServices()
-    } catch (e: any) { toast.error(e.message) }
+    } catch (e: any) { toast.error(e.message) } finally { setSubmitting(false) }
   }
 
   const handleDelete = async () => {
@@ -240,17 +272,37 @@ export default function AdminServicesPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">Click to upload (max 5MB)</p>
-                </div>
+                <>
+                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors"
+                    onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">Click to upload (max 5MB)</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Link2 className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        value={urlInput}
+                        onChange={e => setUrlInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleApplyUrl() } }}
+                        placeholder="or paste image URL (Unsplash…)"
+                        className="pl-8"
+                      />
+                    </div>
+                    <Button type="button" variant="secondary" onClick={handleApplyUrl}>Add</Button>
+                  </div>
+                </>
               )}
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
               {formData.image && (
-                <Button variant="outline" size="sm" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="h-3 w-3 mr-1" /> Replace
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="h-3 w-3 mr-1" /> Replace
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleRecrop}>
+                    <CropIcon className="h-3 w-3 mr-1" /> Crop
+                  </Button>
+                </div>
               )}
             </div>
             <div className="space-y-2">
@@ -264,10 +316,21 @@ export default function AdminServicesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{selected ? "Update" : "Create"} Service</Button>
+            <Button onClick={handleSubmit} disabled={submitting}>
+              {submitting ? "Saving…" : selected ? "Update Service" : "Create Service"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image cropper */}
+      <ImageCropper
+        open={cropOpen}
+        src={cropSrc}
+        defaultAspect="4:3"
+        onConfirm={handleCropConfirm}
+        onCancel={() => { setCropOpen(false); setCropSrc(null) }}
+      />
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
